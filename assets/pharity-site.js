@@ -1125,17 +1125,16 @@
      There are two supported destinations and the site works with either:
 
        1. AN EMAIL RELAY (what ships today). A third-party form endpoint that
-          forwards each submission to a real inbox. Used because the Pharity
-          app is deployed but IAM-PRIVATE — every path on it answers 403 to an
-          unauthenticated caller, so app.pharity.com cannot serve /api/leads
-          and cannot even be mapped to a hostname usefully. A lead posted
-          there today is lost.
+          forwards each submission to a real inbox. This is what ships while
+          the application's own public API is not yet reachable from the
+          browser, because a lead posted to an endpoint that cannot answer is
+          simply lost.
 
        2. THE APP: POST /api/leads. The right long-term home — it writes a
           Lead row, mints invite tokens and prefills the wizards. Switch back
-          the day the app answers unauthenticated, and NOT before: while it is
-          IAM-private the app returns 403 to every visitor, which this code
-          would correctly report as a failure, on every submission.
+          only once app.pharity.com answers an ordinary unauthenticated
+          request, and NOT before: until then every submission would be
+          correctly reported to the visitor as a failure.
 
      TO SWITCH BACK TO THE APP, change the LEAD_DESTINATION line below to:
          var LEAD_DESTINATION = window.PHARITY_LEAD_DESTINATION ||
@@ -1169,8 +1168,8 @@
 
   var PHARITY_API_BASE = window.PHARITY_API_BASE || 'https://app.pharity.com';
 
-  /* The app's lead endpoint. Not the live destination while the app is
-     IAM-private — kept named so switching back is the one-line edit above. */
+  /* The app's lead endpoint. Not the live destination yet — kept named here
+     so switching back stays the one-line edit documented above. */
   var PHARITY_APP_LEAD_ENDPOINT =
     String(PHARITY_API_BASE).replace(/\/+$/, '') + '/api/leads';
 

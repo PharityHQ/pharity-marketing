@@ -989,25 +989,13 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
   display: flex; flex-wrap: wrap; gap: 10px;
   align-items: center;
 }
-/* -- The trust strip: the client's own figure row -------------------------
-   Client direction, 2026-08-27: "Maybe we could use the one that we already
-   have built with Pharity, on the Pharity marketing page, the Claude design
-   one. Just fix some of the portions of what it displays. Show the boxes but
-   then have the box portion be white. When you hover over it, that gold
-   orange gradient... and then it embolds that portion, that's really clean."
+/* -- The trust strip: the approved figure row -----------------------------
+   This component is a RESTYLE of the existing .trust-strip, not a new
+   invention. Treat that as a constraint: alternative shapes for this row
+   have been proposed and turned down before, so redesigning it is a
+   conversation to have before writing CSS, not after.
 
-   This component is now a restyle of HIS original .trust-strip, not a new
-   invention. That matters, because this is the fourth shape it has taken and
-   the first three were all interpretations rather than his artifact:
-
-     1. flat divider strip     rejected: "I don't like the borders around it"
-     2. white pill bubbles     rejected: "I don't want them to be like the
-                               bubbles like that"
-     3. connected box row      rejected: "I really hate the boxes, they look
-                               terrible"
-     4. his original, restyled this file
-
-   The structure below is lifted from his file verbatim: a rounded strip, a
+   The structure below is lifted from the approved file: a rounded strip, a
    2-up / 4-up grid, a cell of padding 1.5rem 1rem holding a large serif
    FIGURE over a small letterspaced label, and one hairline between cells
    inset 25% from the top and bottom. The three things he named are all
@@ -3235,10 +3223,10 @@ tr.is-flash > td { animation: ph-flash 1500ms ease-out; }
 }
 .ph-q__go svg { width: .85em; height: .85em; }
 
-/* The phone mock was removed at the client's request ("get rid of the phone…
-   I think I just want a clean computer look"). Its ~50 lines of .ph-ph__*
-   rules were deleted with it rather than left to rot: nothing in any page
-   or script references that namespace. Do not reintroduce it. */
+/* The phone mock was removed by design decision; the approved direction for
+   this section is a clean desktop-only composition. Its ~50 lines of
+   .ph-ph__* rules were deleted with it rather than left to rot: nothing in
+   any page or script references that namespace. Do not reintroduce it. */
 
 /* ── The record sheet the pointer opens ───────────────────────────────────
    Built and driven by wirePointer(). It is the payoff of the script: the
@@ -3384,10 +3372,10 @@ tr.is-flash > td { animation: ph-flash 1500ms ease-out; }
 
 /* Stacked, the six were six outlined boxes: which inverts the doctrine the
    pinned desktop mode states, where only the ACTIVE step is drawn as a card
-   and the other five are borderless type. Six boxes in a column is also the
-   most literal reading of the client's "I don't like the borders around it".
-   Below the pin, the steps are separated by space and their own number and
-   icon; nothing is outlined. */
+   and the other five are borderless type. Outlining every step in a column
+   also runs against the approved direction for this site, which is away from
+   boxed rows. Below the pin, the steps are separated by space and their own
+   number and icon; nothing is outlined. */
 @media (max-width: 899px) {
   .ph-flow__i {
     padding: 0;
