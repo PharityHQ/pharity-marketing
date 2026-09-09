@@ -1176,7 +1176,7 @@
 
   /* ===================== THE ONE LINE ===================================== */
   var LEAD_DESTINATION = window.PHARITY_LEAD_DESTINATION ||
-    'https://formspree.io/f/PASTE_FORM_ID_HERE';
+    'https://formspree.io/f/xeaqpdll';
   /* ======================================================================== */
 
   /* The marker that says "nobody has configured this yet". Kept as its own
@@ -1280,6 +1280,31 @@
       out[el.name] = el.value;
     }
     out.sourcePath = location.pathname + location.search;
+
+    /* ── Make the email READABLE, not a field dump ────────────────────────
+       These three keys are Formspree conventions and are ignored by our own
+       /api/leads (it reads named fields, so unknown keys pass through
+       harmlessly). That matters: it means switching the destination back to
+       the app stays the one-line change it is documented to be, with no
+       second edit here.
+
+       _subject   the inbox line. Role and organisation first, because that
+                  is what decides who picks the lead up — a list of "New
+                  submission" rows cannot be triaged without opening each one.
+       _replyto   sets Reply-To so a reply goes to the applicant rather than
+                  to Formspree. `email` alone usually does this, but naming it
+                  explicitly means a future rename of the field cannot quietly
+                  break replying.
+       _gotcha    Formspree's own honeypot. Our field is `fax_number`, which
+                  our API checks; sending BOTH means each side's spam filter
+                  works. `fax_number` is deliberately still sent, not moved. */
+    var who = (out.companyName || out.fullName || 'Unknown').toString().trim();
+    var kind = (out.role || '').toString().trim();
+    var page = /request-access/i.test(location.pathname) ? 'Application' : 'Contact';
+    out._subject = page + (kind ? ' — ' + kind : '') + ' — ' + who;
+    if (out.email) out._replyto = out.email;
+    if (out.fax_number) out._gotcha = out.fax_number;
+
     return out;
   }
 
