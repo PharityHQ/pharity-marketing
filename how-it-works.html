@@ -16,7 +16,12 @@
      is a real visible link and not a "click here if you are not redirected"
      line hidden at 12px. -->
 <meta http-equiv="refresh" content="0; url=why-pharity.html">
-<link rel="canonical" href="why-pharity.html">
+<!-- Absolute, and deliberately pointing at the TARGET rather than at this URL:
+     this page is an alias, so consolidating it onto why-pharity.html is the
+     whole intent. Relative would still resolve, but every other canonical on
+     the site is absolute and a crawler that reaches this file through any
+     other base should land on the same place. -->
+<link rel="canonical" href="https://pharity.com/why-pharity.html">
 <!-- The canonical covers most of the risk, but a crawler that ignores the
      refresh could still index a near-empty page. noindex,follow: do not list
      this, do follow the link out to the page that replaced it. -->
