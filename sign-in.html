@@ -100,24 +100,53 @@
 
            PHARITY_APP_URL is the one place to change the destination; it
            mirrors PHARITY_API_BASE in assets/pharity-site.js.
+
+           WHAT SHIPS IN THE STATIC MARKUP IS THE NOT-OPEN-YET STATE. The app
+           host has no address record, so a button reading "Continue to sign
+           in" resolved to a DNS error: the visitor lost the page and got no
+           explanation. Anything reading this page without running JavaScript
+           saw a sign-in call to action pointing at a host that does not exist.
+           So the honest state is the default, and the handoff is what gets
+           switched on — not the other way round. Set PHARITY_APP_URL the day
+           the app answers and the script below restores the real button; that
+           is still the one-line change this comment has always promised.
            ══════════════════════════════════════════════════════════════ -->
       <div style="margin-top:26px">
         <a class="ph-btn ph-btn--gold ph-btn--lg" id="ph-signin-link"
-           href="https://app.pharity.com/login" style="width:100%;justify-content:center">
-          Continue to sign in
+           href="request-access.html" style="width:100%;justify-content:center">
+          <span id="ph-signin-label">Request access</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
         </a>
-        <p class="ph-form__note">
-          You will be taken to the Pharity app to enter your password. Not on
-          the network yet? <a class="ph-inline-link" href="request-access.html">Request access</a>.
+        <p class="ph-form__note" id="ph-signin-note">
+          Partner sign-in opens with the Pharity app. If you are already on the
+          network and need access now, email
+          <a class="ph-inline-link" href="mailto:hello@pharity.com">hello@pharity.com</a>
+          and a person will answer.
         </p>
       </div>
 
       <script>
         (function () {
+          /* Only rewrites to the app when a base is actually configured. With
+             none set the markup above stands as authored, which is the state
+             a no-JS visitor and any parser already receive. */
           var base = window.PHARITY_APP_URL || window.PHARITY_API_BASE;
+          if (!base) return;
           var a = document.getElementById('ph-signin-link');
-          if (base && a) a.href = String(base).replace(/\/+$/, '') + '/login';
+          var label = document.getElementById('ph-signin-label');
+          var note = document.getElementById('ph-signin-note');
+          if (!a) return;
+          a.href = String(base).replace(/\/+$/, '') + '/login';
+          if (label) label.textContent = 'Continue to sign in';
+          if (note) {
+            note.textContent = 'You will be taken to the Pharity app to enter your password. Not on the network yet? ';
+            var link = document.createElement('a');
+            link.className = 'ph-inline-link';
+            link.href = 'request-access.html';
+            link.textContent = 'Request access';
+            note.appendChild(link);
+            note.appendChild(document.createTextNode('.'));
+          }
         })();
       </script>
     </div>
@@ -173,7 +202,12 @@
     </div>
 
     <div class="ph-footer__base">
-      <span>© 2026 Pharity Health LLC. All rights reserved.</span>
+      <!-- Entity of record, published so a partner asked to sign a BAA can verify
+           the counterparty in seconds instead of opening a support ticket. Both
+           values are confirmed against the Texas Comptroller's live record. This
+           block is byte-identical on every page that carries it; if you edit it,
+           edit it everywhere in the same change. -->
+      <span>© 2026 Pharity Health LLC. All rights reserved. Pharity Health LLC is a Texas limited liability company, Texas Secretary of State file number 0806624082.</span>
       <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
     </div>
   </div>

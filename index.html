@@ -25,6 +25,22 @@
 <meta name="twitter:description" content="Pharity connects med spas and wellness clinics to licensed 503A compounding pharmacies: intake, e-prescribing, pharmacy routing, settlement, order tracking and an audit trail in one coordinated operating layer.">
 <meta name="twitter:image" content="https://pharity.com/assets/pharity-og.png">
 
+<!-- Entity facts here are the ones verified against the Texas Comptroller's
+     live record: legal name, formation date and SOS file number. They are
+     cheap for a partner to check and expensive to fake, which is the whole
+     reason they are published rather than left to a phone call.
+
+     NO `address` KEY. It previously carried addressRegion TX and nothing else
+     — a declared PostalAddress with no street, locality or postal code, which
+     reads as evasion rather than omission. There is no independent principal
+     place of business behind it: the only Texas address on file is the
+     registered agent's commercial suite, shared with tens of thousands of
+     entities, and publishing that as "our office" is a pattern reputation
+     vendors detect. Add the key back when a real address exists, not before.
+
+     NO `sameAs` KEY for the same reason: it takes verifiable third-party
+     profiles that do not exist yet. It is the highest-value thing left to add
+     here once they do. -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -35,7 +51,12 @@
   "logo": "https://pharity.com/assets/pharity-logo-horizontal.png",
   "description": "Pharity is a coordination layer connecting wellness clinics and med spas to licensed 503A compounding pharmacies: intake, e-prescribing, pharmacy routing, settlement and an audit trail.",
   "email": "hello@pharity.com",
-  "address": { "@type": "PostalAddress", "addressRegion": "TX", "addressCountry": "US" },
+  "foundingDate": "2026-05-28",
+  "identifier": {
+    "@type": "PropertyValue",
+    "name": "Texas Secretary of State file number",
+    "value": "0806624082"
+  },
   "contactPoint": {
     "@type": "ContactPoint",
     "contactType": "sales",
@@ -682,7 +703,13 @@ html:not(.js) .h-hero__copy { padding-bottom: 0; }
           <span class="ph-flow__n">02</span>
           <span class="ph-flow__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="13" height="12" rx="2.4"/><path d="m15.5 10.5 6-3.2v9.4l-6-3.2z"/></svg></span>
           <h3 class="ph-flow__t">Telehealth</h3>
-          <p class="ph-flow__d">An optional white-label prescriber layer, run under your brand.</p>
+          <!-- Two rails travel with this claim everywhere it appears, and both
+               were missing here while pricing.html carried them. The layer is
+               not open yet, so no page may read as "switch it on today"; and
+               "white-label" describes the patient-facing brand only, never the
+               clinical relationship, because a lay business cannot employ a
+               prescriber or direct clinical judgement in most states. -->
+          <p class="ph-flow__d">An optional white-label layer staffed by independent prescribers. Rolling out as provider partners are onboarded.</p>
         </li>
 
         <li class="ph-flow__i">
@@ -771,15 +798,24 @@ html:not(.js) .h-hero__copy { padding-bottom: 0; }
         <span class="h-door__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 1.9 4.9L19 9.8l-5.1 1.9L12 16.6l-1.9-4.9L5 9.8l5.1-1.9z"/><path d="M19 15.5 19.8 18l2.2.9-2.2.9-.8 2.5-.8-2.5-2.2-.9 2.2-.9z"/></svg></span>
         <p class="ph-eyebrow">For clinics and med spas</p>
         <h3 class="ph-h3 h-door__t">Launch or scale with one clean operator.</h3>
-        <!-- "Keep your own prescribers, or use ours" said Pharity supplies
-             prescribers: contradicted by this page's own footer four hundred
-             pixels below it, which states Pharity is not a prescriber or a
-             telehealth provider. The construction the other pages already use
-             is accurate: the telehealth path is optional and staffed by
-             independent licensed prescribers, not by Pharity. -->
+        <!-- Two constraints on this sentence, and they have bitten separately.
+
+             ONE: it may not say Pharity supplies prescribers. It once read
+             "keep your own prescribers, or use ours", which this page's own
+             footer contradicts four hundred pixels below — Pharity is not a
+             prescriber and not a telehealth provider. The path is optional and
+             staffed by independent licensed prescribers.
+
+             TWO: it may not be either/or. The exclusive "or" survived here
+             after for-clinics.html and pricing.html were repositioned to say
+             the two run together, so the home page spent that window
+             contradicting both. Do not restore an "or" that forecloses running
+             both, and do not phrase the pairing as something clinics already
+             do — the layer is still rolling out. -->
         <p class="h-door__d">
           Start at $0. Add telehealth and launch support as the practice is
-          ready. Keep your own prescribers, or add an optional telehealth path.
+          ready. Keep your own prescribers, add an optional telehealth path, or
+          run both.
         </p>
         <span class="ph-arrow">
           For clinics
@@ -1043,7 +1079,12 @@ html:not(.js) .h-hero__copy { padding-bottom: 0; }
     </div>
 
     <div class="ph-footer__base">
-      <span>© 2026 Pharity Health LLC. All rights reserved.</span>
+      <!-- Entity of record, published so a partner asked to sign a BAA can verify
+           the counterparty in seconds instead of opening a support ticket. Both
+           values are confirmed against the Texas Comptroller's live record. This
+           block is byte-identical on every page that carries it; if you edit it,
+           edit it everywhere in the same change. -->
+      <span>© 2026 Pharity Health LLC. All rights reserved. Pharity Health LLC is a Texas limited liability company, Texas Secretary of State file number 0806624082.</span>
       <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
     </div>
 

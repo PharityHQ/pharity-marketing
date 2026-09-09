@@ -310,8 +310,14 @@
         <div class="ph-trust--grid">
         <div class="ph-trust__item"><span class="ph-trust__fig">HIPAA</span><p class="ph-trust__label">Aligned platform</p></div>
         <div class="ph-trust__item"><span class="ph-trust__fig">503<span class="ph-trust__sub">A/B</span></span><p class="ph-trust__label">Licensed partner pharmacies</p></div>
-        <div class="ph-trust__item"><span class="ph-trust__fig">Telehealth</span><p class="ph-trust__label">Prescriber access</p></div>
         <div class="ph-trust__item"><span class="ph-trust__fig">Cash-pay</span><p class="ph-trust__label">Prescriber-directed</p></div>
+        <!-- This strip is the same four items on every page that carries it.
+             This page briefly swapped in a Telehealth item and dropped Audit,
+             which put the one thing that is not available yet into a trust slot
+             and displaced one that is true today. A proof strip may only carry
+             things already true. The telehealth layer is stated twice further
+             down this page, which is where an optional layer belongs. -->
+        <div class="ph-trust__item"><span class="ph-trust__fig">Audit</span><p class="ph-trust__label">Full trail on every order</p></div>
         </div>
       </div>
     </div>
@@ -504,7 +510,11 @@
         <li class="fc-flow__step" data-reveal>
           <p class="fc-flow__n">02</p>
           <p class="fc-flow__t">A prescriber signs</p>
-          <p class="fc-flow__b">Yours, or an optional white-label telehealth layer. Many clinics run both.</p>
+          <!-- "Many clinics run both" was an adoption claim, and it could not
+               be true: no provider partner is under contract, so the count of
+               clinics running this layer is zero. State the capability, never
+               a headcount. -->
+          <p class="fc-flow__b">Yours, or an optional white-label telehealth layer. The two can run together.</p>
         </li>
         <li class="fc-flow__step" data-reveal>
           <p class="fc-flow__n">03</p>
@@ -620,7 +630,12 @@
           <article class="ph-card" data-reveal>
             <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="13" height="12" rx="2.4"/><path d="m15.5 10.5 6-3.2v9.4l-6-3.2z"/></svg></span>
             <h3 class="ph-h4">Prescriber options</h3>
-            <p class="ph-body ph-body--sm">Your own prescribers, an optional white-label telehealth layer, or both.</p>
+            <!-- Availability and independence both belong wherever this layer
+                 is offered, not only on pricing.html. A prospect could read
+                 this page start to finish, hit two calls to action, and never
+                 learn the layer is not open; and "white-label" is the
+                 patient-facing brand only, never the clinical relationship. -->
+            <p class="ph-body ph-body--sm">Your own prescribers, an optional white-label telehealth layer, or both. Prescribers in that layer are independently licensed and not employed by your clinic, and it is rolling out as provider partners are onboarded.</p>
           </article>
           <article class="ph-card" data-reveal>
             <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15"/><path d="M14 10h4a2 2 0 0 1 2 2v9"/><path d="M2 21h20"/><path d="M7.5 8h3M7.5 12h3M7.5 16h3"/></svg></span>
@@ -717,7 +732,12 @@
     </div>
 
     <div class="ph-footer__base">
-      <span>© 2026 Pharity Health LLC. All rights reserved.</span>
+      <!-- Entity of record, published so a partner asked to sign a BAA can verify
+           the counterparty in seconds instead of opening a support ticket. Both
+           values are confirmed against the Texas Comptroller's live record. This
+           block is byte-identical on every page that carries it; if you edit it,
+           edit it everywhere in the same change. -->
+      <span>© 2026 Pharity Health LLC. All rights reserved. Pharity Health LLC is a Texas limited liability company, Texas Secretary of State file number 0806624082.</span>
       <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
     </div>
 
