@@ -7,6 +7,46 @@
 <meta name="description" content="Pharity connects med spas and wellness clinics to licensed 503A compounding pharmacies: intake, e-prescribing, pharmacy routing, settlement, order tracking and an audit trail in one coordinated operating layer.">
 <link rel="icon" href="assets/pharity-mark-gold.png">
 
+<!-- Canonical, social card and (on the home page) organization data.
+     og:image must be an ABSOLUTE url: crawlers fetch it without a base,
+     so a relative path silently yields a link preview with no image. -->
+<link rel="canonical" href="https://pharity.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Pharity">
+<meta property="og:url" content="https://pharity.com/">
+<meta property="og:title" content="Pharity: one clean layer between your clinic and the pharmacy">
+<meta property="og:description" content="Pharity connects med spas and wellness clinics to licensed 503A compounding pharmacies: intake, e-prescribing, pharmacy routing, settlement, order tracking and an audit trail in one coordinated operating layer.">
+<meta property="og:image" content="https://pharity.com/assets/pharity-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Pharity: the clean layer between your clinic and the pharmacy.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Pharity: one clean layer between your clinic and the pharmacy">
+<meta name="twitter:description" content="Pharity connects med spas and wellness clinics to licensed 503A compounding pharmacies: intake, e-prescribing, pharmacy routing, settlement, order tracking and an audit trail in one coordinated operating layer.">
+<meta name="twitter:image" content="https://pharity.com/assets/pharity-og.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Pharity",
+  "legalName": "Pharity Health LLC",
+  "url": "https://pharity.com/",
+  "logo": "https://pharity.com/assets/pharity-logo-horizontal.png",
+  "description": "Pharity is a coordination layer connecting wellness clinics and med spas to licensed 503A compounding pharmacies: intake, e-prescribing, pharmacy routing, settlement and an audit trail.",
+  "email": "hello@pharity.com",
+  "address": { "@type": "PostalAddress", "addressRegion": "TX", "addressCountry": "US" },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "sales",
+    "email": "hello@pharity.com",
+    "areaServed": "US",
+    "availableLanguage": "en"
+  }
+}
+</script>
+
+
 <!-- Gate the reveal state before first paint. Without this the page still
      renders fully visible: the hidden state is scoped to html.js. -->
 <script>document.documentElement.classList.add('js')</script>

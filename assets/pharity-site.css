@@ -491,6 +491,18 @@ main > .ph-band--warm:last-child { border-bottom: 0; }
 .ph-btn svg { width: 16px; height: 16px; flex: none; }
 .ph-btn--sm { height: 38px; padding-inline: 18px; font-size: .875rem; }
 
+/* --sm is used exactly once per page: the "Apply for access" CTA in the nav,
+   which is the site's primary conversion action on all twelve pages. At 38px
+   it sat 6px under the 44px minimum tap target that --lg below is explicitly
+   sized to clear - the rule was known, --sm just never had it applied.
+
+   Raised only on coarse pointers, so the bar keeps its proportions under a
+   mouse. It fits: --nav-h is 60px on mobile, leaving 8px a side, so the nav
+   does not grow and nothing below it shifts. */
+@media (pointer: coarse) {
+  .ph-btn--sm { height: 44px; padding-inline: 20px; }
+}
+
 /* --lg is the primary CTA everywhere: "Apply for access" and its partner sit
    at this size on all ten pages, and nothing on the site uses a bare .ph-btn,
    so this one rule is the whole of it and they cannot drift apart.
@@ -1681,6 +1693,20 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
   .ph-nav__burger { width: 40px; height: 40px; }
 }
 
+/* The block above shrinks the burger to 40px under 400px wide, which inverts
+   the thing it is trying to help: 390px is a standard iPhone, so the narrowest
+   screens - where a thumb has least room to be accurate - got the smallest menu
+   button, and it is the only way to reach navigation on mobile.
+
+   Restored to the 44px the rest of the site is sized against. Kept as a
+   coarse-pointer override AFTER the max-width block because media queries add
+   no specificity, so source order is what decides this. Measured at 320, 375,
+   390 and 430 after the change: still zero horizontal overflow, so the 4px it
+   takes back is space that was already there. */
+@media (pointer: coarse) {
+  .ph-nav__burger { width: 44px; height: 44px; }
+}
+
 
 /* ── 10. Footer ──────────────────────────────────────────────────────────── */
 
@@ -1776,6 +1802,26 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
 .ph-footer__list a:focus-visible::after { transform: scaleX(1); transform-origin: 0 50%; }
 @media (prefers-reduced-motion: reduce) {
   .ph-footer__list a::after { transition: none; }
+}
+
+/* The pitch above was widened to 44px so a real 44px target would fit, but the
+   target was never grown into it: the link is display:inline-block, so it is
+   only as tall as its line box - 24px of hit area with 20px of dead gap under
+   it. Measured at 375 it is 24px, which is what the comment above set out to
+   fix.
+
+   The padding absorbs the margin rather than adding to it: 24 + 10 + 10 = 44
+   with margin 0, against 24 + 20 = 44 before, so the pitch is unchanged and the
+   visible gap between two labels stays 20px. Nothing moves; the dead space
+   simply becomes part of the link.
+
+   ::after is the hover underline, positioned from the link's bottom edge. With
+   padding it has to come back up by that padding or it detaches from the text
+   and floats in the gap: -2px becomes 8px, the same 2px below the baseline. */
+@media (pointer: coarse) {
+  .ph-footer__list li + li { margin-top: 0; }
+  .ph-footer__list a { padding-block: 10px; }
+  .ph-footer__list a::after { bottom: 8px; }
 }
 
 .ph-footer__legal {
@@ -3963,6 +4009,25 @@ html.js .ph-flow[data-flow-ready] .ph-flow__foot { margin-top: var(--s4); }
 }
 @media (prefers-reduced-motion: reduce) {
   .ph-input, .ph-select, .ph-textarea { transition: none; }
+}
+
+/* iOS Safari zooms the viewport when a text control it is focusing renders
+   under 16px, and it does not zoom back out on blur. .9375rem is 15px, so
+   tapping the first field of the apply form magnified the page and left it
+   there: every later field is then off-screen and the only way back is a
+   pinch. Measured across all twelve pages at 320/375/390/430 there is zero
+   horizontal overflow before focus, which is what identifies the zoom rather
+   than the layout as the cause - the page is only too wide once Safari has
+   scaled it.
+
+   Scoped to coarse pointers so the design keeps 15px wherever a mouse is
+   driving, where the zoom cannot happen and the extra pixel would show.
+   Checkboxes are exempt: the zoom is triggered by text entry, and .ph-check
+   sizes a label, not an input. */
+@media (pointer: coarse) {
+  .ph-input,
+  .ph-select,
+  .ph-textarea { font-size: 1rem; }
 }
 
 /* Consent / choice rows. The control keeps its native box so it is obviously

@@ -1,0 +1,14 @@
+# Pharity marketing site.
+# The application runs on a separate host and is not linked from here.
+
+User-agent: *
+Allow: /
+
+# Deliberately NO Disallow rules. The two pages that should stay out of the
+# index — how-it-works.html (a meta-refresh alias) and sign-in.html (a utility
+# page) — each carry their own noindex. Disallow would block crawling, and a
+# crawler that cannot fetch a page cannot read the noindex on it, so the two
+# directives work against each other: the page stays indexed as a bare URL with
+# no description. Allow the crawl; let the tag decide.
+
+Sitemap: https://pharity.com/sitemap.xml
