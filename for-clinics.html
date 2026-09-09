@@ -9,22 +9,34 @@
 
 <!-- Canonical, social card and (on the home page) organization data.
      og:image must be an ABSOLUTE url: crawlers fetch it without a base,
-     so a relative path silently yields a link preview with no image. -->
+     so a relative path silently yields a link preview with no image.
+
+     og:description and twitter:description are the SAME SENTENCE as the meta
+     description above, and they are maintained by hand. Do not derive them by
+     copying from `content="` to the end of the line: this page (alone on the
+     site) closes its head tags XHTML-style with ` />`, so a line-wise copy
+     captures the trailing `" />` AND the next line, then escapes the lot into
+     the attribute. That shipped. The preview description read
+     `...in one workflow." /> <link rel="icon" href=...` in every Slack,
+     iMessage and LinkedIn unfurl of this page until 2026-09-09.
+
+     It is invisible to a source read, because the escaped text still LOOKS
+     like a well-formed tag; only decoding the entities shows the value.
+     §LEADS/K10 in scripts/usecase-tests.ts decodes and asserts, over every
+     page in the directory rather than a named list. -->
 <link rel="canonical" href="https://pharity.com/for-clinics.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Pharity">
 <meta property="og:url" content="https://pharity.com/for-clinics.html">
 <meta property="og:title" content="For clinics | Pharity">
-<meta property="og:description" content="Pharity is the coordination layer between your clinic and a licensed 503A compounding pharmacy: e-prescribing, licensure-aware routing, settlement at signature, and an exportable audit trail in one workflow.&quot; /&gt;
-&lt;link rel=&quot;icon&quot; href=&quot;assets/pharity-mark-gold.png">
+<meta property="og:description" content="Pharity is the coordination layer between your clinic and a licensed 503A compounding pharmacy: e-prescribing, licensure-aware routing, settlement at signature, and an exportable audit trail in one workflow.">
 <meta property="og:image" content="https://pharity.com/assets/pharity-og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Pharity: the clean layer between your clinic and the pharmacy.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="For clinics | Pharity">
-<meta name="twitter:description" content="Pharity is the coordination layer between your clinic and a licensed 503A compounding pharmacy: e-prescribing, licensure-aware routing, settlement at signature, and an exportable audit trail in one workflow.&quot; /&gt;
-&lt;link rel=&quot;icon&quot; href=&quot;assets/pharity-mark-gold.png">
+<meta name="twitter:description" content="Pharity is the coordination layer between your clinic and a licensed 503A compounding pharmacy: e-prescribing, licensure-aware routing, settlement at signature, and an exportable audit trail in one workflow.">
 <meta name="twitter:image" content="https://pharity.com/assets/pharity-og.png">
 
 
