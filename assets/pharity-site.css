@@ -3400,7 +3400,23 @@ tr.is-flash > td { animation: ph-flash 1500ms ease-out; }
 .ph-flow__rail,
 .ph-flow__count { display: none; }
 
-.ph-flow__viewport { margin-top: var(--s6); }
+/* The gutter is stated HERE, on the base, and that is load-bearing rather than
+   tidy: .ph-flow__viewport is a SIBLING of .ph-container, not a child of it.
+   The section deliberately closes its container before this element opens so
+   the pinned track can run off the right edge of the window, and nothing else
+   then inset it. The pinned rule further down supplies a padding of its own,
+   so the gutter existed ONLY while pinned -- and the pin requires min-width
+   900px AND min-height 700px, so every phone, iPad portrait, and any desktop
+   window shorter than 700px got no gutter at all.
+
+   Measured at 390px before this line: the eyebrow, h2 and lede sat at left=20
+   as designed, while all six .ph-flow__i, every .ph-flow__t and .ph-flow__d
+   and all six 40px icon tiles measured left=0, right=390 -- flush to both
+   screen edges, with the correctly-inset heading directly above them. That
+   contrast is what read as a broken section on a phone. It was also the only
+   gutter violation anywhere on the site; text on every other page respected
+   the inset at every width. */
+.ph-flow__viewport { margin-top: var(--s6); padding-inline: var(--gutter); }
 
 .ph-flow__track {
   display: grid;
@@ -3612,7 +3628,16 @@ html.js .ph-flow[data-flow-ready] .ph-flow__viewport {
      drift. It is safe to reuse in the mask below because this element's own
      border box and its containing block are the same width. */
   --flow-pad: max(var(--gutter), calc((100% - var(--container)) / 2 + var(--gutter)));
-  padding-inline-start: var(--flow-pad);
+  /* Both sides stated, and the END is explicitly zero. The base rule now sets
+     padding-inline for the stacked fallback, so a start-only override here
+     would leave that gutter in place on the end while pinned, and this mode
+     cannot carry one: measure() in pharity-site.js computes the travel as
+     vp.clientWidth - paddingInlineStart, and clientWidth INCLUDES trailing
+     padding, so a 24px end pad silently shortens maxX by 24px and parks the
+     last card that far short -- under the right-hand fade, dimming the one
+     card that has to be legible. The mask's right stop is measured from this
+     element's own box and likewise assumes nothing is inset on that side. */
+  padding-inline: var(--flow-pad) 0;
 
   /* Cards dissolve at both ends instead of being guillotined by the clip.
      The left stop is the padding itself, so the card sitting on the container
@@ -3782,14 +3807,24 @@ html.js .ph-flow[data-flow-ready] .ph-flow__foot { margin-top: var(--s4); }
    that, and a tap on the logo resolved to the invisible skip link instead.
    Caught by hit-testing, invisible to any code review. A control that is only
    on screen while focused can just be given real padding instead; see below. */
+/* .ph-check earns its place here for the same reason the burger did: it is a
+   REQUIRED control on the two conversion forms, and a one-line consent row
+   measures 300x21.7 at 390px -- full width, but half the minimum height. The
+   rows sit in a 20px column gap, and floored to 44 the box grows 11.15px a
+   side, so it keeps ~8.9px clear of the row above and cannot collide with it.
+   The pseudo is absolutely positioned, so it is out of flow and does NOT
+   become a grid item on this display:grid row -- the 18px/1fr columns are
+   untouched. */
 .ph-nav__burger,
 .ph-logo,
 .ph-arrow,
+.ph-check,
 .ph-btn { position: relative; }
 
 .ph-nav__burger::before,
 .ph-logo::before,
 .ph-arrow::before,
+.ph-check::before,
 .ph-btn::before {
   content: "";
   position: absolute;
@@ -3799,6 +3834,16 @@ html.js .ph-flow[data-flow-ready] .ph-flow__foot { margin-top: var(--s4); }
   height: max(100%, 44px);
   transform: translate(-50%, -50%);
 }
+
+/* The consent row is the one entry in that list with its own links inside it:
+   "I agree to the Terms and Privacy Policy." The expander above is positioned,
+   so it paints -- and therefore hit-tests -- above static inline children, and
+   on its own it would swallow every tap aimed at those two links. Raising them
+   into the same positioned layer puts them after it in tree order, so they win
+   their own taps while the rest of the row still toggles the checkbox. This is
+   exactly the failure the skip-link note above describes: legal to write,
+   invisible to review, and only catchable with a hit test. */
+.ph-check .ph-inline-link { position: relative; }
 
 /* Deliberately no z-index anywhere in this block. The pseudo is fully
    transparent, so paint order is invisible, and every click inside it belongs
@@ -3858,11 +3903,24 @@ html.js .ph-flow[data-flow-ready] .ph-flow__foot { margin-top: var(--s4); }
      there is no horizontal neighbour to collide with and the area can simply
      be floored at 44. */
   width: max(100%, 44px);
-  /* 46, not 44. The list items sit at fractional offsets (443.1px and friends),
-     so a box sized to exactly 44 hit-tests at 42-43 depending on where the
-     rounding falls. 46 puts the target safely over the line and still leaves
-     1.2px of clearance inside the 47.2px pitch, so no two areas ever touch. */
-  height: max(100%, 46px);
+  /* 44, not 46, since the coarse-pointer rule below gave these links
+     padding-block:10px and removed the li margin. Measured after that change:
+
+       fine  pointer  link 24px tall, pitch 47.2px  -> 46px box = 1.2px gap
+       coarse pointer link 44px tall, pitch 44.0px  -> 46px box = 2.0px OVERLAP
+
+     and an overlap is the one outcome this block set out to avoid: a tap that
+     lands in it resolves by paint order rather than by aim, which is worse
+     than a target that is merely small. 46 was correct for a 47.2px pitch and
+     became wrong when the pitch closed to 44.
+
+     max(100%, 44px) is right in BOTH modes rather than only the one being
+     looked at: coarse resolves to 44 in a 44 pitch (touching, never
+     overlapping), fine resolves to 44 in a 47.2 pitch, which is the ~3px of
+     clearance a side this comment always claimed. Hit-tested at 21px from
+     centre in both modes after the change, so the old fractional-rounding
+     worry does not bite at this size. */
+  height: max(100%, 44px);
   transform: translateY(-50%);
 }
 
