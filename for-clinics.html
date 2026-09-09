@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>For clinics | Pharity</title>
+<meta name="description" content="Pharity is the coordination layer between your clinic and a licensed 503A compounding pharmacy: e-prescribing, licensure-aware routing, settlement at signature, and an exportable audit trail in one workflow." />
+<link rel="icon" href="assets/pharity-mark-gold.png">
+
+<!-- Set synchronously so the reveal's hidden state only ever exists when JS is
+     running. With JS off the class never lands and every section renders. -->
+<script>document.documentElement.className+=" js";</script>
+
+<link rel="stylesheet" href="assets/pharity-site.css" />
+
+<style>
+/* ============================================================================
+   FOR CLINICS: page-scoped additions only.
+   Everything else comes from pharity-site.css. Two additions, both justified:
+   ========================================================================== */
+
+/* 1. GOLD-AS-TEXT is a different ramp from GOLD-AS-FILL.
+      --gold (#D4A84F) measures 2.21:1 on white. That fails even the 3:1
+      large-text floor, so the shell's .ph-gold is not safe for a headline on a
+      light band. This is the same hue pushed deeper: 3.92:1 on white, and it
+      matches the --gold-ink the home page already ships. Fill usage (buttons,
+      dots, icons, the CTA gradient) is untouched: this only recolors text.
+      On the navy band .ph-gold keeps --gold-soft, which is 11.7:1 there.
+      Both --gold-ink and --gold-ink-deep are shell tokens; neither is
+      restated here. */
+.ph-band--light .ph-gold,
+.ph-band--paper .ph-gold,
+.ph-band--warm  .ph-gold { color: var(--gold-ink); }
+
+/* 2. The prescription flow rail. Five steps read as one continuous movement,
+      so they are separated by hairlines rather than boxed into cards: a card
+      grid would say "five features", and this is one path. The gold dot sits
+      where each column rule meets the top rule, which is what turns a row of
+      columns into a path. Built from shell tokens; no new color, radius or
+      shadow is introduced. */
+.fc-flow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-top: 52px;
+  border-top: 1px solid var(--line);
+}
+.fc-flow__step {
+  position: relative;
+  padding: 26px 24px 4px 0;
+  border-left: 1px solid var(--line);
+  padding-left: 24px;
+}
+.fc-flow__step:first-child { border-left: 0; padding-left: 0; }
+.fc-flow__step::before {
+  content: "";
+  position: absolute; top: -3.5px; left: 0;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+/* 11px is small text, so it needs 4.5:1: --gold-ink measured 4.02:1 here and
+   failed. The deeper ramp clears it at 5.3:1. Measured, not assumed. */
+.fc-flow__n {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .08em;
+  color: var(--gold-ink-deep);
+}
+.fc-flow__t {
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  line-height: 1.25;
+  color: var(--navy);
+  margin-top: 12px;
+  letter-spacing: -.01em;
+}
+.fc-flow__b {
+  font-size: .875rem;
+  line-height: 1.6;
+  color: var(--ink-2);
+  margin-top: 8px;
+}
+
+/* Hover: the shell's signature, turned through 90 degrees.
+
+   Cards and spec rows grow their gold rule down the LEFT edge. This rail is
+   the one component where that is the wrong axis: a step is a column whose
+   structural line is the rule ALONG THE TOP, which is also where its gold dot
+   sits. So the rule grows ACROSS the top, left to right, which is the same
+   scaleX idiom the link wipe and the footer underlines use, and it reads as
+   the dot extending into a segment.
+
+   The axis choice is also what makes it survive the mobile reflow: below
+   1000px the rail restacks and the column rules become border-TOPs, so a
+   left-edge bar would have had nothing to sit on, while this one lands
+   exactly on the new rule. And it needs no special case for the first step,
+   which deliberately has no left border at all.
+
+   The step's box is untouched: the top rule belongs to .fc-flow, so nothing
+   here can widen or move a hairline. */
+.fc-flow__step { transition: background-color 170ms var(--ease); }
+.fc-flow__step::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: -1px;
+  height: 2px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 170ms var(--ease);
+  pointer-events: none;
+}
+.fc-flow__step:hover { background-color: var(--panel-a); }
+.fc-flow__step:hover::after { transform: scaleX(1); }
+.fc-flow__step .fc-flow__t,
+.fc-flow__step .fc-flow__b { transition: color 170ms var(--ease); }
+.fc-flow__step:hover .fc-flow__t { color: var(--navy-ink); }
+.fc-flow__step:hover .fc-flow__b { color: var(--ink); }
+@media (prefers-reduced-motion: reduce) {
+  .fc-flow__step::after { transition: none; }
+}
+@media (max-width: 1000px) {
+  .fc-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 0; }
+  .fc-flow__step {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding: 22px 0 18px;
+  }
+  .fc-flow__step:first-child { border-top: 1px solid var(--line); }
+  .fc-flow__step:nth-child(even) { padding-left: 24px; border-left: 1px solid var(--line); }
+}
+@media (max-width: 560px) {
+  .fc-flow { grid-template-columns: minmax(0, 1fr); }
+  .fc-flow__step:nth-child(even) { padding-left: 0; border-left: 0; }
+}
+
+/* Hero photograph. At desktop it drops its fixed ratio and simply fills the
+   column, so it ends level with the copy instead of floating in the middle of
+   a tall box with dead space above and below it. Below 1001px the 4:3 ratio
+   from the shell takes over again. object-position holds the treatment chair
+   on the left edge in frame: that is the detail that says "clinic". */
+@media (min-width: 1001px) {
+  .fc-hero__art { margin-left: 16px; display: flex; }
+  .fc-hero__art .ph-figure {
+    aspect-ratio: auto;
+    width: 100%;
+    height: 100%;
+    min-height: 430px;
+  }
+  /* The figure is stretched by the grid, so its height is not known to its own
+     children: a percentage height on the img has nothing to resolve against
+     and it falls back to intrinsic ratio, leaving the figure's warm background
+     showing below it. Pinning the img to the box fixes it. .ph-figure is
+     already position:relative in the shell. */
+  .fc-hero__art .ph-figure img { position: absolute; inset: 0; }
+}
+.fc-hero__art .ph-figure img { object-position: 42% 50%; }
+
+/* 3. The headline is two sentences, so the second one starts its own line.
+      Left inline, text-wrap:balance packed "prescription. Not" onto one line
+      and stranded "the paperwork." on the next, which reads as a typo rather
+      than as a turn. display:block is the fix rather than a <br> because the
+      first sentence still needs to wrap freely at narrow widths. */
+.fc-hero__h .ph-gold { display: block; }
+</style>
+</head>
+
+<body>
+
+<a class="ph-skip" href="#main">Skip to content</a>
+
+<!-- ═══════════════════════════ NAV ═══════════════════════════ -->
+<header class="ph-nav">
+  <div class="ph-container ph-nav__inner">
+    <a class="ph-logo" href="index.html" aria-label="Pharity home">
+      <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+           width="868" height="200" decoding="async">
+    </a>
+
+    <nav class="ph-nav__links" aria-label="Primary">
+      <a class="ph-nav__link" href="index.html">Home</a>
+      <a class="ph-nav__link" href="for-clinics.html" aria-current="page">For Clinics</a>
+      <a class="ph-nav__link" href="for-pharmacies.html">For Pharmacies</a>
+      <a class="ph-nav__link" href="why-pharity.html">Why Pharity</a>
+      <a class="ph-nav__link" href="pricing.html">Pricing</a>
+    </nav>
+
+    <div class="ph-nav__actions">
+      <a class="ph-nav__signin ph-wipe" href="sign-in.html">Sign in</a>
+      <a class="ph-btn ph-btn--gold ph-btn--sm" href="request-access.html">Apply for access</a>
+      <div class="ph-nav__mobile">
+        <details class="ph-nav__disclosure">
+          <summary class="ph-nav__burger" aria-label="Menu">
+            <svg class="ph-nav__bars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3.5 7h17M3.5 12h17M3.5 17h17"/></svg>
+            <svg class="ph-nav__x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </summary>
+          <div class="ph-nav__panel">
+            <a href="index.html">Home</a>
+            <a href="for-clinics.html" aria-current="page">For Clinics</a>
+            <a href="for-pharmacies.html">For Pharmacies</a>
+            <a href="why-pharity.html">Why Pharity</a>
+            <a href="pricing.html">Pricing</a>
+            <hr>
+            <a href="contact.html">Contact</a>
+            <a href="sign-in.html">Sign in</a>
+            <a href="request-access.html">Apply for access</a>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ═══════════════════════════ 1 · HERO ═══════════════════════════
+       The headline states what the product is organized around, not what it
+       does for a patient. Outcome claims cannot ship on this site. -->
+  <!-- No padding-bottom override. It used to carry clamp(72px,7vw,110px),
+       which measured 101.8px at 1440 and 73px at 390: the only seam on either
+       of these two pages under the site's 120/80 floor, and the one the client
+       flagged. --lg's own 128/88 clears it. -->
+  <section class="ph-section ph-band--paper">
+    <div class="ph-container">
+      <div class="ph-split ph-split--copy-lead">
+
+        <div>
+          <p class="ph-eyebrow" data-reveal>For clinics and med spas</p>
+
+          <!-- Two sentences: what it is built around, and what it is not. The
+               contrast line is deliberately short so the headline lands in
+               three lines rather than four. -->
+          <h1 class="ph-h1 fc-hero__h" data-reveal style="margin-top:18px;max-width:17ch">
+            Built around the prescription.
+            <span class="ph-gold">Not the paperwork.</span>
+          </h1>
+
+          <p class="ph-lede" data-reveal style="margin-top:22px;max-width:48ch">
+            The coordination layer between your clinic and a licensed 503A compounding
+            pharmacy. Prescribing, routing, settlement and audit in one workflow, not a
+            portal, a fax and a group chat.
+</p>
+
+          <div class="ph-btn-row" data-reveal style="margin-top:32px">
+            <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html">
+              Apply for access
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+            </a>
+            <a class="ph-btn ph-btn--ghost ph-btn--lg" href="why-pharity.html">Why Pharity</a>
+          </div>
+
+        </div>
+
+        <!-- The one photographic moment on this page. -->
+        <div class="fc-hero__art" data-reveal>
+          <figure class="ph-figure ph-figure--4x3" style="margin:0">
+            <img src="assets/provider-workspace.png" width="1672" height="941"
+                 alt="A clinic workstation: a laptop and tablet showing the Pharity queue, a clipboard, and prepared vials on a brass tray beside a treatment chair." />
+          </figure>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════ TRUST STRIP ═══════════════════════════
+       The approved framing, verbatim. These four sat in the hero as chips and
+       wrapped into three ragged rows, which unbalanced the whole opening: as
+       their own strip they get equal weight and the hero gets its column back.
+       Shares the hero's warm band; the items are filled, so they read as their
+       own object rather than as a second section. -->
+  <section class="ph-section ph-section--sm ph-band--paper ph-section--flush-top">
+    <div class="ph-container">
+      <div class="ph-trustrow" data-reveal>
+        <div class="ph-trust--grid">
+        <div class="ph-trust__item"><span class="ph-trust__fig">HIPAA</span><p class="ph-trust__label">Aligned platform</p></div>
+        <div class="ph-trust__item"><span class="ph-trust__fig">503<span class="ph-trust__sub">A/B</span></span><p class="ph-trust__label">Licensed partner pharmacies</p></div>
+        <div class="ph-trust__item"><span class="ph-trust__fig">Telehealth</span><p class="ph-trust__label">Prescriber access</p></div>
+        <div class="ph-trust__item"><span class="ph-trust__fig">Cash-pay</span><p class="ph-trust__label">Prescriber-directed</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════ 2 · TWO PATHS ═══════════════════════════
+       His draft ran the established story as a long section and the launch
+       story as the navy band. Same two doors, compressed into one orienting
+       choice up front: the established path then owns the body of the page,
+       the launch path is paid off by the band at the end. -->
+  <section class="ph-section ph-band--light">
+    <div class="ph-container">
+      <p class="ph-eyebrow" data-reveal>Two doors, one platform</p>
+      <h2 class="ph-h2" data-reveal style="margin-top:16px;max-width:18ch">
+        Start from where you already are.
+      </h2>
+      <p class="ph-lede" data-reveal style="margin-top:16px">
+        Same coordination layer, same audit trail. Two starting points.
+      </p>
+
+      <div class="ph-grid ph-grid--2 ph-lead-gap">
+
+        <a class="ph-card" href="#operating-layer" data-reveal>
+          <span class="ph-card__step">01</span>
+          <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15"/><path d="M14 10h4a2 2 0 0 1 2 2v9"/><path d="M2 21h20"/><path d="M7.5 8h3M7.5 12h3M7.5 16h3"/></svg></span>
+          <p class="ph-eyebrow">Established clinic</p>
+          <h3 class="ph-h3">You already run the practice.</h3>
+          <p class="ph-body ph-body--sm">
+            Keep your prescribers, your patients and your brand. Pharity replaces what
+            sits between you and the pharmacy.
+</p>
+          <span class="ph-arrow">See the operating layer <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg></span>
+        </a>
+
+        <a class="ph-card" href="#launch" data-reveal>
+          <span class="ph-card__step">02</span>
+          <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2.6 8.4 4.6v9.6L12 21.4 3.6 16.8V7.2z"/><path d="m3.6 7.2 8.4 4.6 8.4-4.6"/><path d="M12 11.8v9.6"/></svg></span>
+          <p class="ph-eyebrow">Starting from zero</p>
+          <h3 class="ph-h3">Pharity can be the launch team.</h3>
+          <p class="ph-body ph-body--sm">
+            Med spa, gym, wellness brand, or a solo NP opening a clinical program. Intake,
+            prescribers, pharmacy access and settlement stood up as one workflow, not six
+            vendors.
+</p>
+          <span class="ph-arrow">Start from zero <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg></span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════ 2b · PARTNERING BAND ═══════════════════════
+       The same component as the home page, in the same position relative to
+       the same pair of cards: directly under the two doors, ahead of the
+       commercial terms.
+
+       Both neighbours here are full 120px sections, so unlike the home page
+       this instance needs no clearance correction of its own. That is the
+       whole reason .ph-partner ships with zero vertical padding. -->
+  <section class="ph-section ph-partner ph-band--light">
+    <div class="ph-container">
+      <div class="ph-partner__inner">
+
+        <div class="ph-partner__copy">
+          <p class="ph-eyebrow" data-reveal>Partnering with Pharity</p>
+          <h2 class="ph-h3 ph-partner__t" data-reveal>
+            Every partner is reviewed before onboarding.
+          </h2>
+          <!-- This line and the actions beside it deliberately DIFFER from the
+               identical-looking band on the home page, and the reason is the
+               reader. Home is the two-doors page, where naming both routes is
+               the point. By this section a For Clinics reader has already
+               chosen their door, so the home copy ("Clinics and licensed 503A
+               compounding pharmacies apply through the same door") plus a
+               ghost "Apply as a pharmacy" was offering them a sideways exit
+               out of the page they picked, directly under the two cards that
+               just asked them to pick it. Pharmacies are not stranded: the
+               primary nav carries For Pharmacies on every page. -->
+          <p class="ph-body ph-body--sm ph-partner__d" data-reveal>
+            Clinics are reviewed, then matched with licensed 503A partner pharmacies.
+          </p>
+        </div>
+
+        <div class="ph-btn-row ph-partner__actions" data-reveal>
+          <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html">
+            Apply for access
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════ 3 · WHAT YOU GET ═══════════════════════════ -->
+  <section class="ph-section ph-band--paper" id="operating-layer">
+    <div class="ph-container">
+      <p class="ph-eyebrow" data-reveal>What you get</p>
+      <h2 class="ph-h2" data-reveal style="margin-top:16px;max-width:20ch">
+        The operating layer, <span class="ph-gold">part by part.</span>
+      </h2>
+      <p class="ph-lede" data-reveal style="margin-top:16px">
+        Six things every clinic runs anyway, kept on one record instead of six systems
+        that do not talk.
+      </p>
+
+      <div class="ph-grid ph-grid--3 ph-lead-gap">
+
+        <article class="ph-card" data-reveal>
+          <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1.2"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h4"/></svg></span>
+          <h3 class="ph-h4">E-prescribing</h3>
+          <p class="ph-body ph-body--sm">
+            Your prescriber writes into a structured record: patient, preparation and
+            strength captured up front. No PDF, no re-keying at the other end.
+          </p>
+        </article>
+
+        <article class="ph-card" data-reveal>
+          <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="2.6"/><circle cx="18" cy="18" r="2.6"/><path d="M8.6 6H14a4 4 0 0 1 0 8h-4a4 4 0 0 0 0 8h5.4" transform="translate(0 -4)"/></svg></span>
+          <h3 class="ph-h4">Pharmacy routing</h3>
+          <p class="ph-body ph-body--sm">
+            Routed only to a licensed 503A partner that holds the right state licensure
+            and carries the preparation.
+          </p>
+        </article>
+
+        <article class="ph-card" data-reveal>
+          <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.4"/><path d="M2.5 10h19"/></svg></span>
+          <h3 class="ph-h4">Settlement</h3>
+          <p class="ph-body ph-body--sm">
+            Your card on file is charged when the prescriber signs. The pharmacy is the
+            merchant of record; the Pharity fee is a separate line.
+          </p>
+        </article>
+
+        <article class="ph-card" data-reveal>
+          <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2.6 8.4 4.6v9.6L12 21.4 3.6 16.8V7.2z"/><path d="m3.6 7.2 8.4 4.6 8.4-4.6"/><path d="M12 11.8v9.6"/></svg></span>
+          <h3 class="ph-h4">Order tracking</h3>
+          <p class="ph-body ph-body--sm">
+            One queue for every order: drafted, awaiting signature, filling, in transit,
+            delivered. Nobody chases status by email.
+          </p>
+        </article>
+
+        <article class="ph-card" data-reveal>
+          <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8 20 6v6c0 5-3.4 8.1-8 9.2C7.4 20.1 4 17 4 12V6z"/><path d="m8.8 12.2 2.3 2.3 4.1-4.3"/></svg></span>
+          <h3 class="ph-h4">Exclusion &amp; license screening</h3>
+          <p class="ph-body ph-body--sm">
+            Every prescriber is screened against federal exclusion lists and license
+            status at onboarding, then again on a schedule.
+          </p>
+        </article>
+
+        <article class="ph-card" data-reveal>
+          <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
+          <h3 class="ph-h4">Audit trail</h3>
+          <p class="ph-body ph-body--sm">
+            Every state transition is timestamped and attributable to a person, and the
+            whole trail exports.
+          </p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════ 4 · HOW A PRESCRIPTION MOVES ═══════════════════════════
+       A short static summary. The full treatment lives on Why Pharity. -->
+  <section class="ph-section ph-band--light">
+    <div class="ph-container">
+      <p class="ph-eyebrow" data-reveal>How a prescription moves</p>
+      <h2 class="ph-h2" data-reveal style="margin-top:16px;max-width:20ch">
+        From intake to delivery, <span class="ph-gold">on one record.</span>
+      </h2>
+      <p class="ph-lede" data-reveal style="margin-top:16px">
+        Nothing routes until a licensed prescriber signs. Every step after that writes
+        to the same record.
+      </p>
+
+      <ol class="fc-flow" style="list-style:none;padding:0">
+        <li class="fc-flow__step" data-reveal>
+          <p class="fc-flow__n">01</p>
+          <p class="fc-flow__t">Intake</p>
+          <p class="fc-flow__b">Patient form, ID and consent land on the clinical record.</p>
+        </li>
+        <li class="fc-flow__step" data-reveal>
+          <p class="fc-flow__n">02</p>
+          <p class="fc-flow__t">A prescriber signs</p>
+          <p class="fc-flow__b">Yours, or an optional telehealth path if you have none on staff.</p>
+        </li>
+        <li class="fc-flow__step" data-reveal>
+          <p class="fc-flow__n">03</p>
+          <p class="fc-flow__t">The card is charged</p>
+          <p class="fc-flow__b">Charged at signature. The Pharity fee is its own line.</p>
+        </li>
+        <li class="fc-flow__step" data-reveal>
+          <p class="fc-flow__n">04</p>
+          <p class="fc-flow__t">The pharmacy fills</p>
+          <p class="fc-flow__b">A licensed 503A partner in that state compounds and dispenses it.</p>
+        </li>
+        <li class="fc-flow__step" data-reveal>
+          <p class="fc-flow__n">05</p>
+          <p class="fc-flow__t">Tracked to the patient</p>
+          <p class="fc-flow__b">Tracking posts back to the same order. Status is never a phone call.</p>
+        </li>
+      </ol>
+
+      <div data-reveal style="margin-top:36px">
+        <a class="ph-arrow" href="why-pharity.html">Why Pharity <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════ 5 · COMMERCIAL TERMS ═══════════════════════════
+       Commercial terms, not health claims: these are allowed and wanted.
+       No percentage and no per-Rx figure appears anywhere on this page. -->
+  <section class="ph-section ph-band--warm">
+    <div class="ph-container">
+      <p class="ph-eyebrow" data-reveal>Commercial terms</p>
+      <h2 class="ph-h2" data-reveal style="margin-top:16px;max-width:20ch">
+        Free to connect. <span class="ph-gold">Clinics start at $0.</span>
+      </h2>
+      <p class="ph-lede" data-reveal style="margin-top:16px">
+        Add layers as you need them. Nothing is bundled in that you have not asked for.
+      </p>
+
+      <div class="ph-grid ph-grid--3 ph-lead-gap">
+
+        <article class="ph-card ph-card--flat" data-reveal>
+          <h3 class="ph-h4">Free to connect</h3>
+          <p class="ph-body ph-body--sm">
+            No platform fee to join the network, connect your prescribers or route your
+            first prescription.
+          </p>
+        </article>
+
+        <article class="ph-card ph-card--flat" data-reveal>
+          <h3 class="ph-h4">Add layers as you need them</h3>
+          <p class="ph-body ph-body--sm">
+            Start with e-prescribing and routing. Bring in the rest when it earns its
+            place.
+          </p>
+        </article>
+
+        <article class="ph-card ph-card--flat" data-reveal>
+          <h3 class="ph-h4">Itemized, never bundled</h3>
+          <p class="ph-body ph-body--sm">
+            What the pharmacy charges and what Pharity charges are separate lines.
+          </p>
+        </article>
+
+      </div>
+
+      <div data-reveal style="margin-top:32px">
+        <a class="ph-arrow" href="pricing.html">See pricing <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════ 6 · NAVY PHOTO BAND ═══════════════════════════
+       The one dark band on this page: a photograph under a blue faded gradient.
+       It pays off card 02 above. Standard ph-section padding, not --lg, to keep
+       the dark share of the page down. -->
+  <section class="ph-section ph-band--navy" id="launch" style="--band-pos:50% 46%">
+    <img class="ph-band__img" src="assets/launch-workspace.png" alt="" aria-hidden="true" />
+    <div class="ph-container">
+      <div class="ph-split ph-split--copy-lead">
+
+        <div>
+          <p class="ph-eyebrow" data-reveal>Starting from zero</p>
+          <h2 class="ph-h2" data-reveal style="margin-top:16px;color:#fff;max-width:18ch">
+            Pharity can be the <span class="ph-gold">launch team.</span>
+          </h2>
+          <p class="ph-lede" data-reveal style="margin-top:20px;max-width:46ch">
+            We stand up the pieces a clinical program needs, in the order it needs them.
+          </p>
+          <p class="ph-body ph-body--sm" data-reveal style="margin-top:18px;max-width:46ch;color:var(--ink-on-dark-3)">
+            Launch builds are scoped on a call, so we quote after the conversation.
+          </p>
+          <!-- Two intents, split the same way the pharmacy page splits them.
+               The primary carries ?role=launch so the application opens on the
+               starting-from-zero questions rather than asking a practice that
+               does not exist yet for its state and prescriber count. The
+               secondary is for someone who wants to ask before applying. -->
+          <div class="ph-btn-row" data-reveal style="margin-top:28px">
+            <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html?role=launch">
+              Start from zero
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+            </a>
+            <a class="ph-btn ph-btn--on-dark ph-btn--lg" href="contact.html">Talk to the launch team</a>
+          </div>
+        </div>
+
+        <div class="ph-grid ph-grid--2">
+          <article class="ph-card" data-reveal>
+            <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1.6a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20"/><circle cx="9" cy="7" r="3.2"/><path d="M22 20v-1.6a4 4 0 0 0-3-3.9"/><path d="M16.5 3.9a4 4 0 0 1 0 7.2"/></svg></span>
+            <h3 class="ph-h4">Branded intake</h3>
+            <p class="ph-body ph-body--sm">Intake and consent on your brand, landing on the clinical record.</p>
+          </article>
+          <article class="ph-card" data-reveal>
+            <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="13" height="12" rx="2.4"/><path d="m15.5 10.5 6-3.2v9.4l-6-3.2z"/></svg></span>
+            <h3 class="ph-h4">Prescriber options</h3>
+            <p class="ph-body ph-body--sm">Your own prescriber, or an optional telehealth path if you have none.</p>
+          </article>
+          <article class="ph-card" data-reveal>
+            <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15"/><path d="M14 10h4a2 2 0 0 1 2 2v9"/><path d="M2 21h20"/><path d="M7.5 8h3M7.5 12h3M7.5 16h3"/></svg></span>
+            <h3 class="ph-h4">Pharmacy access</h3>
+            <p class="ph-body ph-body--sm">Licensed 503A partners matched to your state and your catalog.</p>
+          </article>
+          <article class="ph-card" data-reveal>
+            <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.4"/><path d="M2.5 10h19"/></svg></span>
+            <h3 class="ph-h4">Settlement set up</h3>
+            <p class="ph-body ph-body--sm">Card on file, itemized fee and merchant of record, set before your first order.</p>
+          </article>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════ 7 · CLOSING CTA ═══════════════════════════ -->
+  <section class="ph-section ph-band--light">
+    <div class="ph-container ph-container--tight ph-cta-close" style="text-align:center">
+      <span class="ph-cta-rule" data-reveal aria-hidden="true"></span>
+      <p class="ph-eyebrow" data-reveal>Next step</p>
+      <h2 class="ph-h2" data-reveal style="margin-top:16px">
+        Apply once. <span class="ph-gold">Connect to the network.</span>
+      </h2>
+      <p class="ph-lede" data-reveal style="margin-top:18px;margin-inline:auto;max-width:48ch">
+        Tell us about your clinic. We verify credentials and licensure before anything
+        routes.
+      </p>
+      <div class="ph-btn-row" data-reveal style="margin-top:32px;justify-content:center">
+        <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html">
+          Apply for access
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+        </a>
+        <a class="ph-btn ph-btn--ghost ph-btn--lg" href="why-pharity.html">Why Pharity</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+<footer class="ph-footer">
+  <div class="ph-container">
+
+    <div class="ph-footer__top">
+      <div>
+        <a class="ph-logo" href="index.html" aria-label="Pharity home">
+          <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+               width="868" height="200" decoding="async">
+        </a>
+        <p class="ph-footer__blurb">
+          One coordinated layer between wellness clinics and licensed 503A compounding
+          pharmacies.
+        </p>
+        <p class="ph-footer__blurb ph-footer__contact">
+          <a href="mailto:hello@pharity.com">hello@pharity.com</a>
+        </p>
+      </div>
+
+      <div>
+        <p class="ph-footer__h">Platform</p>
+        <ul class="ph-footer__list" style="list-style:none;margin:0;padding:0">
+          <li><a href="for-clinics.html" aria-current="page">For Clinics</a></li>
+          <li><a href="for-pharmacies.html">For Pharmacies</a></li>
+          <li><a href="why-pharity.html">Why Pharity</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="ph-footer__h">Company</p>
+        <ul class="ph-footer__list" style="list-style:none;margin:0;padding:0">
+          <li><a href="request-access.html">Apply for access</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="sign-in.html">Sign in</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="ph-footer__h">Legal</p>
+        <ul class="ph-footer__list" style="list-style:none;margin:0;padding:0">
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ph-footer__legal">
+      <p class="ph-disclosure"><strong>Cash-pay only.</strong> Pharity does not bill or accept insurance, Medicare, Medicaid, or Tricare.</p>
+      <p class="ph-disclosure"><strong>Prescriber-directed.</strong> Pharity does not prescribe, dispense, or practice medicine, and does not provide medical advice. All prescriptions are written by independently licensed prescribers who retain clinical responsibility. All medications are compounded and dispensed by independently licensed 503A pharmacies, which act as the merchant of record. Telehealth access is optional and available to clinics without a prescriber on staff.</p>
+    </div>
+
+    <div class="ph-footer__base">
+      <span>© 2026 Pharity Health LLC. All rights reserved.</span>
+      <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+    </div>
+
+  </div>
+</footer>
+
+<script src="assets/pharity-site.js"></script>
+</body>
+</html>

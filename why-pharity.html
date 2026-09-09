@@ -1,0 +1,1540 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why Pharity | Pharity</title>
+<meta name="description" content="One coordinated layer between a clinic and a licensed 503A compounding pharmacy. Follow a single prescription through draft, signature, routing, settlement and delivery, with the record written as it happens.">
+<link rel="icon" href="assets/pharity-mark-gold.png">
+<script>document.documentElement.classList.add('js')</script>
+<link rel="stylesheet" href="assets/pharity-site.css">
+
+<style>
+/* ============================================================================
+   WHY PHARITY: page-local only.
+   (Page was called "How it works" until 2026-08-27. The .hiw- class prefix is
+   kept as-is: renaming it would touch every rule and every node for no visible
+   gain, and the JS that builds the stepper keys off those names.)
+
+   Everything structural comes from pharity-site.css. This block adds:
+     • the record card (.rx): one prescription, fields mutate, and the audit
+       footer that says what THIS state wrote
+     • the static stage stack (.hiw-block): the truth, and the mobile layout
+     • the stage rail (.hiw-rail): built by JS on wide screens
+     • the exhibit column (.hiw-exhibit) the record sits in
+     • the closing action (.hiw-close)
+     • two extra .ph-st tones the shell doesn't ship (routed, charged)
+
+   Load-bearing: the static stack is real HTML. The rail is built FROM it. With
+   JS off or under 820px the stack is what you read, and the rail is never
+   built.
+
+   ── LAYOUT NOTE, and this is the change that mattered most ──
+   The pane used to be two columns: a 330px caption column beside the record.
+   Measured at 1440, the caption column ran out of content 246px above the
+   bottom of the card, so every stage carried a quarter-thousand pixels of
+   empty white with a hairline hanging over it. The audit list ("written at
+   this stage") has moved INTO the record, where it belongs (it is what the
+   record wrote), and the pane is now one centred column: lead, then record.
+   A single column cannot strand a void, and the record gets the full width.
+   ========================================================================== */
+
+/* ── One width for the whole instrument ─────────────────────────────────────
+   The rail, the stage sentence, the record and the closing action all share a
+   single left and right edge. It was already true of three of them at 1000px
+   and it is the reason the section reads as one object rather than as a stack
+   of unrelated blocks, so it is worth a token instead of the number repeated
+   in four places where one of them can drift.
+
+   820 rather than 1000, now that the field values sit in a label column
+   instead of being flung to the right wall: at 1000 each of the two field
+   columns was 470px wide to hold, at most, a 215px value. The card was as wide
+   as a table and as sparse as a form.
+
+   820 is not a taste call, it is the measured floor. Stepping the width down
+   and watching for the first value to wrap: 1000, 940, 900, 860 and 820 all
+   hold every field on one line; at 780 "Methylcobalamin 1 mg/mL · 30 mL"
+   breaks. So 820 is the narrowest the record can be without the compound
+   folding, and it puts the card at 820x626, which is 1.31:1, near enough to
+   landscape letter that it reads as a document rather than as a table. */
+.hiw { --hiw-w: 820px; }
+
+/* ── Status tones the shell doesn't carry ────────────────────────────────── */
+/* Routed was first given the shell's "transit" blue, which made two stages
+   wear an identical badge: different states, one color, on a page whose whole
+   argument is that each state is distinct. Routed is navy (the platform
+   acting) and transit keeps the blue (the parcel moving). */
+.ph-st[data-t="routed"]  { background: rgb(8 36 74 / .09);     color: #2C4468; }
+.ph-st[data-t="charged"] { background: rgb(139 103 40 / .14);  color: #7A5A21; }
+
+/* ── The prescription record ─────────────────────────────────────────────── */
+
+/* Borderless, on purpose. A ruled rectangle sitting ON TOP of a white card
+   reads as a frame around the content rather than as the edge of an object.
+   Same vocabulary as the hero's floating pane: no border, an opaque warm-white
+   material, a 1px inner highlight, and a two-stop shadow (a tight contact term
+   so it sits on the page, a wide diffuse term so it lifts off it).
+
+   The shell's no-shadow contract exempts "the hardware render and the product
+   mock inside it". This card is that product mock, drawn at full size.
+
+   The gold rule across the top edge is what turns it from a card into a
+   document. It is the one place on a light surface where raw --gold is
+   allowed, because it is a fill and carries no text. */
+.rx {
+  position: relative;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FEFCF7 100%);
+  border: 0;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / .9),
+    0 1px 2px rgb(8 36 74 / .05),
+    0 8px 18px -14px rgb(8 36 74 / .26),
+    0 26px 48px -34px rgb(8 36 74 / .30);
+}
+.rx::before {
+  content: "";
+  position: absolute; inset: 0 0 auto; height: 3px;
+  background: linear-gradient(90deg,
+    var(--gold) 0%, rgb(212 168 79 / .78) 46%, rgb(241 223 179 / .5) 100%);
+}
+
+.rx__head {
+  display: flex; align-items: center; gap: 16px;
+  padding: 22px 28px 18px;
+  /* Internal hairlines are structure and stay: it was the OUTER ring that
+     blocked the card. This one is halved so the head reads as the top of one
+     object rather than as a stacked second box. */
+  border-bottom: 1px solid rgb(8 36 74 / .05);
+  background: linear-gradient(180deg, #FFFDF7, #FFFFFF);
+}
+.rx__k {
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: .15em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+/* The masthead of the document, and it has to carry like one. At 1.125rem on
+   an 820px card the id sat at the same weight as a field value and the head
+   read as one more row rather than as the top of a record. A step up in size
+   and weight is what makes the card open with an identity: this is RX-DEMO-4417
+   and every stage is amending THAT, not showing a new card each time. */
+.rx__id {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.3125rem; font-weight: 550;
+  letter-spacing: -.025em;
+  color: var(--navy);
+  margin-top: 5px;
+}
+/* The status badge is the record's headline fact: it is the single word that
+   says which of the five states this is. At the shell's default weight it read
+   as plain text sitting in the corner (the draft tone is #F0EDE6, which is
+   four points off white), so on the one surface where the state IS the point
+   it gets a little more presence: a size up, a heavier label, and a filled dot
+   in the tone's own ink. currentColor means each of the six states dots itself
+   correctly with no per-tone rule. Scoped to .rx__head so the same chip inside
+   the home page's app mock is untouched. */
+.rx__head .ph-st {
+  margin-left: auto; flex: none;
+  gap: .5em;
+  font-size: .8125rem; font-weight: 650;
+  padding: .42em .9em;
+}
+.rx__head .ph-st::before {
+  content: "";
+  width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+/* Field rows: column-major so eight rows read as two tidy columns. */
+.rx__rows {
+  display: grid;
+  grid-template-rows: repeat(4, auto);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  column-gap: 48px;
+  padding: 8px 28px 16px;
+}
+/* ── Label column, value flush against it. ───────────────────────────────────
+   This is the change that stops the record reading as a spreadsheet.
+
+   It used to be flex with space-between: label hard left, value hard right,
+   across a half-card row. Measured at 1440 that put 560px of nothing between
+   "PATIENT" and "E.N." on eight rows out of eight, and a row that is mostly
+   gap reads as a table cell rather than as a field. Right-alignment was
+   originally chosen to kill a "pool of dead space in the middle", but the
+   pool was never caused by the alignment, it was caused by the ROW being
+   wider than anything in it: pushing the value to the far wall just moved the
+   same void into the middle and added a ragged left edge to the values.
+
+   A fixed label column with the value starting immediately after it is how a
+   dispensing record actually reads, and it is what lets the eye run down one
+   value edge instead of scanning across. 104px is measured against the
+   longest label on the card ("PRESCRIBER" at 11px/650/.09em) with room to
+   spare, so no label ever wraps and every value starts on the same x.
+   Whatever slack is left now sits at the END of the row, which is the one
+   place empty space costs nothing. */
+.rx__row {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 18px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line-soft);
+  min-width: 0;
+}
+/* The bottom row of each column drew a hairline, and then the settlement panel
+   arrived a few pixels later with its own tone edge: two boundaries where the
+   eye only needs one. Column-major means the bottom rows are the 4th and 8th. */
+.rx__row:nth-child(4n) { border-bottom: 0; }
+.rx__row dt {
+  font-size: 11px; font-weight: 650;
+  letter-spacing: .09em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.rx__row dd {
+  margin: 0; min-width: 0;
+  font-size: .875rem; line-height: 1.4;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.rx__row dd .ph-num { font-size: .84rem; }
+/* A value that means "not known yet" is still information, so it has to clear
+   AA like any other value. The lighter grey this started as measured 2.5:1. */
+.rx__row[data-state="pending"] dd { color: var(--ink-3); }
+/* The field this stage writes, ticked in gold: "here is what changed". */
+.rx__row[data-state="new"] dd { font-weight: 600; }
+.rx__row[data-state="new"]::before,
+.rx__line[data-state="new"]::before {
+  content: "";
+  position: absolute;
+  left: -13px; top: 8px; bottom: 8px;
+  width: 2px; border-radius: 2px;
+  background: var(--gold);
+}
+.rx__row[data-state="new"], .rx__line[data-state="new"] { position: relative; }
+.rx__line[data-state="new"] > span:last-child { color: var(--ink); font-weight: 600; }
+
+/* ── The write, animated ─────────────────────────────────────────────────────
+   The single thing that was missing from "one record that mutates". Every
+   stage already MARKS its new fields in gold, but the whole pane cross-faded
+   as one block, so switching stages read as five different cards being swapped
+   rather than as one record being written to. You could not see WHAT changed
+   without reading all eight rows again.
+
+   So the marked fields land last and land on their own: the gold tick wipes
+   down its own height and the row carries a warm flash that settles to
+   nothing. It is the same easing and the same 420ms as every other entrance
+   on the site, offset behind the pane's own fade so the card is already there
+   when the writing happens.
+
+   Scoped to `.hiw-pane.is-on`, which does three things at once:
+     • the static stack (mobile, and JavaScript off) never runs it, and its
+       ticks are simply present, which is correct: nothing is transitioning
+       there, all five states are on screen at once;
+     • toggling `.is-on` off and on restarts the animation, so going back to a
+       stage you have already seen writes it again rather than showing a
+       finished record;
+     • nothing here sets a resting style, so if the animation never runs the
+       fields still read exactly as they do today.
+
+   The stagger index is set in JavaScript, on the clone, and deliberately not
+   in CSS. A selector cannot express "position within the marked set": the
+   marked fields are not adjacent and do not share a parent (Signed writes one
+   field row inside the <dl> AND all three settlement lines inside the panel),
+   and :nth-of-type counts every sibling div of the same tag rather than only
+   the matching ones, so it would hand the delays to the wrong rows. The
+   builder walks [data-state="new"] in document order and numbers them, which
+   is the order they are read in. If that ever fails, --i falls back to 0 and
+   every write simply lands together, which is the current behaviour. */
+@keyframes rxTick { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes rxLand {
+  from { background-color: rgb(212 168 79 / .16); }
+  to   { background-color: rgb(212 168 79 / 0); }
+}
+
+.hiw-pane.is-on .rx__row[data-state="new"],
+.hiw-pane.is-on .rx__line[data-state="new"] {
+  animation: rxLand 900ms var(--ease) both;
+  animation-delay: calc(240ms + var(--i, 0) * 60ms);
+}
+.hiw-pane.is-on .rx__row[data-state="new"]::before,
+.hiw-pane.is-on .rx__line[data-state="new"]::before {
+  transform-origin: 50% 0;
+  animation: rxTick 420ms var(--ease) both;
+  animation-delay: calc(240ms + var(--i, 0) * 60ms);
+}
+/* The flash is a background on a row that sits over the card's own surface, so
+   it needs to bleed into the card padding or it stops short of the gold tick
+   and reads as a floating swatch. */
+.hiw-pane.is-on .rx__row[data-state="new"],
+.hiw-pane.is-on .rx__line[data-state="new"] {
+  margin-inline: -10px;
+  padding-inline: 10px;
+  border-radius: 3px;
+}
+.hiw-pane.is-on .rx__row[data-state="new"]::before,
+.hiw-pane.is-on .rx__line[data-state="new"]::before { left: -3px; }
+
+/* Settlement: itemized, payee named, amounts deliberately not printed. */
+.rx__settle {
+  padding: 18px 28px 22px;
+  background: var(--panel-a);
+}
+/* ── The settlement lines stay a statement ───────────────────────────────────
+   Item left, value against the right edge. This is the one block on the card
+   that SHOULD run the full measure, and the distinction is worth stating
+   because I got it wrong once in this pass: the field rows above are a form,
+   where a label and its value belong together, and the settlement is a
+   statement, where the point is that three items line up in a column you can
+   read down. Flushing these left the way the fields are flushed left emptied
+   the right 620px of a tinted panel and made the block look unfinished.
+
+   What was actually wrong with them before was the card being 1000px wide.
+   At 820 the longest leader run drops from 819px to 639px, which is what a
+   statement line looks like.
+
+   Grid rather than the original flex-plus-margin-auto: same result, but the
+   two columns are declared instead of implied, so the header's STATUS label
+   and the rows underneath it are guaranteed to share one right edge. */
+.rx__settle-h,
+.rx__line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: baseline;
+}
+.rx__settle-h { margin-bottom: 6px; }
+/* The panel is warmer than white, so --ink-3 lands at 4.41:1 on it. Everything
+   muted inside the settlement block uses this slightly deeper tone instead. */
+.rx__settle .rx__k,
+.rx__settle-h span:last-child,
+.rx__line[data-state="pending"] > span:last-child,
+.rx__note { color: #5F6D80; }
+.rx__settle-h span:last-child {
+  font-size: 10.5px; font-weight: 650;
+  letter-spacing: .12em; text-transform: uppercase;
+}
+.rx__line {
+  padding: 8px 0;
+  border-bottom: 1px solid rgb(8 36 74 / .06);
+  font-size: .84rem;
+}
+.rx__line > span:first-child { color: var(--ink-2); }
+.rx__line > span:last-child {
+  text-align: right;
+  color: var(--ink); font-weight: 550;
+}
+.rx__line[data-state="pending"] > span:last-child { font-weight: 400; }
+.rx__note {
+  margin-top: 12px;
+  font-size: .8125rem; line-height: 1.5;
+}
+.rx__note b { color: var(--ink-2); font-weight: 600; }
+
+/* ── The audit footer: what THIS state wrote ─────────────────────────────────
+   This list used to sit in a separate column beside the card, which is what
+   left the 246px void. It belongs inside the record: head, fields, settlement,
+   audit line is a document, whereas card-plus-list-beside-it is two objects.
+
+   The client's earlier note was that the checks under a stage do not resolve
+   until the end of the flow. They resolve here, in the stage that writes them:
+   every item is already ticked, because it is what THIS state put on the
+   record. Nothing in it is ever pending.
+
+   It is white against the warm settlement panel directly above it, so the card
+   alternates tone top to bottom and each zone stays legible as its own band. */
+.rx__wrote {
+  padding: 16px 28px 20px;
+  background: var(--paper);
+  border-top: 1px solid var(--line-gold);
+}
+.rx__wrote-h {
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: .15em; text-transform: uppercase;
+  color: var(--navy);
+  margin-bottom: 11px;
+}
+/* A row, not a column: two or three short ticks laid across the foot of the
+   card keep it a footer. Stacked, they added height to an already tall object
+   for no gain in clarity. */
+.rx__wrote-list {
+  display: flex; flex-wrap: wrap;
+  gap: 9px 34px;
+}
+.rx__wrote-list > li {
+  display: flex; align-items: flex-start; gap: 9px;
+  font-size: .8125rem; line-height: 1.5;
+  color: var(--ink-2);
+  max-width: 42ch;
+}
+/* --gold is 2.21:1 and fails the 3:1 floor for a meaningful graphic; this is
+   the same hue at 3.92:1. The tick never carries meaning the sentence beside
+   it does not already state, so it is aria-hidden either way. */
+.rx__wrote-list svg {
+  width: 15px; height: 15px;
+  margin-top: 3px;
+  color: var(--gold-ink);
+  flex: none;
+}
+
+@media (max-width: 620px) {
+  .rx__head { padding: 16px 16px 13px; }
+  .rx__rows { grid-auto-flow: row; grid-template-rows: none; padding: 4px 16px 10px; }
+  /* The labels drop to 10px with tighter tracking here, so the desktop's 104px
+     column is 36px wider than the longest of them needs and it was spending
+     that on nothing while "Methylcobalamin 1 mg/mL · 30 mL" wrapped to a second
+     line on all five cards. 86px fits "PRESCRIBER" at this size and gives the
+     value 258px, which holds the compound on one line. Five cards, one line
+     each, on the layout that is already the longest scroll on the site. */
+  .rx__row { padding: 9px 0; gap: 14px; grid-template-columns: 86px minmax(0, 1fr); }
+  /* One column here, so the 4th row is mid-list: it keeps its hairline and
+     only the true last row loses one. */
+  .rx__row:nth-child(4n) { border-bottom: 1px solid var(--line-soft); }
+  .rx__row:last-child    { border-bottom: 0; }
+  .rx__row dt { font-size: 10px; letter-spacing: .07em; }
+  .rx__row dd { font-size: .84rem; }
+  .rx__settle { padding: 14px 16px 16px; }
+  .rx__line { padding: 7px 0; font-size: .8125rem; }
+  .rx__wrote { padding: 14px 16px 16px; }
+  .rx__wrote-list { gap: 9px 20px; }
+  .rx__wrote-list > li { max-width: none; }
+  /* The tick sits in the card's own padding on a narrow screen. */
+  .rx__row[data-state="new"]::before,
+  .rx__line[data-state="new"]::before { left: -8px; }
+}
+
+/* ── Static stage stack: the base layer + the mobile experience ──────────── */
+
+.hiw-stack { position: relative; }
+
+/* When the rail is live the stack is genuinely gone, not clipped. The rail is
+   a real tablist with real tab buttons, so it IS the accessible interface;
+   leaving a duplicate stack in the accessibility tree would make a screen
+   reader read all five stages twice. (Clipping it and marking the rail
+   aria-hidden is the worse option: focusable controls inside an aria-hidden
+   subtree stay in the tab order but vanish from the reader.) */
+.hiw.is-tabs .hiw-stack { display: none; }
+
+.hiw-block { position: relative; padding-left: 60px; }
+.hiw-block + .hiw-block { margin-top: 56px; }
+/* The connector: a hairline running through the numbered list. Its bottom
+   inset must track the gap above, or it stops short of the next number. */
+.hiw-block::before {
+  content: "";
+  position: absolute; left: 17px; top: 34px; bottom: -56px;
+  width: 1px; background: var(--line);
+}
+.hiw-block:last-child::before { display: none; }
+.hiw-block__n {
+  position: absolute; left: 0; top: 0;
+  width: 35px; height: 35px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line-gold);
+  background: var(--gold-wash);
+  font-family: var(--mono);
+  font-size: 12px; font-variant-numeric: tabular-nums;
+  font-weight: 600; letter-spacing: -.02em;
+  color: var(--navy);
+}
+/* The stack is the mobile and the no-JS layout, so it carries the same outcome
+   the rail does. Baseline-aligned beside the state rather than under it: the
+   pair is one heading and a phrase, and stacking them would put three lines of
+   type above every card on the longest scroll in the site. The separating dot
+   is a pseudo-element so it is never read out or copied. */
+.hiw-block__label {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 10px;
+  font-family: var(--sans);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--navy);
+  padding-top: 9px;
+}
+.hiw-block__s {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .1em;
+  color: #5F6D80;
+}
+.hiw-block__s::before {
+  content: "";
+  display: inline-block;
+  width: 3px; height: 3px; margin-right: 10px;
+  border-radius: 50%;
+  background: var(--gold);
+  vertical-align: .28em;
+}
+.hiw-block__cap {
+  margin-top: 7px; margin-bottom: 18px;
+  font-size: 1rem; line-height: 1.55;
+  color: var(--ink-2);
+  max-width: 56ch;
+}
+
+@media (max-width: 620px) {
+  /* Indenting by 60px to keep the desktop connector would cost a sixth of a
+     390px screen. The number moves inline instead and the connector becomes a
+     short hairline in the gap between blocks: still a linked list, no width
+     taken from the record. */
+  .hiw-block { padding-left: 0; }
+  .hiw-block + .hiw-block { margin-top: 48px; }
+  .hiw-block::before { display: none; }
+  .hiw-block + .hiw-block::after {
+    content: "";
+    position: absolute; left: 17px; top: -34px;
+    width: 1px; height: 24px;
+    background: var(--line);
+  }
+  .hiw-block__n { position: static; margin-bottom: 12px; }
+  .hiw-block__label { padding-top: 0; gap: 0 8px; }
+  .hiw-block__s::before { margin-right: 8px; }
+  .hiw-block__cap { font-size: .9375rem; margin-bottom: 16px; }
+  .rx__id { font-size: 1.1875rem; }
+}
+
+/* ── The stage rail (JS-built, >= 820px) ─────────────────────────────────────
+   Replaces a seven-screen scroll-jacked walkthrough. The whole workflow is
+   legible without any interaction: five labelled states in a row, in order,
+   joined by a line that is gold behind you and grey ahead of you. Clicking one
+   swaps the exhibit. No scroll is spent, and the reader is never on someone
+   else's clock.
+
+   ── WHY THE LABEL SITS UNDER THE NUMERAL ──
+   It used to sit beside it, which meant a step was as wide as its word and the
+   connector had nowhere to run: the row was five islands with a rule underneath
+   the whole thing. Stacking the label under the dot gives every stage the same
+   generous column, centres it, and frees the dot's own row for the connector,
+   which is the piece that makes five buttons read as one sequence.           */
+
+/* Same width as the exhibit, and that is the whole reason it is capped: the
+   rail used to span the full 1152 container while the record sat in a 1000
+   column, so the section carried three different left edges (hero copy, card,
+   first dot) and read loose. Sharing an outer edge with the card is what makes
+   the rail read as that card's control rather than as a band across the page.
+   The connector maths is written in percentages of a column, so it does not
+   care what the total width is. */
+.hiw-rail {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr));
+  align-items: start;
+  max-width: var(--hiw-w);
+  margin-inline: auto;
+  padding-bottom: 34px;
+}
+/* ── The rail belongs to the record, and has to look like it does ────────────
+   Measured before: 141px of air between the last label and the stage
+   sentence, then another 120px to the top of the card. Three objects on one
+   axis with nothing joining them, so the rail read as a decorative band across
+   the page rather than as the control for the document underneath it.
+
+   The fix is the site's own punctuation, the fading gold hairline that
+   .ph-partner__inner and .hiw-close both use at exactly this kind of boundary:
+   one rule directly under the stages, spanning the record's own width. It
+   closes the rail and opens the exhibit, so the two read as one instrument. */
+.hiw-rail::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(212 168 79 / .40), transparent);
+}
+/* ── The step, and why it has a top inset ────────────────────────────────────
+   The focus ring is the site's own 2px navy outline at 2px offset. With the
+   dot flush against the top of the button, that ring was drawn straight
+   through the connector on both sides: measured on a real keyboard pass, the
+   outline crossed the rule at exactly the dot's centreline and the stage
+   looked broken rather than focused. 8px of top padding lifts the ring clear
+   of the run, and the connector's own `top` is written against the same
+   number so the two can never drift.
+
+   The row also has to stay legible for a reader who never clicks, which is
+   what the outcome line under the label is for, so the step is now a
+   three-part column: numeral, state, outcome. */
+.hiw-step {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 13px;
+  padding: 8px 8px 0;
+  text-align: center;
+  border-radius: var(--r-md);
+  background: none;
+  cursor: pointer;
+}
+
+/* ── The connector ──
+   Two pseudo-elements on the SAME geometry: ::before is the grey track,
+   ::after is the gold overlay that scales in from the left once the stage is
+   behind you. Drawn on the step itself rather than as a separate element so
+   the maths is one expression and cannot drift.
+
+   The run is from this dot's right edge to the next dot's left edge. Dots are
+   42px and centred in their column, so half is 21. The open stage now carries
+   a ring 6px outside the dot, which puts its real outer radius at 27, and the
+   old 33px inset was written against the bare 21: measured, that left 6px of
+   clearance at 1440 and 2px under 1080, so the gold line ran up and touched
+   the ring on the one stage the ring exists to isolate.
+
+   40 gives every dot 11px of air whether or not it is wearing the ring, and
+   the width is a full column less 40 at each end. That lands the right edge on
+   150% - 40, exactly the next dot's ring plus its gap. Nothing is measured in
+   JS, so it cannot be wrong at a width nobody tested.
+
+   `top` is the step's 8px top padding plus half the 46px dot, so the run meets
+   the dot on its centreline. Both numbers live in this one expression: change
+   the dot and this is the only other line to touch. */
+.hiw-step::before,
+.hiw-step::after {
+  content: "";
+  position: absolute;
+  top: calc(8px + 23px - 1px); height: 2px; border-radius: 2px;
+  left: calc(50% + 40px);
+  width: calc(100% - 80px);
+  pointer-events: none;
+}
+.hiw-step::before { background: var(--line); }
+.hiw-step::after {
+  background: var(--gold);
+  transform: scaleX(0); transform-origin: 0 50%;
+  transition: transform 420ms var(--ease);
+}
+.hiw-step.is-done::after { transform: scaleX(1); }
+.hiw-step:last-child::before,
+.hiw-step:last-child::after { display: none; }
+
+/* 46 rather than 42: the rail is this section's instrument and at 42 with a
+   12.5px numeral it read as a row of small markers rather than as the control
+   for the document underneath it. 46 is still comfortably inside the 164px
+   column, and it is the largest size at which the two-digit numeral, the
+   ring and the 11px of connector clearance all still fit at the 820px floor. */
+.hiw-step__d {
+  position: relative; z-index: 1;
+  flex: none;
+  width: 46px; height: 46px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  font-family: var(--mono);
+  font-size: 13.5px; font-variant-numeric: tabular-nums;
+  font-weight: 600; letter-spacing: -.02em;
+  color: var(--ink-3);
+  transition: background-color 220ms var(--ease), background-image 220ms var(--ease),
+              border-color 220ms var(--ease), color 220ms var(--ease);
+}
+.hiw-step__t {
+  position: relative;
+  font-size: 1rem; font-weight: 600;
+  letter-spacing: -.005em;
+  color: #5F6D80;
+  transition: color 220ms var(--ease);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+/* ── The outcome ─────────────────────────────────────────────────────────────
+   Two or three words saying what the stage WROTE. This is the line that makes
+   the whole workflow readable without clicking anything: read across, the row
+   says not charged, card charged, pharmacy matched, payees named, tracking
+   written, which is the argument the page is making, stated in five phrases.
+
+   Deliberately quiet. It is a caption under a label, not a second label: one
+   step down in size, at #5F6D80 (5.05:1 on this band, so it clears AA as
+   small text) and it does not change with state. The open stage is already
+   carried by the dot fill, the ring and the label weight; a fourth thing
+   changing at once would make selection read as noise.
+
+   The negative margin pulls it against the flex gap so the pair sits 6px
+   apart while the dot stays 13px above the label. A caption has to be nearer
+   the thing it captions than that thing is to the one above it, or the column
+   reads as three loose rows instead of a heading and its note. */
+.hiw-step__s {
+  margin-top: -7px;
+  font-size: .8125rem; line-height: 1.35;
+  letter-spacing: -.002em;
+  color: #5F6D80;
+  text-wrap: balance;
+  min-width: 0;
+}
+/* There WAS a gold underline here, wiping in under the open stage's label.
+   It went when the outcome line arrived underneath it, and the reason is worth
+   writing down because it is easy to re-add.
+   The column is now three rows: numeral, state, outcome. A 24px rule sitting
+   between rows two and three does not read as an underline on the state, it
+   reads as a divider separating the state from its own outcome, which is the
+   one pairing in the column that has to hold. Measured in the 1440 render of
+   stage 04 before it was cut: the dash sat closer to "Payees named" than to
+   "Settled".
+   Nothing is lost. The open stage still carries three signals against its
+   neighbours, and all three were verified in the same render: a deeper gold
+   fill (the passed stages are a pale wash, the stages ahead are white), a 2px
+   gold ring no other stage wears, and the label at navy 700 against #5F6D80.
+   Colour and border, which is what the rest of the site changes too. */
+
+/* Passed stages carry the wash, so the row shows position in a sequence and
+   not just which button is on. */
+.hiw-step.is-done .hiw-step__d {
+  background: var(--gold-wash);
+  border-color: var(--line-gold);
+  color: var(--navy);
+}
+.hiw-step.is-done .hiw-step__t { color: var(--ink-2); }
+.hiw-step[aria-selected="true"] .hiw-step__d {
+  background-image: none;
+  background-color: var(--cta-fill);
+  border-color: rgb(139 103 40 / .34);
+  color: var(--navy);
+}
+/* ── The open stage, made unmistakable ───────────────────────────────────────
+   On the FIRST stage the row has no travelled portion yet, so everything that
+   separated the open stage from the four ahead of it was a gold fill on a
+   42px dot: on a warm page, at a glance, one slightly darker circle. The
+   sequence's shape only became legible once you had already clicked something,
+   which is backwards.
+
+   A halo ring, drawn as a second ::after on the dot's own box rather than as a
+   box-shadow. The site reserves shadow for the hardware render and the product
+   mock, and this is neither, so it is a ring. It reads instantly as "you are
+   here" without adding weight or moving anything, and it is the only stage on
+   the rail that carries one.
+
+   It was 1px at .58 alpha and measured almost nothing against a warm band: in
+   a 1440 render of the open stage the ring was a hairline you had to look for.
+   2px at .72 is the same idea at a weight that actually registers, and because
+   it is drawn on the dot's own box at a fixed -6px inset the outer radius is
+   29px, which the connector's 40px inset still clears by 11px. */
+.hiw-step__d { position: relative; }
+.hiw-step__d::after {
+  content: "";
+  position: absolute; inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgb(212 168 79 / 0);
+  transition: border-color 220ms var(--ease);
+}
+.hiw-step[aria-selected="true"] .hiw-step__d::after {
+  border-color: rgb(212 168 79 / .72);
+}
+.hiw-step[aria-selected="true"] .hiw-step__t { color: var(--navy); font-weight: 700; }
+/* Hover is a tone change on the two things that carry state. Colour and border
+   only: nothing moves, nothing scales, which is the site's rule everywhere. */
+.hiw-step:not([aria-selected="true"]):hover .hiw-step__t { color: var(--navy); }
+.hiw-step:not([aria-selected="true"]):hover .hiw-step__d {
+  border-color: var(--line-gold);
+  background-color: rgb(212 168 79 / .1);
+  color: var(--navy);
+}
+
+/* ── Keyboard focus ──────────────────────────────────────────────────────────
+   The step is a grid item filling its whole column, which is what gives it a
+   hit area worth tapping, and the connector deliberately runs 40px PAST that
+   column into the next one. So the site's focus outline is always going to be
+   crossed by the run: measured, the rule enters the ring's left edge and
+   leaves through its right on every stage but the last.
+   A wireframe with two lines through it reads as a rendering fault. The same
+   ring around a filled chip reads as a chip sitting on top of the rule, which
+   is what it is. The fill is the gold wash at a tenth, so it never competes
+   with the open stage's own fill, and it appears only for a keyboard reader:
+   the mouse path was verified separately and shows no ring at all. */
+.hiw-step:focus-visible {
+  background-color: rgb(212 168 79 / .1);
+}
+
+/* ── The rail builds itself, left to right ───────────────────────────────────
+   The rail entered as one block, which for a row whose entire subject is
+   sequence was the one entrance that said the least. Each stage now arrives on
+   the site's own step: the same opacity plus 8px lift, the same 420ms on the
+   same easing, offset 60ms per column, so the row draws in the order it is
+   read and the connectors fill behind it.
+
+   Gated exactly the way the shell gates its own reveal, and for the same
+   reason: html.js so the rule cannot apply with JavaScript off, and inside
+   prefers-reduced-motion: no-preference so there is no resting style to undo
+   for a reader who asked for stillness. --i is set on the button by the
+   builder; if it is ever missing the fallback is 0 and the row simply lands
+   together, which is the behaviour this replaces.
+
+   The delay is on the STEP and the reveal is on the RAIL, so this cascade and
+   the shell's own sibling stagger cannot both claim the same element. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js .hiw-rail[data-reveal] .hiw-step {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  html.js .hiw-rail[data-reveal].is-in .hiw-step {
+    opacity: 1;
+    transform: none;
+    transition: opacity 420ms var(--ease), transform 420ms var(--ease);
+    transition-delay: calc(var(--i, 0) * 60ms);
+  }
+}
+
+/* ── The exhibit ─────────────────────────────────────────────────────────────
+   One centred column: the stage's sentence, then the record. Narrower than the
+   container so the record keeps a document's proportion rather than stretching
+   into a table, and so the gold field behind it has somewhere to sit.        */
+
+.hiw-exhibit {
+  position: relative; isolation: isolate;
+  max-width: var(--hiw-w);
+  margin: 30px auto 0;
+}
+/* A soft gold field so the record isn't floating in a screenful of
+   undifferentiated white. Same device the shell uses behind the hardware
+   render: a gradient, not a shadow. Warm only: a cool ellipse under a card
+   that casts a shadow stacks into a grey pool that reads as a smudge rather
+   than as light.
+
+   THE FIELD MUST NOT BLEED SIDEWAYS. An earlier version used a negative
+   inline inset, and because nothing here clips (the record's shadow needs to
+   fall outside its own box, so an overflow clip on this element would slice
+   it) that bleed counted toward document width: measured 85px of real
+   horizontal scroll at 960. There is no visual cost to keeping it inside,
+   because both radials reach full transparency well before the edge of their
+   own box: a radial that overruns its box gets clipped and you see the
+   rectangle instead.
+
+   AND ONE OF THEM DID. The second radial sat at 82% 88% with a 42% vertical
+   radius reaching transparent at 70%, which is 88% + 29% = 117% of the box: it
+   ran 17% past the bottom and was cut off square. Measured at 1440 that put a
+   hard horizontal edge ~560px wide across the page at y=1561.9, right where
+   the field should have been dissolving into the band. It is visible in every
+   stage screenshot taken before this pass.
+
+   Both radials now terminate inside their own box, and the arithmetic is
+   written down so the next edit can check it rather than eyeball it:
+     centre + radius x stop  must stay under 100% on every axis.
+     one  48% + 58%x.74 = 91%   and  50% + 56%x.74 = 91%
+     two  74% + 30%x.80 = 98%   and  78% + 34%x.80 = 105% -> clamped by using
+          a stop of .72 and a 26% radius: 74% + 26%x.72 = 93%.               */
+.hiw-exhibit::before {
+  content: "";
+  position: absolute; z-index: -1;
+  inset: -9% 0 -9% 0;
+  pointer-events: none;
+  background:
+    radial-gradient(56% 58% at 50% 48%, rgb(241 223 179 / .58), transparent 74%),
+    radial-gradient(34% 26% at 78% 74%, rgb(212 168 79 / .15), transparent 72%);
+}
+
+/* Panes are grid-stacked, so the frame is the height of the tallest state and
+   swapping stages never reflows the page. visibility:hidden (not display:none)
+   is doing two jobs: the hidden panes still reserve their height, and they are
+   out of the accessibility tree, so the tab pattern behaves correctly.
+   align-content:start keeps every pane's content at the top of that shared
+   frame, so a shorter stage leaves its slack at the bottom where it is just
+   page whitespace, not a hole in the middle of the composition. */
+.hiw-panes { display: grid; }
+.hiw-pane {
+  grid-area: 1 / 1;
+  align-content: start;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 420ms var(--ease), transform 420ms var(--ease),
+              visibility 0s linear 420ms;
+}
+.hiw-pane.is-on {
+  opacity: 1; visibility: visible; transform: none;
+  transition: opacity 420ms var(--ease), transform 420ms var(--ease), visibility 0s;
+}
+.hiw-pane__lead { margin-bottom: 24px; }
+.hiw-pane__cap {
+  font-size: clamp(1.0625rem, 1rem + .3vw, 1.1875rem);
+  line-height: 1.62;
+  color: var(--ink-2);
+  max-width: 62ch;
+  text-wrap: pretty;
+}
+/* ── The stage heading ───────────────────────────────────────────────────────
+   The pane opens with the stage NAMED, at heading size, which is what "give
+   each stage room" actually needs: presence, not padding.
+
+   What this replaces was an 11px uppercase line reading "STAGE 02 OF 05 ·
+   Signed" sitting above the sentence as its own object. It repeated, in the
+   smallest type on the pane, the two facts the rail 30px above it was already
+   showing at full size: which dot is open, and what it is called. Cutting it
+   removes a line from the top of every stage and lets the reader go rail,
+   heading, sentence, record.
+
+   The counter survives as a fraction, because "where am I in five" is worth
+   keeping and a fraction says it in seven characters. Same monospace, tabular,
+   letter-spaced treatment the record's own id uses, since it is the same kind
+   of fact. The fading gold rule to its right is the site's own punctuation and
+   it is what stops the heading reading as a stray label: it carries the eye
+   out to the record's edge. */
+.hiw-pane__h {
+  display: flex; align-items: baseline; gap: 14px;
+  margin-bottom: 14px;
+}
+.hiw-pane__c {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 11.5px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .1em;
+  color: var(--gold-ink-deep);
+}
+.hiw-pane__t {
+  flex: none;
+  margin: 0;
+  font-family: var(--sans);
+  font-size: clamp(1.25rem, 1.1rem + .5vw, 1.5rem);
+  font-weight: 650;
+  letter-spacing: -.018em;
+  line-height: 1.2;
+  color: var(--navy);
+}
+/* The rule fills whatever the heading leaves, so it always reaches the record's
+   right edge no matter how long the stage is called. It is the last child, and
+   baseline alignment would hang a zero-height box off the text baseline rather
+   than centre it, so this one item opts out. */
+.hiw-pane__h::after {
+  content: ""; flex: 1 1 auto; height: 1px;
+  align-self: center;
+  background: linear-gradient(90deg, rgb(212 168 79 / .40), transparent 78%);
+}
+
+/* The connector inset is NOT re-tightened here any more, and that is a
+   consequence of the rail being capped at --hiw-w rather than filling the
+   container. Measured: the column is 164px at 1440 and still 164px at 1024,
+   because 820/5 does not change until the container itself drops under 820
+   (viewport ~868). So the narrow-screen override was compensating for a
+   squeeze that no longer happens, and all it did was cut the clearance around
+   the ring from 11px to 2px. At the genuine floor, a 772px rail at a 820px
+   viewport, the column is 154 and the connector is still 78px long. */
+@media (max-width: 1080px) {
+  .hiw-exhibit { margin-top: 26px; }
+  .hiw-step { padding-inline: 4px; }
+  .hiw-step__t { font-size: .9375rem; }
+  .hiw-step__s { font-size: .75rem; }
+}
+
+/* Tabs are navigation, not decoration, so reduced motion does NOT fall back to
+   the stack: it keeps the rail and swaps panes instantly.
+   `.hiw-pane.is-on` is (0,2,0) and carries its own transition, so a rule
+   written only for `.hiw-pane` here loses to it: a media query adds no
+   specificity. Measured before the fix: the pane still reported 0.32s. */
+@media (prefers-reduced-motion: reduce) {
+  .hiw-pane,
+  .hiw-pane.is-on,
+  .hiw-step::after,
+  .hiw-step__d, .hiw-step__d::after, .hiw-step__t { transition: none; }
+  /* The written fields keep their gold tick and their weight, they just stop
+     arriving. `both` fill on the live rule means the animation is also holding
+     the tick's scaleY at its from-state before the delay elapses, so killing
+     the animation without restoring the transform would leave every tick
+     collapsed to nothing: the mark that says WHICH field changed would be
+     gone for exactly the reader who most needs it not to move. */
+  .hiw-pane.is-on .rx__row[data-state="new"],
+  .hiw-pane.is-on .rx__line[data-state="new"],
+  .hiw-pane.is-on .rx__row[data-state="new"]::before,
+  .hiw-pane.is-on .rx__line[data-state="new"]::before {
+    animation: none;
+    transform: none;
+    background-color: transparent;
+  }
+  .hiw-pane.is-on .rx__row[data-state="new"]::before,
+  .hiw-pane.is-on .rx__line[data-state="new"]::before { background: var(--gold); }
+}
+
+/* ── The closing action ──────────────────────────────────────────────────────
+   The exhibit used to end and drop the reader straight into the next section
+   with nothing to do. This resolves it.
+
+   It is punctuated by the site's own fading gold hairline, the same recipe
+   .ph-partner__inner uses at exactly this kind of boundary, so it reads as
+   this site's punctuation rather than as a new component. Centred, because the
+   exhibit above it is centred; the buttons are the shell's own two ranks at
+   the shell's own geometry, no page-local sizing.                            */
+.hiw-close {
+  position: relative;
+  max-width: var(--hiw-w);
+  margin: 56px auto 0;
+  padding-top: 38px;
+  text-align: center;
+}
+.hiw-close::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(212 168 79 / .42), transparent);
+}
+/* The close is a statement, not a caption.
+   At --ink-2 and body size it read as one more paragraph and the two buttons
+   under it looked unattached. Navy at heading weight, one step up, is what
+   makes the walkthrough resolve into an ask: the line asserts the result, the
+   buttons act on it. Still the site's two ranks underneath, unchanged, at the
+   shell's own geometry. */
+.hiw-close__t {
+  font-size: clamp(1.125rem, 1.02rem + .38vw, 1.3125rem);
+  line-height: 1.5;
+  font-weight: 600;
+  letter-spacing: -.012em;
+  color: var(--navy);
+  max-width: 44ch;
+  margin-inline: auto;
+  /* balance, not pretty: this is two lines at most and both should be the same
+     length. pretty only protects the last line from orphaning, which left
+     "entire workflow." hanging under a full-width first line. */
+  text-wrap: balance;
+}
+.hiw-close .ph-btn-row { justify-content: center; margin-top: 26px; }
+
+@media (max-width: 860px) {
+  .hiw-close { margin-top: 52px; padding-top: 32px; }
+}
+
+/* ── Section rhythm ──────────────────────────────────────────────────────────
+   The walkthrough is flush-top and pays its half of the seam under the hero,
+   so the hero's 64 plus the walkthrough's 56 make the interval exactly. Every
+   other seam on the page is the site's own 120 + 120.
+
+   CAUTION, and this has now bitten twice. The previous version of this block
+   ran prose past the end of its comment, and CSS error recovery then ate the
+   NEXT rule whole: everything up to the following brace is consumed as a
+   selector, so `.hiw-hero` silently never applied and the hero sat at the
+   shell's 120px. Writing an escaped comment terminator inside the explanation
+   of that bug reproduced it exactly once more. Measured both times, not
+   assumed: computed padding-bottom, plus the rule missing from
+   document.styleSheets. Do not put a comment terminator in a comment.       */
+.hiw-hero  { padding-block: 80px 64px; }
+.hiw       { padding-block: 56px 120px; }
+.hiw-after { padding-block: 120px; }
+
+@media (max-width: 860px) {
+  .hiw-hero  { padding-block: 56px 44px; }
+  .hiw       { padding-block: 36px 80px; }
+  .hiw-after { padding-block: 80px; }
+}
+
+/* The trust strip now closes the page under the split, so it needs the seam
+   the split's own bottom does not provide. */
+.ph-hiw-trust { margin-top: 72px; }
+@media (max-width: 900px) { .ph-hiw-trust { margin-top: 48px; } }
+
+/* Sample-data chip */
+.hiw-sample {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 13px;
+  border-radius: var(--r-pill);
+  background: rgb(255 255 255 / .9);
+  border: 1px solid var(--line-gold);
+  font-size: 10.5px; font-weight: 650;
+  letter-spacing: .13em; text-transform: uppercase;
+  color: var(--navy);
+}
+.hiw-sample::before {
+  content: ""; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--gold); flex: none;
+}
+</style>
+</head>
+
+<body>
+<a class="ph-skip" href="#main">Skip to content</a>
+
+<!-- ══════════════════════════════ NAV ══════════════════════════════ -->
+<header class="ph-nav">
+  <div class="ph-container ph-nav__inner">
+    <a class="ph-logo" href="index.html" aria-label="Pharity home">
+      <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+           width="868" height="200" decoding="async">
+    </a>
+
+    <nav class="ph-nav__links" aria-label="Primary">
+      <a class="ph-nav__link" href="index.html">Home</a>
+      <a class="ph-nav__link" href="for-clinics.html">For Clinics</a>
+      <a class="ph-nav__link" href="for-pharmacies.html">For Pharmacies</a>
+      <a class="ph-nav__link" href="why-pharity.html" aria-current="page">Why Pharity</a>
+      <a class="ph-nav__link" href="pricing.html">Pricing</a>
+    </nav>
+
+    <div class="ph-nav__actions">
+      <a class="ph-nav__signin ph-wipe" href="sign-in.html">Sign in</a>
+      <a class="ph-btn ph-btn--gold ph-btn--sm" href="request-access.html">Apply for access</a>
+      <div class="ph-nav__mobile">
+        <details class="ph-nav__disclosure">
+          <summary class="ph-nav__burger" aria-label="Menu">
+            <svg class="ph-nav__bars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3.5 7h17M3.5 12h17M3.5 17h17"/></svg>
+            <svg class="ph-nav__x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </summary>
+          <div class="ph-nav__panel">
+            <a href="index.html">Home</a>
+            <a href="for-clinics.html">For Clinics</a>
+            <a href="for-pharmacies.html">For Pharmacies</a>
+            <a href="why-pharity.html" aria-current="page">Why Pharity</a>
+            <a href="pricing.html">Pricing</a>
+            <hr>
+            <a href="contact.html">Contact</a>
+            <a href="sign-in.html">Sign in</a>
+            <a href="request-access.html">Apply for access</a>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ══════════════════════════ HERO ══════════════════════════ -->
+<section class="ph-section ph-band--light hiw-hero">
+  <div class="ph-container">
+    <p class="ph-eyebrow" data-reveal>Why Pharity</p>
+    <h1 class="ph-h1" data-reveal style="margin-top:18px;max-width:17ch">
+      One prescription, from draft to <span class="ph-swash">delivered</span>.
+    </h1>
+    <p class="ph-lede" data-reveal style="margin-top:22px">
+      Most clinics already run every part of this. They run it across a portal,
+      a fax line and a group chat, so the history of an order lives in the heads
+      of whoever happened to be working that day. Here is the same workflow on
+      one record.
+    </p>
+    <div data-reveal style="margin-top:26px">
+      <span class="hiw-sample">Sample data · not a patient record</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ THE WALKTHROUGH ══════════════════════
+     Five states. Each is written out in full below: that stack is the truth,
+     the mobile layout and the no-JS layout. On a wide screen, pharity-hiw.js
+     builds the stage rail from it and hides the stack.
+
+     data-reveal sits on the ARTICLE and nowhere inside it. The rail builder
+     clones [data-cap] and [data-rec]; a data-reveal inside either would be
+     cloned too, arrive with no observer watching it, and sit at opacity 0
+     forever. The article itself is never cloned, so it is the safe host.
+     ============================================================ -->
+<section class="ph-section ph-section--flush-top ph-band--light hiw" data-hiw>
+  <div class="ph-container">
+
+    <div class="hiw-stack">
+
+      <!-- 01 -->
+      <article class="hiw-block" data-stage data-label="Drafted" data-hint="Not charged" data-reveal>
+        <span class="hiw-block__n">01</span>
+        <h2 class="hiw-block__label">Drafted <span class="hiw-block__s">Not charged</span></h2>
+        <p class="hiw-block__cap" data-cap>The prescriber drafts against the clinic's own catalog and it lands in the signature queue. Nothing is authorized, nothing is routed, and the clinic's card has not been touched.</p>
+        <div class="rx" data-rec>
+          <div class="rx__head">
+            <div>
+              <p class="rx__k">Prescription record</p>
+              <p class="rx__id">RX-DEMO-4417</p>
+            </div>
+            <span class="ph-st" data-t="draft">Drafted</span>
+          </div>
+          <dl class="rx__rows">
+            <div class="rx__row"><dt>Patient</dt><dd>E.N.</dd></div>
+            <div class="rx__row"><dt>Compound</dt><dd>Methylcobalamin 1&nbsp;mg/mL &middot; 30&nbsp;mL</dd></div>
+            <div class="rx__row"><dt>Prescriber</dt><dd>Dr. A. Reyes</dd></div>
+            <div class="rx__row"><dt>Clinic</dt><dd>Northside Aesthetics</dd></div>
+            <div class="rx__row" data-state="pending"><dt>Signed</dt><dd>In queue</dd></div>
+            <div class="rx__row" data-state="pending"><dt>Pharmacy</dt><dd>Not routed</dd></div>
+            <div class="rx__row" data-state="pending"><dt>Tracking</dt><dd>Not shipped</dd></div>
+            <div class="rx__row" data-state="pending"><dt>Delivered</dt><dd>Not delivered</dd></div>
+          </dl>
+          <div class="rx__settle">
+            <div class="rx__settle-h"><span class="rx__k">Settlement</span><span>Status</span></div>
+            <div class="rx__line" data-state="pending"><span>Medication and compounding</span><span>Not authorized</span></div>
+            <div class="rx__line" data-state="pending"><span>Shipping</span><span>Not authorized</span></div>
+            <div class="rx__line" data-state="pending"><span>Pharity platform fee</span><span>Not authorized</span></div>
+            <p class="rx__note">No authorization has been taken against the clinic's card on file.</p>
+          </div>
+          <div class="rx__wrote" data-wrote>
+            <p class="rx__wrote-h">Written at this stage</p>
+            <ul class="rx__wrote-list">
+              <li><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 9.5 3.2 3.2L14 6"/></svg>Draft opened and attributed to the prescriber</li>
+              <li><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 9.5 3.2 3.2L14 6"/></svg>Queued for signature, with no charge authorized</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+      <!-- 02 -->
+      <article class="hiw-block" data-stage data-label="Signed" data-hint="Card charged" data-reveal>
+        <span class="hiw-block__n">02</span>
+        <h2 class="hiw-block__label">Signed <span class="hiw-block__s">Card charged</span></h2>
+        <p class="hiw-block__cap" data-cap>Signature is checkout. One action by a licensed prescriber authorizes the order and charges the clinic's card on file. Not at draft, and not on delivery.</p>
+        <div class="rx" data-rec>
+          <div class="rx__head">
+            <div>
+              <p class="rx__k">Prescription record</p>
+              <p class="rx__id">RX-DEMO-4417</p>
+            </div>
+            <span class="ph-st" data-t="signed">Signed</span>
+          </div>
+          <dl class="rx__rows">
+            <div class="rx__row"><dt>Patient</dt><dd>E.N.</dd></div>
+            <div class="rx__row"><dt>Compound</dt><dd>Methylcobalamin 1&nbsp;mg/mL &middot; 30&nbsp;mL</dd></div>
+            <div class="rx__row"><dt>Prescriber</dt><dd>Dr. A. Reyes</dd></div>
+            <div class="rx__row"><dt>Clinic</dt><dd>Northside Aesthetics</dd></div>
+            <div class="rx__row" data-state="new"><dt>Signed</dt><dd><span class="ph-num">Aug 24 &middot; 2:14 PM CT</span></dd></div>
+            <div class="rx__row" data-state="pending"><dt>Pharmacy</dt><dd>Not routed</dd></div>
+            <div class="rx__row" data-state="pending"><dt>Tracking</dt><dd>Not shipped</dd></div>
+            <div class="rx__row" data-state="pending"><dt>Delivered</dt><dd>Not delivered</dd></div>
+          </dl>
+          <div class="rx__settle">
+            <div class="rx__settle-h"><span class="rx__k">Settlement</span><span>Status</span></div>
+            <div class="rx__line" data-state="new"><span>Medication and compounding</span><span>Authorized</span></div>
+            <div class="rx__line" data-state="new"><span>Shipping</span><span>Authorized</span></div>
+            <div class="rx__line" data-state="new"><span>Pharity platform fee</span><span>Authorized</span></div>
+            <p class="rx__note"><b>Charged at signature.</b> The clinic's card on file is charged now. The payee on each line resolves once the order is routed.</p>
+          </div>
+          <div class="rx__wrote" data-wrote>
+            <p class="rx__wrote-h">Written at this stage</p>
+            <ul class="rx__wrote-list">
+              <li><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 9.5 3.2 3.2L14 6"/></svg>Signature timestamped and attributed to the prescriber</li>
+              <li><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 9.5 3.2 3.2L14 6"/></svg>Clinic card on file charged, cash-pay only</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+      <!-- 03 -->
+      <article class="hiw-block" data-stage data-label="Routed" data-hint="Pharmacy matched" data-reveal>
+        <span class="hiw-block__n">03</span>
+        <h2 class="hiw-block__label">Routed <span class="hiw-block__s">Pharmacy matched</span></h2>
+        <p class="hiw-block__cap" data-cap>Pharity matches the signed order to a licensed 503A pharmacy: by state licensure, by catalog, and only once screening has cleared.</p>
+        <div class="rx" data-rec>
+          <div class="rx__head">
+            <div>
+              <p class="rx__k">Prescription record</p>
+              <p class="rx__id">RX-DEMO-4417</p>
+            </div>
+            <span class="ph-st" data-t="routed">Routed</span>
+          </div>
+          <dl class="rx__rows">
+            <div class="rx__row"><dt>Patient</dt><dd>E.N.</dd></div>
+            <div class="rx__row"><dt>Compound</dt><dd>Methylcobalamin 1&nbsp;mg/mL &middot; 30&nbsp;mL</dd></div>
+            <div class="rx__row"><dt>Prescriber</dt><dd>Dr. A. Reyes</dd></div>
+            <div class="rx__row"><dt>Clinic</dt><dd>Northside Aesthetics</dd></div>
+            <div class="rx__row"><dt>Signed</dt><dd><span class="ph-num">Aug 24 &middot; 2:14 PM CT</span></dd></div>
+            <div class="rx__row" data-state="new"><dt>Pharmacy</dt><dd>Apex Compounding Pharmacy</dd></div>
+            <div class="rx__row" data-state="pending"><dt>Tracking</dt><dd>Not shipped</dd></div>
+            <div class="rx__row" data-state="pending"><dt>Delivered</dt><dd>Not delivered</dd></div>
+          </dl>
+          <div class="rx__settle">
+            <div class="rx__settle-h"><span class="rx__k">Settlement</span><span>Status</span></div>
+            <div class="rx__line"><span>Medication and compounding</span><span>Authorized</span></div>
+            <div class="rx__line"><span>Shipping</span><span>Authorized</span></div>
+            <div class="rx__line"><span>Pharity platform fee</span><span>Authorized</span></div>
+            <p class="rx__note"><b>Charged at signature.</b> The clinic's card on file is charged now. The payee on each line resolves once the order is routed.</p>
+          </div>
+          <div class="rx__wrote" data-wrote>
+            <p class="rx__wrote-h">Written at this stage</p>
+            <ul class="rx__wrote-list">
+              <li><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 9.5 3.2 3.2L14 6"/></svg>Prescriber license and exclusion screening cleared</li>
+              <li><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 9.5 3.2 3.2L14 6"/></svg>Matched to a pharmacy licensed in the patient's state</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+      <!-- 04 -->
+      <article class="hiw-block" data-stage data-label="Settled" data-hint="Payees named" data-reveal>
+        <span class="hiw-block__n">04</span>
+        <h2 class="hiw-block__label">Settled <span class="hiw-block__s">Payees named</span></h2>
+        <p class="hiw-block__cap" data-cap>The split is itemized on the record. The pharmacy is the merchant of record for the medication, and the Pharity fee is its own line, never folded into the price of the compound.</p>
+        <div class="rx" data-rec>
+          <div class="rx__head">
+            <div>
+              <p class="rx__k">Prescription record</p>
+              <p class="rx__id">RX-DEMO-4417</p>
+            </div>
+            <span class="ph-st" data-t="charged">Settled</span>
+          </div>
+          <dl class="rx__rows">
+            <div class="rx__row"><dt>Patient</dt><dd>E.N.</dd></div>
+            <div class="rx__row"><dt>Compound</dt><dd>Methylcobalamin 1&nbsp;mg/mL &middot; 30&nbsp;mL</dd></div>
+            <div class="rx__row"><dt>Prescriber</dt><dd>Dr. A. Reyes</dd></div>
+            <div class="rx__row"><dt>Clinic</dt><dd>Northside Aesthetics</dd></div>
+            <div class="rx__row"><dt>Signed</dt><dd><span class="ph-num">Aug 24 &middot; 2:14 PM CT</span></dd></div>
+            <div class="rx__row"><dt>Pharmacy</dt><dd>Apex Compounding Pharmacy</dd></div>
+            <div class="rx__row" data-state="pending"><dt>Tracking</dt><dd>Not shipped</dd></div>
+            <div class="rx__row" data-state="pending"><dt>Delivered</dt><dd>Not delivered</dd></div>
+          </dl>
+          <div class="rx__settle">
+            <div class="rx__settle-h"><span class="rx__k">Settlement</span><span>Payable to</span></div>
+            <div class="rx__line" data-state="new"><span>Medication and compounding</span><span>Apex Compounding Pharmacy</span></div>
+            <div class="rx__line" data-state="new"><span>Shipping</span><span>Apex Compounding Pharmacy</span></div>
+            <div class="rx__line" data-state="new"><span>Pharity platform fee</span><span>Pharity Health</span></div>
+            <p class="rx__note"><b>Merchant of record.</b> The pharmacy is paid for the medication and the shipping. Amounts appear in-platform against your own rate card.</p>
+          </div>
+          <div class="rx__wrote" data-wrote>
+            <p class="rx__wrote-h">Written at this stage</p>
+            <ul class="rx__wrote-list">
+              <li><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 9.5 3.2 3.2L14 6"/></svg>Medication and shipping settled to the pharmacy</li>
+              <li><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 9.5 3.2 3.2L14 6"/></svg>Pharity fee itemized on its own line</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+      <!-- 05 -->
+      <article class="hiw-block" data-stage data-label="Delivered" data-hint="Tracking written" data-reveal>
+        <span class="hiw-block__n">05</span>
+        <h2 class="hiw-block__label">Delivered <span class="hiw-block__s">Tracking written</span></h2>
+        <p class="hiw-block__cap" data-cap>The pharmacy compounds, dispenses and ships under its own license. Tracking writes straight back onto this record, and delivery closes it.</p>
+        <div class="rx" data-rec>
+          <div class="rx__head">
+            <div>
+              <p class="rx__k">Prescription record</p>
+              <p class="rx__id">RX-DEMO-4417</p>
+            </div>
+            <span class="ph-st" data-t="done">Delivered</span>
+          </div>
+          <dl class="rx__rows">
+            <div class="rx__row"><dt>Patient</dt><dd>E.N.</dd></div>
+            <div class="rx__row"><dt>Compound</dt><dd>Methylcobalamin 1&nbsp;mg/mL &middot; 30&nbsp;mL</dd></div>
+            <div class="rx__row"><dt>Prescriber</dt><dd>Dr. A. Reyes</dd></div>
+            <div class="rx__row"><dt>Clinic</dt><dd>Northside Aesthetics</dd></div>
+            <div class="rx__row"><dt>Signed</dt><dd><span class="ph-num">Aug 24 &middot; 2:14 PM CT</span></dd></div>
+            <div class="rx__row"><dt>Pharmacy</dt><dd>Apex Compounding Pharmacy</dd></div>
+            <div class="rx__row" data-state="new"><dt>Tracking</dt><dd><span class="ph-num">DEMO-4417-8821</span></dd></div>
+            <div class="rx__row" data-state="new"><dt>Delivered</dt><dd><span class="ph-num">Aug 27 &middot; 10:41 AM CT</span></dd></div>
+          </dl>
+          <div class="rx__settle">
+            <div class="rx__settle-h"><span class="rx__k">Settlement</span><span>Payable to</span></div>
+            <div class="rx__line"><span>Medication and compounding</span><span>Apex Compounding Pharmacy</span></div>
+            <div class="rx__line"><span>Shipping</span><span>Apex Compounding Pharmacy</span></div>
+            <div class="rx__line"><span>Pharity platform fee</span><span>Pharity Health</span></div>
+            <p class="rx__note"><b>Record closed.</b> Five state changes, each timestamped and attributable to a person. Exportable at any time.</p>
+          </div>
+          <div class="rx__wrote" data-wrote>
+            <p class="rx__wrote-h">Written at this stage</p>
+            <ul class="rx__wrote-list">
+              <li><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 9.5 3.2 3.2L14 6"/></svg>Tracking written back from the pharmacy</li>
+              <li><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 9.5 3.2 3.2L14 6"/></svg>Record closed with a full timestamped trail</li>
+              <li><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 9.5 3.2 3.2L14 6"/></svg>Audit trail exportable whole</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="hiw-close" data-reveal>
+      <p class="hiw-close__t">
+        One record, five states, and an audit trail that exports whole.
+      </p>
+      <div class="ph-btn-row">
+        <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html">
+          Apply for access
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+        </a>
+        <a class="ph-btn ph-btn--ghost ph-btn--lg" href="pricing.html">See pricing</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ WHAT STAYS WITH WHOM (from Why Pharity) ══════════════ -->
+<section class="ph-section ph-band--paper">
+  <div class="ph-container">
+    <p class="ph-eyebrow" data-reveal>What stays with whom</p>
+    <h2 class="ph-h2" data-reveal style="margin-top:16px;max-width:22ch">
+      Every part is owned by whoever is <span class="ph-gold">licensed to own it.</span>
+    </h2>
+    <p class="ph-lede" data-reveal style="margin-top:18px">
+      Pharity coordinates the handoffs and keeps the record. It does not take
+      over any part of the work that belongs to a license.
+    </p>
+
+    <div class="ph-grid ph-grid--3 ph-lead-gap">
+      <article class="ph-card" data-reveal>
+        <h3 class="ph-h4">The prescriber</h3>
+        <p class="ph-body ph-body--sm">Writes, and keeps clinical responsibility. Nothing routes and nothing is charged until a licensed prescriber signs.</p>
+      </article>
+      <article class="ph-card" data-reveal>
+        <h3 class="ph-h4">The pharmacy</h3>
+        <p class="ph-body ph-body--sm">Compounds and dispenses under its own license, and is the merchant of record on the medication.</p>
+      </article>
+      <article class="ph-card" data-reveal>
+        <h3 class="ph-h4">Pharity</h3>
+        <p class="ph-body ph-body--sm">Coordinates intake, routing, settlement and the audit trail. Not a pharmacy, a prescriber or a dispenser.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ WHAT RUNS UNDERNEATH: the one navy band ══════════════════
+     The client liked the photograph and the blue faded gradient, and did not
+     like the four translucent cards sitting on top of it: they read as boxes
+     dumped on an image, and being see-through the laptop in the photo showed
+     straight through the copy. The items now sit directly on the gradient,
+     separated by hairlines. No fill, no border, no icon plate.
+     ========================================================================= -->
+<section class="ph-section ph-band--navy hiw-after" style="--band-pos:50% 46%">
+  <img class="ph-band__img" src="assets/provider-workspace-navy.png" alt="" aria-hidden="true">
+  <div class="ph-container">
+    <div class="ph-split ph-split--copy-lead">
+      <div>
+        <p class="ph-eyebrow" data-reveal>What runs underneath</p>
+        <h2 class="ph-h2" data-reveal style="margin-top:16px;color:#fff;max-width:17ch">
+          The record is <span class="ph-gold">written as it happens.</span>
+        </h2>
+        <p class="ph-lede" data-reveal style="margin-top:20px;max-width:46ch">
+          Screening runs before an order can move, and every transition is
+          timestamped as it occurs. Nothing is reconstructed from email
+          afterwards.
+        </p>
+        <!-- The QUIET rank, deliberately.
+             This band sits between two gold primaries: the one that closes the
+             walkthrough above it and the one that closes the page below it.
+             Firing the same gold "Apply for access" pill a third time, twice
+             within two sections, is the thing that made the page's calls to
+             action read as noise rather than as a sequence. The home page
+             already settles this: its navy band carries --on-dark, not gold.
+             Same geometry as every other button on the site (52px, 34px
+             inline, pill, arrow); only the rank changes. -->
+        <div class="ph-btn-row" data-reveal style="margin-top:30px">
+          <a class="ph-btn ph-btn--on-dark ph-btn--lg" href="request-access.html">
+            Apply for access
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- data-reveal is on each ITEM, not on the list. The shell staggers
+           siblings that enter together by 60ms, grouped by parent, so three
+           items on the list itself was one block appearing at once; on the
+           items it is the intended cascade. -->
+      <ul class="ph-onband">
+        <li class="ph-onband__i" data-reveal>
+          <span class="ph-onband__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8 20 6v6c0 5-3.4 8.1-8 9.2C7.4 20.1 4 17 4 12V6z"/><path d="m8.8 12.2 2.3 2.3 4.1-4.3"/></svg></span>
+          <div>
+            <h3 class="ph-onband__h">Screening runs first</h3>
+            <p class="ph-onband__b">Prescribers are screened against exclusion lists and license status at onboarding, then re-checked on a schedule. Routing respects each pharmacy's licensure, state by state.</p>
+          </div>
+        </li>
+        <li class="ph-onband__i" data-reveal>
+          <span class="ph-onband__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
+          <div>
+            <h3 class="ph-onband__h">A trail written as it happens</h3>
+            <p class="ph-onband__b">Every state change on the record above carries a time and an actor, written at the moment it occurs. The trail exports whole.</p>
+          </div>
+        </li>
+        <li class="ph-onband__i" data-reveal>
+          <span class="ph-onband__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.4"/><path d="M2.5 10h19"/></svg></span>
+          <div>
+            <h3 class="ph-onband__h">Cash-pay only</h3>
+            <p class="ph-onband__b">Pharity does not bill or accept insurance, Medicare, Medicaid, or Tricare. Settlement runs against the clinic's card on file and nothing else.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ CLOSING ══════════════════════════ -->
+<section class="ph-section ph-band--warm hiw-after">
+  <div class="ph-container ph-cta-close">
+    <div class="ph-split">
+      <div>
+        <span class="ph-cta-rule" data-reveal aria-hidden="true"></span>
+        <p class="ph-eyebrow" data-reveal>Next step</p>
+        <h2 class="ph-h2" data-reveal style="margin-top:16px;max-width:18ch">
+          Put it next to how you work today.
+        </h2>
+        <p class="ph-lede" data-reveal style="margin-top:20px">
+          Free to connect, and clinics start at $0. Add the layers you actually
+          need. If you are starting from zero, Pharity can be the launch team.
+        </p>
+        <div class="ph-btn-row" data-reveal style="margin-top:30px">
+          <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html">
+            Apply for access
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+          </a>
+          <a class="ph-btn ph-btn--ghost ph-btn--lg" href="pricing.html">See pricing</a>
+        </div>
+      </div>
+      <figure class="ph-figure ph-figure--4x3" data-reveal>
+        <img src="assets/providers-established.png" alt="A clinic desk at the end of the day, notebook closed beside a laptop" loading="lazy">
+      </figure>
+    </div>
+
+    <!-- The shared trust component, all four approved phrases, FULL WIDTH.
+         It used to sit inside the split's left column, which is 540px at
+         1440: the component hard-codes four columns, so each phrase was
+         squeezed into 135px and wrapped to three ragged lines with hairline
+         dividers between them. Every other page in the site places it in a
+         plain container at full width, which is what it is built for.
+
+         The items are the component's CURRENT markup: a .ph-trust__fig
+         holding the figure, then a label, and no emblem on any cell -- see
+         the note in the stylesheet for why that is a rule here rather than a
+         preference. This page had been left on an older shape, a bare
+         unclassed <svg> beside a .ph-trust__label, and when the component was
+         rebuilt the stylesheet stopped carrying a size for that svg: measured
+         here at 1440, each mark rendered 224x224 and filled its cell. The four
+         phrases are unchanged and are copied verbatim from index.html and
+         pricing.html, which carry this exact set, so nothing here is a
+         wording decision made on this page. -->
+    <div class="ph-trustrow" data-reveal>
+      <div class="ph-trust--grid ph-hiw-trust">
+      <div class="ph-trust__item"><span class="ph-trust__fig">HIPAA</span><p class="ph-trust__label">Aligned platform</p></div>
+      <div class="ph-trust__item"><span class="ph-trust__fig">503<span class="ph-trust__sub">A/B</span></span><p class="ph-trust__label">Licensed partner pharmacies</p></div>
+      <div class="ph-trust__item"><span class="ph-trust__fig">Cash-pay</span><p class="ph-trust__label">Prescriber-directed</p></div>
+      <div class="ph-trust__item"><span class="ph-trust__fig">Audit</span><p class="ph-trust__label">Full trail on every order</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ══════════════════════════ FOOTER ══════════════════════════ -->
+<footer class="ph-footer">
+  <div class="ph-container">
+    <div class="ph-footer__top">
+      <div>
+        <a class="ph-logo" href="index.html" aria-label="Pharity home">
+          <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+               width="868" height="200" decoding="async">
+        </a>
+        <p class="ph-footer__blurb">
+          One coordinated layer between wellness clinics and licensed 503A compounding
+          pharmacies.
+        </p>
+        <p class="ph-footer__blurb ph-footer__contact">
+          <a href="mailto:hello@pharity.com">hello@pharity.com</a>
+        </p>
+      </div>
+      <div>
+        <p class="ph-footer__h">Platform</p>
+        <ul class="ph-footer__list">
+          <li><a href="for-clinics.html">For Clinics</a></li>
+          <li><a href="for-pharmacies.html">For Pharmacies</a></li>
+          <li><a href="why-pharity.html">Why Pharity</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Company</p>
+        <ul class="ph-footer__list">
+          <li><a href="request-access.html">Apply for access</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="sign-in.html">Sign in</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Legal</p>
+        <ul class="ph-footer__list">
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ph-footer__legal">
+      <p class="ph-disclosure"><strong>Cash-pay only.</strong> Pharity does not bill or accept insurance, Medicare, Medicaid, or Tricare.</p>
+      <p class="ph-disclosure"><strong>Prescriber-directed.</strong> Pharity does not prescribe, dispense, or practice medicine, and does not provide medical advice. All prescriptions are written by independently licensed prescribers who retain clinical responsibility. All medications are compounded and dispensed by independently licensed 503A pharmacies, which act as the merchant of record. Telehealth access is optional and available to clinics without a prescriber on staff.</p>
+      <p class="ph-disclosure"><strong>Sample data.</strong> The prescription record shown on this page is illustrative. It is not a real patient, prescriber, clinic, pharmacy or order.</p>
+    </div>
+
+    <div class="ph-footer__base">
+      <span>© 2026 Pharity Health LLC. All rights reserved.</span>
+      <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/pharity-site.js"></script>
+<script src="assets/pharity-hiw.js"></script>
+</body>
+</html>

@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pricing | Pharity</title>
+<meta name="description" content="Free to connect, add layers as you need them. Clinics start at $0 and 503A partner pharmacies join at $0. An optional telehealth layer at $399 a month, marketing plans from $1,500, a launch build quoted on a call, and Pharity Approved for partner pharmacies that want the Pharity Approved badge and a featured position in the catalog.">
+<link rel="icon" href="assets/pharity-mark-gold.png">
+<script>document.documentElement.classList.add('js')</script>
+<link rel="stylesheet" href="assets/pharity-site.css">
+<link rel="stylesheet" href="assets/pharity-pricing.css">
+</head>
+<body>
+<a class="ph-skip" href="#main">Skip to content</a>
+
+<header class="ph-nav">
+  <div class="ph-container ph-nav__inner">
+    <a class="ph-logo" href="index.html" aria-label="Pharity home">
+      <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+           width="868" height="200" decoding="async">
+    </a>
+
+    <nav class="ph-nav__links" aria-label="Primary">
+      <a class="ph-nav__link" href="index.html">Home</a>
+      <a class="ph-nav__link" href="for-clinics.html">For Clinics</a>
+      <a class="ph-nav__link" href="for-pharmacies.html">For Pharmacies</a>
+      <a class="ph-nav__link" href="why-pharity.html">Why Pharity</a>
+      <a class="ph-nav__link" href="pricing.html" aria-current="page">Pricing</a>
+    </nav>
+
+    <div class="ph-nav__actions">
+      <a class="ph-nav__signin ph-wipe" href="sign-in.html">Sign in</a>
+      <a class="ph-btn ph-btn--gold ph-btn--sm" href="request-access.html">Apply for access</a>
+      <div class="ph-nav__mobile">
+        <details class="ph-nav__disclosure">
+          <summary class="ph-nav__burger" aria-label="Menu">
+            <svg class="ph-nav__bars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3.5 7h17M3.5 12h17M3.5 17h17"/></svg>
+            <svg class="ph-nav__x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </summary>
+          <div class="ph-nav__panel">
+            <a href="index.html">Home</a>
+            <a href="for-clinics.html">For Clinics</a>
+            <a href="for-pharmacies.html">For Pharmacies</a>
+            <a href="why-pharity.html">Why Pharity</a>
+            <a href="pricing.html" aria-current="page">Pricing</a>
+            <hr>
+            <a href="contact.html">Contact</a>
+            <a href="sign-in.html">Sign in</a>
+            <a href="request-access.html">Apply for access</a>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- The clinics / pharmacies switch. These two inputs sit at the top of <main>
+     so the CSS can reach both the control in the hero and the panels in the
+     section below it with a following-sibling selector. -->
+<input class="ph-prctl" type="radio" name="pr-side" id="pr-clinics" checked>
+<input class="ph-prctl" type="radio" name="pr-side" id="pr-pharm">
+
+<section class="ph-section ph-prhero">
+  <img class="ph-prhero__img" src="assets/pricing-bg.png" alt="" aria-hidden="true"
+       decoding="async" fetchpriority="high">
+  <div class="ph-container">
+    <p class="ph-eyebrow" data-reveal>Pricing</p>
+
+    <h1 class="ph-h1" data-reveal style="margin-top:18px;max-width:30ch">
+      Free to connect. <span class="ph-gold">Add layers as you need them.</span>
+    </h1>
+
+    <p class="ph-lede" data-reveal style="margin-top:22px;max-width:56ch">
+      Clinics start at $0 and partner pharmacies join at $0. Nothing is bundled
+      in that you have not asked for, and what Pharity charges is always its
+      own line.
+    </p>
+
+    <ul class="ph-prstrip" data-reveal>
+      <li>Clinics start at $0</li>
+      <li>Pharmacies join at $0</li>
+      <li>Optional layers on either side</li>
+      <li>Nothing bundled in unasked</li>
+    </ul>
+
+    <div class="ph-prswitch" role="group" aria-label="Choose clinics or pharmacies" data-reveal>
+      <label class="ph-prswitch__opt" for="pr-clinics">For clinics</label>
+      <label class="ph-prswitch__opt" for="pr-pharm">For pharmacies</label>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ LAYERS ═══════════════════════════════════════════════════════════ -->
+<section class="ph-section ph-band--light">
+  <div class="ph-container">
+
+    <!-- ── Clinics ────────────────────────────────────────────────────── -->
+    <div class="ph-prside ph-prside--clinics">
+      <div class="ph-prlayers">
+
+        <input class="ph-prctl" type="radio" name="pr-layer" id="pr-l1" checked>
+        <input class="ph-prctl" type="radio" name="pr-layer" id="pr-l2">
+        <input class="ph-prctl" type="radio" name="pr-layer" id="pr-l3">
+        <input class="ph-prctl" type="radio" name="pr-layer" id="pr-l4">
+
+        <!-- Rail plus the standing facts. Both live in one sticky column so the
+             left side stays occupied against a panel that runs 660px on Base
+             access and 850px on Growth. -->
+        <div class="ph-praside">
+        <div class="ph-prrail" role="group" aria-label="Clinic layers">
+          <label class="ph-prrail__opt" for="pr-l1">
+            <span>
+              <span class="ph-prrail__name">Base access</span>
+              <span class="ph-prrail__note">Free to connect</span>
+            </span>
+            <span class="ph-prrail__price">$0</span>
+          </label>
+          <label class="ph-prrail__opt" for="pr-l2">
+            <span>
+              <span class="ph-prrail__name">Telehealth</span>
+              <span class="ph-prrail__note">Optional layer</span>
+            </span>
+            <span class="ph-prrail__price">$399/mo</span>
+          </label>
+          <label class="ph-prrail__opt" for="pr-l3">
+            <span>
+              <span class="ph-prrail__name">Growth</span>
+              <span class="ph-prrail__note">Marketing plans</span>
+            </span>
+            <span class="ph-prrail__price">From $1,500</span>
+          </label>
+          <label class="ph-prrail__opt" for="pr-l4">
+            <span>
+              <span class="ph-prrail__name">Launch build</span>
+              <span class="ph-prrail__note">Starting from zero</span>
+            </span>
+            <span class="ph-prrail__price">Quoted</span>
+          </label>
+        </div>
+
+          <aside class="ph-prfacts">
+            <p class="ph-prfacts__h">True on every layer</p>
+            <ul class="ph-prfacts__list">
+              <li>Cash-pay only, with nothing billed to insurance</li>
+              <li>The pharmacy stays the merchant of record</li>
+              <li>What Pharity charges is always its own line</li>
+            </ul>
+            <a class="ph-prfacts__link ph-wipe" href="contact.html">
+              Not sure where you land? Talk to us
+            </a>
+          </aside>
+        </div>
+
+        <!-- 1. Base access -->
+        <div class="ph-panel ph-prpanel ph-prpanel--1">
+          <p class="ph-eyebrow">Free to connect</p>
+          <h2 class="ph-h2" style="margin-top:14px;max-width:20ch">
+            Start at $0. <span class="ph-gold">Add only what you need.</span>
+          </h2>
+          <p class="ph-body" style="margin-top:16px;max-width:52ch">
+            Connect your prescribers, see the partner catalog and route your
+            first prescription without a platform fee. Nothing above this line
+            turns on unless you ask for it.
+          </p>
+
+          <div class="ph-prprice">
+            <span class="ph-prprice__amt">$0</span>
+            <span class="ph-prprice__per">to start</span>
+          </div>
+          <hr class="ph-prrule">
+
+          <ul class="ph-list">
+            <li>E-prescribing and pharmacy routing</li>
+            <li>Every order tracked on one queue</li>
+            <li>Prescriber and pharmacy screening on each route</li>
+            <li>Exportable audit trail</li>
+            <li>Settlement configured before your first order</li>
+          </ul>
+
+          <div class="ph-btn-row">
+            <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html">
+              Apply for access
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+            </a>
+            <a class="ph-btn ph-btn--ghost ph-btn--lg" href="why-pharity.html">Why Pharity</a>
+          </div>
+        </div>
+
+        <!-- 2. Telehealth -->
+        <div class="ph-panel ph-prpanel ph-prpanel--2">
+          <p class="ph-eyebrow">Optional layer</p>
+          <h2 class="ph-h2" style="margin-top:14px;max-width:22ch">
+            A telehealth path for clinics <span class="ph-gold">without a prescriber on staff.</span>
+          </h2>
+          <p class="ph-body" style="margin-top:16px;max-width:52ch">
+            Turn this on only if your clinic needs a prescribing route it does
+            not have in house. Prescribing stays with independently licensed
+            prescribers, who keep clinical responsibility for every decision
+            they make. Pharity does not prescribe, dispense, or practice
+            medicine.
+          </p>
+
+          <div class="ph-prprice">
+            <span class="ph-prprice__amt">$399</span>
+            <span class="ph-prprice__per">per month</span>
+          </div>
+          <hr class="ph-prrule">
+
+          <ul class="ph-list">
+            <li>An optional patient visit path, off by default</li>
+            <li>Intake and consent presented on your brand</li>
+            <li>Independently licensed prescribers keep clinical responsibility</li>
+            <li>Configured with you during onboarding</li>
+            <li>Month to month, with no commitment</li>
+          </ul>
+
+          <div class="ph-btn-row">
+            <a class="ph-btn ph-btn--gold ph-btn--lg" href="contact.html">
+              Talk to us
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- 3. Growth -->
+        <div class="ph-panel ph-prpanel ph-prpanel--3">
+          <p class="ph-eyebrow">Marketing plans</p>
+          <h2 class="ph-h2" style="margin-top:14px;max-width:22ch">
+            Marketing, scoped to <span class="ph-gold">the work you want done.</span>
+          </h2>
+          <p class="ph-body" style="margin-top:16px;max-width:52ch">
+            Three plans, all optional and all separate from the network itself.
+            Pick the one that matches how much you want built and run each
+            month.
+          </p>
+
+          <div class="ph-prplans">
+            <div class="ph-prplan">
+              <div>
+                <p class="ph-prplan__name">Essentials</p>
+                <p class="ph-prplan__scope">
+                  One channel, landing pages and a monthly reporting cadence.
+                </p>
+              </div>
+              <p class="ph-prplan__fig">$1,500<span>per month</span></p>
+            </div>
+            <div class="ph-prplan">
+              <div>
+                <p class="ph-prplan__name">Expanded</p>
+                <p class="ph-prplan__scope">
+                  Multiple channels, campaign management and lifecycle
+                  automation across email and SMS.
+                </p>
+              </div>
+              <p class="ph-prplan__fig">$3,000<span>per month</span></p>
+            </div>
+            <div class="ph-prplan">
+              <div>
+                <p class="ph-prplan__name">Full service</p>
+                <p class="ph-prplan__scope">
+                  Creative production, a dedicated strategist and integration
+                  work alongside the campaigns.
+                </p>
+              </div>
+              <p class="ph-prplan__fig">$5,000<span>per month</span></p>
+            </div>
+          </div>
+
+          <hr class="ph-prrule">
+          <p class="ph-body ph-body--sm" style="color:var(--ink-3)">Every plan includes</p>
+          <ul class="ph-list" style="margin-top:12px">
+            <li>A named point of contact</li>
+            <li>Scope agreed in writing before any work starts</li>
+            <li>Monthly reporting on what was built and run</li>
+            <li>Month to month, with no commitment</li>
+          </ul>
+
+          <div class="ph-btn-row">
+            <a class="ph-btn ph-btn--gold ph-btn--lg" href="contact.html">
+              Talk to us
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- 4. Launch build -->
+        <div class="ph-panel ph-prpanel ph-prpanel--4">
+          <p class="ph-eyebrow">Starting from zero</p>
+          <h2 class="ph-h2" style="margin-top:14px;max-width:20ch">
+            Pharity can be <span class="ph-gold">the launch team.</span>
+          </h2>
+          <p class="ph-body" style="margin-top:16px;max-width:52ch">
+            For a practice that does not exist yet. The pieces get stood up in
+            the order the clinic needs them, as one workflow rather than six
+            vendors.
+          </p>
+
+          <div class="ph-prprice">
+            <span class="ph-prprice__amt">Quoted</span>
+            <span class="ph-prprice__per">after a scoping call</span>
+          </div>
+          <hr class="ph-prrule">
+
+          <ul class="ph-list">
+            <li>Intake and consent on your brand</li>
+            <li>Pharmacy access matched to your state and catalog</li>
+            <li>Prescriber onboarding and screening</li>
+            <li>Settlement set up before your first order</li>
+            <li>Handover with your team trained on the queue</li>
+          </ul>
+
+          <p class="ph-prnote">
+            <strong>Why there is no figure here.</strong> A launch build is
+            scoped on a call, so we quote after the conversation rather than
+            before it.
+          </p>
+
+          <div class="ph-btn-row">
+            <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html?role=launch">
+              Start from zero
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Pharmacies ─────────────────────────────────────────────────────
+         Same rail-and-panel construction as the clinics side. It used to be a
+         flat two-column split, so the two halves of the same control read as
+         two different page types; now the switch changes the CONTENT and not
+         the layout, which is what a switch is supposed to do.
+
+         The routing sentence is deliberately duplicated: once in the standing
+         facts, where it is true whichever layer is selected, and again inside
+         the Pharity Approved panel, where it is the thing a reader most needs
+         at the moment they are reading about a paid visibility layer. -->
+    <div class="ph-prside ph-prside--pharm">
+      <div class="ph-prlayers">
+
+        <input class="ph-prctl" type="radio" name="pr-player" id="pr-p1" checked>
+        <input class="ph-prctl" type="radio" name="pr-player" id="pr-p2">
+
+        <div class="ph-praside">
+          <div class="ph-prrail" role="group" aria-label="Pharmacy layers">
+            <label class="ph-prrail__opt" for="pr-p1">
+              <span>
+                <span class="ph-prrail__name">Partner access</span>
+                <span class="ph-prrail__note">Free to join</span>
+              </span>
+              <span class="ph-prrail__price">$0</span>
+            </label>
+            <label class="ph-prrail__opt" for="pr-p2">
+              <span>
+                <span class="ph-prrail__name ph-prrail__name--mark">
+                  <svg class="ph-apprmark ph-apprmark--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4.6 20.4V10.6a7.4 7.4 0 0 1 14.8 0v9.8z" stroke-width="1.5" stroke-linejoin="round"/><path d="m8.9 14 2.4 2.4 4.4-5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Pharity Approved
+                </span>
+                <span class="ph-prrail__note">Visibility layer</span>
+              </span>
+              <span class="ph-prrail__price">Contact us</span>
+            </label>
+          </div>
+
+          <aside class="ph-prfacts">
+            <p class="ph-prfacts__h">True on every layer</p>
+            <ul class="ph-prfacts__list">
+              <li>Routing is matched on state licensure, catalog coverage and capacity</li>
+              <li>Every partner pharmacy's state licensure is checked on every route</li>
+              <li>You remain the merchant of record on every order</li>
+              <li>You set your own catalog and your own pricing</li>
+            </ul>
+            <a class="ph-prfacts__link ph-wipe" href="contact.html">
+              Not sure where you land? Talk to us
+            </a>
+          </aside>
+        </div>
+
+        <!-- p1. Partner access -->
+        <div class="ph-panel ph-prpanel ph-prpanel--p1">
+          <p class="ph-eyebrow">Free to join</p>
+          <h2 class="ph-h2" style="margin-top:14px;max-width:22ch">
+            Join at $0. <span class="ph-gold">Keep your catalog and your prices.</span>
+          </h2>
+          <p class="ph-body" style="margin-top:16px;max-width:52ch">
+            Partner pharmacies pay no platform fee to join. You stay the
+            merchant of record, you set your own prices, and what Pharity
+            charges never folds into your preparation.
+          </p>
+
+          <div class="ph-prprice">
+            <span class="ph-prprice__amt">$0</span>
+            <span class="ph-prprice__per">to join</span>
+          </div>
+          <hr class="ph-prrule">
+
+          <ul class="ph-list">
+            <li>Prescriptions routed from connected clinics</li>
+            <li>You set your own catalog and your own pricing</li>
+            <li>You remain the merchant of record on every order</li>
+            <li>Status updates sync back to the clinic queue</li>
+            <li>State licensure checked on each route</li>
+            <li>Exportable audit trail</li>
+          </ul>
+
+          <p class="ph-prnote">
+            <strong>Routing is never for sale.</strong> Prescriptions are
+            matched on state licensure, catalog coverage and capacity. No
+            payment moves an order toward one pharmacy over another, on this
+            layer or on any other.
+          </p>
+
+          <div class="ph-btn-row">
+            <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html">
+              Apply for access
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+            </a>
+            <a class="ph-btn ph-btn--ghost ph-btn--lg" href="for-pharmacies.html">For pharmacies</a>
+          </div>
+        </div>
+
+        <!-- p2. Pharity Approved -->
+        <div class="ph-panel ph-prpanel ph-prpanel--p2">
+          <p class="ph-eyebrow">Visibility layer</p>
+          <h2 class="ph-h2" style="margin-top:14px;max-width:20ch">
+            Carry the badge. <span class="ph-gold">Stand out in the catalog.</span>
+          </h2>
+          <p class="ph-body" style="margin-top:16px;max-width:52ch">
+            Pharity Approved is a marketing layer. Your profile carries the
+            Pharity Approved badge, and your listing takes a featured position
+            in the partner catalog clinics browse. It changes what a clinic
+            sees. It does not change where a prescription goes, and it is not
+            an extra check: every partner pharmacy's state licensure is
+            checked on every route, badge or no badge.
+          </p>
+
+          <div class="ph-apprlock">
+            <span class="ph-apprlock__seal">
+              <svg class="ph-apprmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4.6 20.4V10.6a7.4 7.4 0 0 1 14.8 0v9.8z" stroke-width="1.5" stroke-linejoin="round"/><path d="m8.9 14 2.4 2.4 4.4-5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span>
+              <span class="ph-apprlock__name">Pharity Approved</span>
+              <span class="ph-apprlock__sub">Featured partner pharmacy</span>
+            </span>
+          </div>
+
+          <div class="ph-prprice">
+            <span class="ph-prprice__amt ph-prprice__amt--word">Contact us</span>
+            <span class="ph-prprice__per">for current rates</span>
+          </div>
+          <hr class="ph-prrule">
+
+          <ul class="ph-list">
+            <li>The Pharity Approved badge on your partner profile</li>
+            <li>A featured position in the partner catalog clinics browse</li>
+            <li>An expanded profile: capabilities, turnaround and formulation strengths</li>
+            <li>Named in Pharity campaigns, launch announcements and partner materials</li>
+            <li>The badge is tied to current licensure and reviewed each year</li>
+            <li>Month to month, with no commitment</li>
+          </ul>
+
+          <p class="ph-prnote">
+            <strong>Visibility, not routing.</strong> This layer changes how
+            prominently a pharmacy appears in the catalog, and nothing else.
+            Routing is matched on state licensure, catalog coverage and
+            capacity, and no payment moves a prescription toward one pharmacy
+            over another.
+          </p>
+
+          <div class="ph-btn-row">
+            <a class="ph-btn ph-btn--gold ph-btn--lg" href="contact.html">
+              Talk to us
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+            </a>
+            <a class="ph-btn ph-btn--ghost ph-btn--lg" href="for-pharmacies.html">For pharmacies</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══ HOW THE FEE IS PRESENTED ═════════════════════════════════════════ -->
+<section class="ph-section ph-band--paper ph-prfee">
+  <div class="ph-container">
+    <div class="ph-split ph-split--copy-lead">
+      <div>
+        <p class="ph-eyebrow" data-reveal>How the fee is presented</p>
+        <h2 class="ph-h2" data-reveal style="margin-top:16px;max-width:20ch">
+          Itemized, <span class="ph-gold">never bundled.</span>
+        </h2>
+        <p class="ph-lede" data-reveal style="margin-top:18px">
+          The clinic's card on file is charged when the prescriber signs. What
+          the pharmacy charges and what Pharity charges are separate lines on
+          the same record, so you can always see which is which.
+        </p>
+      </div>
+      <div class="ph-grid ph-grid--2">
+        <article class="ph-card ph-card--flat" data-reveal>
+          <h3 class="ph-h4">The pharmacy is the merchant of record</h3>
+          <p class="ph-body ph-body--sm">Funds for the preparation settle to the pharmacy's own account, not through a Pharity balance.</p>
+        </article>
+        <article class="ph-card ph-card--flat" data-reveal>
+          <h3 class="ph-h4">Your price is your price</h3>
+          <p class="ph-body ph-body--sm">Pharmacies set their own catalog and pricing. Pharity's fee never folds into the preparation.</p>
+        </article>
+        <article class="ph-card ph-card--flat" data-reveal>
+          <h3 class="ph-h4">Cash-pay only</h3>
+          <p class="ph-body ph-body--sm">Pharity does not bill or accept insurance, Medicare, Medicaid, or Tricare.</p>
+        </article>
+        <article class="ph-card ph-card--flat" data-reveal>
+          <h3 class="ph-h4">Priced to your volume</h3>
+          <p class="ph-body ph-body--sm">The rate card is set against the volume you actually run, so the number you get is yours and not a headline rate.</p>
+        </article>
+      </div>
+    </div>
+
+    <div style="margin-top:56px">
+      <div class="ph-trustrow" data-reveal>
+        <div class="ph-trust--grid">
+        <div class="ph-trust__item"><span class="ph-trust__fig">HIPAA</span><p class="ph-trust__label">Aligned platform</p></div>
+        <div class="ph-trust__item"><span class="ph-trust__fig">503<span class="ph-trust__sub">A/B</span></span><p class="ph-trust__label">Licensed partner pharmacies</p></div>
+        <div class="ph-trust__item"><span class="ph-trust__fig">Cash-pay</span><p class="ph-trust__label">Prescriber-directed</p></div>
+        <div class="ph-trust__item"><span class="ph-trust__fig">Audit</span><p class="ph-trust__label">Full trail on every order</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ FAQ ══════════════════════════════════════════════════════════════ -->
+<section class="ph-section ph-band--light">
+  <div class="ph-container ph-container--tight">
+    <p class="ph-eyebrow" data-reveal>FAQ</p>
+    <h2 class="ph-h2" data-reveal style="margin-top:16px;max-width:16ch">
+      Questions, <span class="ph-gold">answered.</span>
+    </h2>
+
+    <div class="ph-prfaq ph-lead-gap">
+
+      <details class="ph-prfaq__item" data-reveal>
+        <summary class="ph-prfaq__q">
+          Is there a setup fee?
+          <span class="ph-prfaq__sign" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16"/><path class="ph-prfaq__v" d="M12 4v16"/></svg></span>
+        </summary>
+        <div class="ph-prfaq__a">
+          Not for base access. Clinics connect at $0 and partner pharmacies join
+          at $0. The telehealth layer, the marketing plans and Pharity Approved
+          are all month to month, and a launch build is quoted after a scoping
+          call.
+        </div>
+      </details>
+
+      <details class="ph-prfaq__item" data-reveal>
+        <summary class="ph-prfaq__q">
+          Are the monthly layers the only cost?
+          <span class="ph-prfaq__sign" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16"/><path class="ph-prfaq__v" d="M12 4v16"/></svg></span>
+        </summary>
+        <div class="ph-prfaq__a">
+          The layers on this page are the subscription side, and they are the
+          only recurring charges. Separately, what Pharity charges on an order
+          sits as its own line on the record beside what the pharmacy charges,
+          so the two are never folded together. That rate card is set against
+          the volume you actually run, and you see it in full before anything
+          is signed.
+        </div>
+      </details>
+
+      <details class="ph-prfaq__item" data-reveal>
+        <summary class="ph-prfaq__q">
+          How does the optional telehealth layer work?
+          <span class="ph-prfaq__sign" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16"/><path class="ph-prfaq__v" d="M12 4v16"/></svg></span>
+        </summary>
+        <div class="ph-prfaq__a">
+          It is there for clinics that do not have a prescriber on staff.
+          Patients are seen by independently licensed prescribers who retain
+          clinical responsibility for what they write. Pharity does not
+          prescribe, dispense, or practice medicine, and the layer is entirely
+          optional: a clinic with its own prescribers never turns it on.
+        </div>
+      </details>
+
+      <details class="ph-prfaq__item" data-reveal>
+        <summary class="ph-prfaq__q">
+          Can a pharmacy pay for preferred routing?
+          <span class="ph-prfaq__sign" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16"/><path class="ph-prfaq__v" d="M12 4v16"/></svg></span>
+        </summary>
+        <div class="ph-prfaq__a">
+          No. Routing is matched on state licensure, catalog coverage and
+          capacity, and nothing a pharmacy pays changes where a prescription
+          goes. Pharity Approved is a marketing layer rather than a routing
+          one: it puts the Pharity Approved badge on your partner profile and
+          gives your listing a featured position in the catalog clinics browse.
+          It changes what a clinic sees, not where an order is sent, and it is
+          not a second layer of vetting. Every partner pharmacy's state
+          licensure is checked on every route whether it carries the badge or
+          not.
+        </div>
+      </details>
+
+      <details class="ph-prfaq__item" data-reveal>
+        <summary class="ph-prfaq__q">
+          What does Pharity Approved include?
+          <span class="ph-prfaq__sign" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16"/><path class="ph-prfaq__v" d="M12 4v16"/></svg></span>
+        </summary>
+        <div class="ph-prfaq__a">
+          The Pharity Approved badge on your partner profile, a featured
+          position in the partner catalog clinics browse, an expanded profile
+          covering capabilities and turnaround, and inclusion in Pharity
+          campaigns and partner announcements. The badge is tied to your
+          licensure staying current and is reviewed each year. It is month to
+          month, and it is priced on a call against your footprint.
+        </div>
+      </details>
+
+      <details class="ph-prfaq__item" data-reveal>
+        <summary class="ph-prfaq__q">
+          When is the clinic charged?
+          <span class="ph-prfaq__sign" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16"/><path class="ph-prfaq__v" d="M12 4v16"/></svg></span>
+        </summary>
+        <div class="ph-prfaq__a">
+          The card on file is charged when the prescriber signs. What the
+          pharmacy charges for the preparation and what Pharity charges appear
+          as separate lines on the same record, so the two are never bundled
+          together.
+        </div>
+      </details>
+
+      <details class="ph-prfaq__item" data-reveal>
+        <summary class="ph-prfaq__q">
+          Do you bill insurance?
+          <span class="ph-prfaq__sign" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16"/><path class="ph-prfaq__v" d="M12 4v16"/></svg></span>
+        </summary>
+        <div class="ph-prfaq__a">
+          No. Pharity is cash-pay only and does not bill or accept insurance,
+          Medicare, Medicaid, or Tricare.
+        </div>
+      </details>
+
+      <details class="ph-prfaq__item" data-reveal>
+        <summary class="ph-prfaq__q">
+          Can I cancel?
+          <span class="ph-prfaq__sign" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16"/><path class="ph-prfaq__v" d="M12 4v16"/></svg></span>
+        </summary>
+        <div class="ph-prfaq__a">
+          Yes. The telehealth layer, the marketing plans and Pharity Approved
+          are month to month. Base access for clinics and for pharmacies
+          carries no commitment at all.
+        </div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ CLOSE ════════════════════════════════════════════════════════════ -->
+<section class="ph-section ph-band--warm">
+  <div class="ph-container ph-container--tight ph-cta-close" style="text-align:center">
+    <span class="ph-cta-rule" data-reveal aria-hidden="true"></span>
+    <p class="ph-eyebrow" data-reveal style="justify-content:center">Next step</p>
+    <h2 class="ph-h2" data-reveal style="margin-top:18px">
+      Get your <span class="ph-gold">rate card.</span>
+    </h2>
+    <p class="ph-lede" data-reveal style="margin-top:20px;margin-inline:auto;max-width:50ch;text-align:center">
+      Apply for access and you see the current numbers, set against the
+      volume you actually run, before anything is signed.
+    </p>
+    <div class="ph-btn-row" data-reveal style="margin-top:32px;justify-content:center">
+      <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html">
+        Apply for access
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+      </a>
+      <a class="ph-btn ph-btn--ghost ph-btn--lg" href="why-pharity.html">Why Pharity</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="ph-footer">
+  <div class="ph-container">
+    <div class="ph-footer__top">
+      <div>
+        <a class="ph-logo" href="index.html" aria-label="Pharity home">
+          <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+               width="868" height="200" decoding="async">
+        </a>
+        <p class="ph-footer__blurb">
+          One coordinated layer between wellness clinics and licensed 503A compounding
+          pharmacies.
+        </p>
+        <p class="ph-footer__blurb ph-footer__contact">
+          <a href="mailto:hello@pharity.com">hello@pharity.com</a>
+        </p>
+      </div>
+      <div>
+        <p class="ph-footer__h">Platform</p>
+        <ul class="ph-footer__list">
+          <li><a href="for-clinics.html">For Clinics</a></li>
+          <li><a href="for-pharmacies.html">For Pharmacies</a></li>
+          <li><a href="why-pharity.html">Why Pharity</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Company</p>
+        <ul class="ph-footer__list">
+          <li><a href="request-access.html">Apply for access</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="sign-in.html">Sign in</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Legal</p>
+        <ul class="ph-footer__list">
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ph-footer__legal">
+      <p class="ph-disclosure"><strong>Cash-pay only.</strong> Pharity does not bill or accept insurance, Medicare, Medicaid, or Tricare.</p>
+      <p class="ph-disclosure"><strong>Prescriber-directed.</strong> Pharity does not prescribe, dispense, or practice medicine, and does not provide medical advice. All prescriptions are written by independently licensed prescribers who retain clinical responsibility. All medications are compounded and dispensed by independently licensed 503A pharmacies, which act as the merchant of record. Telehealth access is optional and available to clinics without a prescriber on staff.</p>
+    </div>
+
+    <div class="ph-footer__base">
+      <span>© 2026 Pharity Health LLC. All rights reserved.</span>
+      <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/pharity-site.js"></script>
+</body>
+</html>

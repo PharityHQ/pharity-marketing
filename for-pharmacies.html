@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>For pharmacies | Pharity</title>
+<meta name="description" content="Free to join the Pharity network. Receive routed, credentialed clinic demand. You set your catalog, your pricing, and your turnaround, and you remain the merchant of record on every order.">
+<link rel="icon" href="assets/pharity-mark-gold.png">
+<script>document.documentElement.classList.add('js')</script>
+<link rel="stylesheet" href="assets/pharity-site.css">
+<style>
+/* ── Page-scoped only. Two things the shared shell does not carry:
+      a hairline spec list, and the mono settlement record.
+      Both are built from shell tokens: no new colors, no shadows.       */
+
+/* Hairline spec list: a gold dash marker instead of an icon, so the
+   block stays as quiet as the rules around it.
+   The marker is absolutely positioned rather than a grid/flex child: a row
+   holding <strong> plus a trailing text node would otherwise split into two
+   grid items and wrap to one word per line. */
+.pg-spec { border-top: 1px solid var(--line); }
+.pg-spec li {
+  position: relative;
+  padding: 13px 2px 13px 28px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: .9375rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.pg-spec li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 1.68em;
+  width: 12px; height: 1px;
+  background: var(--gold);
+}
+.pg-spec strong { color: var(--navy); font-weight: 600; }
+
+/* Hover: the shell's signature, fitted to a hairline row.
+
+   The li's BOX IS NOT TOUCHED. Its border-bottom is what draws the list's
+   hairlines, so any negative inline margin to make the fill bleed wider would
+   silently widen every rule in the resting state too: the fill and the rule
+   are the same box. So the fill spans exactly the hairline, which is what a
+   row highlight should do anyway.
+
+   A left bar is this page's own established idiom for "this row matters":
+   .pg-rec__r--key already marks the two load-bearing settlement rows with a
+   permanent 2px gold edge. Hover borrows it.
+
+   ::before is already the gold dash, so the growing edge is ::after, and the
+   dash moves right out of its way: rule at 0-2, dash at 14-26, text at 34.
+   Text indents 6px versus before; the hairlines do not move at all. */
+.pg-spec li {
+  padding-left: 34px;
+  transition: background-color 170ms var(--ease), color 170ms var(--ease);
+}
+.pg-spec li::before { left: 14px; }
+.pg-spec li::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--gold);
+  transform: scaleY(0);
+  transform-origin: 50% 0;
+  transition: transform 170ms var(--ease);
+  pointer-events: none;
+}
+/* color, not just the <strong>: on a lead-in row the strong is already navy,
+   so what actually lifts is the grey sentence after it. */
+.pg-spec li:hover {
+  background-color: var(--panel-a);
+  color: var(--navy);
+}
+.pg-spec li:hover::after { transform: scaleY(1); }
+@media (prefers-reduced-motion: reduce) {
+  .pg-spec li::after { transition: none; }
+}
+
+/* The settlement record answers too, but only as a tint: the two --key rows
+   carry a permanent gold edge that a hover edge would fight, and the block is
+   a document rather than a menu. */
+.pg-rec__r { transition: background-color 170ms var(--ease); }
+.pg-rec__body .pg-rec__r:hover { background-color: rgb(241 223 179 / .34); }
+.pg-rec__r--key:hover { background-color: rgb(241 223 179 / .52); }
+
+/* One list, two columns, read down the left then down the right. Rows align
+   across the columns so the hairlines stay on a single baseline grid. */
+.pg-spec--2col {
+  display: grid;
+  grid-template-rows: repeat(3, auto);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  column-gap: clamp(28px, 4vw, 56px);
+}
+@media (max-width: 760px) {
+  .pg-spec--2col { display: block; }
+}
+
+/* Mono settlement record. Amounts are deliberately absent: the point of
+   the block is where money lands, not how much. */
+.pg-rec {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-size: .8125rem;
+  line-height: 1.5;
+}
+.pg-rec__head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+  padding: 13px 20px;
+  background: var(--panel-a);
+  border-bottom: 1px solid var(--line);
+  font-family: var(--sans);
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--navy);
+}
+.pg-rec__tag {
+  flex: none;
+  padding: 4px 9px;
+  border: 1px solid var(--line-gold);
+  border-radius: var(--r-pill);
+  background: var(--gold-wash);
+  font-size: 10px; letter-spacing: .1em;
+  color: var(--navy);
+}
+.pg-rec__body { padding: 10px 20px 18px; }
+.pg-rec__r {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  gap: 8px 16px;
+  padding: 8px 0;
+}
+.pg-rec__k { color: var(--ink-3); }
+.pg-rec__v { color: var(--navy); }
+.pg-rec__n { display: block; color: var(--ink-3); }
+.pg-rec__sep { height: 1px; background: var(--line-soft); margin: 9px 0; border: 0; }
+
+/* The two rows that carry the whole argument get a gold edge. */
+.pg-rec__r--key {
+  position: relative;
+  margin-inline: -20px;
+  padding-inline: 20px;
+  background: rgb(241 223 179 / .30);
+}
+.pg-rec__r--key::before {
+  content: "";
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 2px; background: var(--gold);
+}
+.pg-rec__r--key .pg-rec__v { font-weight: 600; }
+/* The highlight bleeds to the card's side edges, so it must reach the bottom
+   edge too: otherwise it stops short against the body's padding. */
+.pg-rec__r--key:last-child { margin-bottom: -18px; padding-bottom: 18px; }
+
+@media (max-width: 520px) {
+  /* padding-block, never the `padding` shorthand: the shorthand would reset
+     padding-inline on the key rows while their -20px margin-inline survived,
+     hanging their text outside the card. */
+  .pg-rec { font-size: .75rem; }
+  .pg-rec__r { grid-template-columns: minmax(0, 1fr); gap: 2px; padding-block: 9px; }
+  .pg-rec__k { font-size: .95em; }
+  .pg-rec__body { padding-inline: 16px; }
+  .pg-rec__r--key { margin-inline: -16px; padding-inline: 16px; }
+}
+
+/* Two spec columns sit closer than the default grid gap: they read as one
+   table, not two cards. */
+.pg-specs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(28px, 4vw, 56px); }
+@media (max-width: 760px) { .pg-specs { grid-template-columns: minmax(0, 1fr); gap: 36px; } }
+</style>
+</head>
+<body>
+<a class="ph-skip" href="#main">Skip to content</a>
+
+<!-- ═══════════════════════════ NAV ═══════════════════════════ -->
+<header class="ph-nav">
+  <div class="ph-container ph-nav__inner">
+    <a class="ph-logo" href="index.html" aria-label="Pharity home">
+      <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+           width="868" height="200" decoding="async">
+    </a>
+
+    <nav class="ph-nav__links" aria-label="Primary">
+      <a class="ph-nav__link" href="index.html">Home</a>
+      <a class="ph-nav__link" href="for-clinics.html">For Clinics</a>
+      <a class="ph-nav__link" href="for-pharmacies.html" aria-current="page">For Pharmacies</a>
+      <a class="ph-nav__link" href="why-pharity.html">Why Pharity</a>
+      <a class="ph-nav__link" href="pricing.html">Pricing</a>
+    </nav>
+
+    <div class="ph-nav__actions">
+      <a class="ph-nav__signin ph-wipe" href="sign-in.html">Sign in</a>
+      <a class="ph-btn ph-btn--gold ph-btn--sm" href="request-access.html">Apply for access</a>
+      <div class="ph-nav__mobile">
+        <details class="ph-nav__disclosure">
+          <summary class="ph-nav__burger" aria-label="Menu">
+            <svg class="ph-nav__bars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3.5 7h17M3.5 12h17M3.5 17h17"/></svg>
+            <svg class="ph-nav__x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </summary>
+          <div class="ph-nav__panel">
+            <a href="index.html">Home</a>
+            <a href="for-clinics.html">For Clinics</a>
+            <a href="for-pharmacies.html" aria-current="page">For Pharmacies</a>
+            <a href="why-pharity.html">Why Pharity</a>
+            <a href="pricing.html">Pricing</a>
+            <hr>
+            <a href="contact.html">Contact</a>
+            <a href="sign-in.html">Sign in</a>
+            <a href="request-access.html">Apply for access</a>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<section class="ph-section ph-band--light">
+  <div class="ph-container">
+    <div class="ph-split ph-split--copy-lead">
+
+      <div>
+        <p class="ph-eyebrow" data-reveal>For 503A compounding pharmacies</p>
+
+        <!-- Sized a touch under ph-display's ceiling so the line breaks land on
+             the clause boundaries: "Routed demand." / "Your pharmacy" / "stays
+             yours." At the full 4.5rem the column only fits 12 characters and
+             the rag strands "Routed" and "pharmacy" on lines of their own. -->
+        <h1 class="ph-h1" data-reveal style="margin-top:20px">
+          Routed demand. Your pharmacy <span class="ph-gold">stays yours.</span>
+        </h1>
+
+        <p class="ph-lede" data-reveal style="margin-top:24px;max-width:48ch">
+          You remain the merchant of record on every order you fill. You set the
+          catalog, the pricing and the turnaround. Prescriptions arrive screened and
+          complete, only from states you are licensed to ship to. Free to join.
+        </p>
+
+        <div class="ph-btn-row" data-reveal style="margin-top:32px">
+          <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html?role=pharmacy">
+            Apply to join
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+          </a>
+          <a class="ph-btn ph-btn--ghost ph-btn--lg" href="#routing">How routing works</a>
+        </div>
+
+      </div>
+
+      <figure class="ph-figure" data-reveal
+              style="align-self:stretch;min-height:clamp(340px,44vw,540px)">
+        <img src="assets/pharmacies-hero.png"
+             alt="A compounding bench at golden hour: a gloved hand arranging amber vials on a stainless tray beside a graduated beaker and a mortar and pestle, with shelves of amber bottles behind.">
+      </figure>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ TRUST BAND ═══════════════════════ -->
+<section class="ph-section ph-section--sm ph-band--paper">
+  <div class="ph-container">
+    <div class="ph-trustrow" data-reveal>
+      <div class="ph-trust--grid">
+      <!-- Both credential cells must name the HOLDER. 503A/B licensure and
+           PCAB accreditation belong to the partner pharmacies, never to
+           Pharity, and this strip sits among cells that DO describe Pharity
+           ("Merchant of record", "Full trail on every order") in identical
+           styling, so an unattributed credential here reads as ours. Keep the
+           word "partner" in both labels; it is the only thing carrying the
+           attribution. This is the one page in the site that mentions PCAB at
+           all, and every other page says "partner" too. -->
+      <div class="ph-trust__item"><span class="ph-trust__fig">503<span class="ph-trust__sub">A/B</span></span><p class="ph-trust__label">Licensed partner pharmacies</p></div>
+      <div class="ph-trust__item"><span class="ph-trust__fig">PCAB</span><p class="ph-trust__label">Accredited partner pharmacy standards</p></div>
+      <div class="ph-trust__item"><span class="ph-trust__fig">Merchant</span><p class="ph-trust__label">You stay merchant of record</p></div>
+      <div class="ph-trust__item"><span class="ph-trust__fig">Audit</span><p class="ph-trust__label">Full trail on every order</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ WHAT ROUTING MEANS ═══════════════════ -->
+<section class="ph-section ph-band--light" id="routing">
+  <div class="ph-container">
+
+    <p class="ph-eyebrow" data-reveal>How an order reaches you</p>
+    <h2 class="ph-h2" data-reveal style="margin-top:16px;max-width:22ch">
+      A clinic chooses you. The order arrives <span class="ph-swash">already screened</span>.
+    </h2>
+    <p class="ph-lede" data-reveal style="margin-top:18px">
+      Pharity does not assign prescriptions. A clinic selects from the partners licensed
+      in its patient's state, and nothing moves until the prescriber signs.
+    </p>
+
+    <div class="ph-grid ph-grid--3 ph-lead-gap">
+
+      <div class="ph-card" data-reveal>
+        <span class="ph-card__step">01</span>
+        <span class="ph-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15"/><path d="M14 10h4a2 2 0 0 1 2 2v9"/><path d="M2 21h20"/><path d="M7.5 8h3M7.5 12h3M7.5 16h3"/></svg>
+        </span>
+        <h3 class="ph-h3">The clinic selects a pharmacy</h3>
+        <p class="ph-body ph-body--sm">
+          Your listing carries the states you are licensed in and what you compound.
+          Clinics choose from the partners that match.
+        </p>
+      </div>
+
+      <div class="ph-card" data-reveal>
+        <span class="ph-card__step">02</span>
+        <span class="ph-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16.4 3.6a2.3 2.3 0 0 1 3.2 3.2L7.4 19 3 20.5 4.5 16z"/></svg>
+        </span>
+        <h3 class="ph-h3">The prescriber signs</h3>
+        <p class="ph-body ph-body--sm">
+          Exclusion and license checks have already run. The clinic's card on file is
+          charged at signature.
+        </p>
+      </div>
+
+      <div class="ph-card" data-reveal>
+        <span class="ph-card__step">03</span>
+        <span class="ph-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2.6 8.4 4.6v9.6L12 21.4 3.6 16.8V7.2z"/><path d="m3.6 7.2 8.4 4.6 8.4-4.6"/><path d="M12 11.8v9.6"/></svg>
+        </span>
+        <h3 class="ph-h3">The order lands in your queue</h3>
+        <p class="ph-body ph-body--sm">
+          It arrives with the prescription, the shipping address and the signature
+          record attached. You accept it, or decline it.
+        </p>
+      </div>
+
+    </div>
+
+    <hr class="ph-hr" style="margin-block:56px">
+
+    <div class="pg-specs">
+      <div data-reveal>
+        <h3 class="ph-h4" style="margin-bottom:18px">What arrives with every order</h3>
+        <ul class="pg-spec">
+          <li>Prescriber name, NPI and license state</li>
+          <li>Compound, strength, quantity and directions</li>
+          <li>Patient shipping address and contact</li>
+          <li>Clinic of record</li>
+          <li>Signature timestamp and audit reference</li>
+          <li>Payment status at the moment of routing</li>
+        </ul>
+      </div>
+      <div data-reveal>
+        <h3 class="ph-h4" style="margin-bottom:18px">What stays yours to set</h3>
+        <ul class="pg-spec">
+          <li>The states you accept orders from</li>
+          <li>The preparations you list</li>
+          <li>Your price for every preparation</li>
+          <li>Your turnaround and cut-off times</li>
+          <li>Capacity: pause and resume intake</li>
+          <li>Acceptance or refusal of any individual order</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════ MERCHANT OF RECORD ═══════════════════ -->
+<section class="ph-section ph-band--warm" id="settlement">
+  <div class="ph-container">
+    <div class="ph-split">
+
+      <div>
+        <p class="ph-eyebrow" data-reveal>Settlement</p>
+        <h2 class="ph-h2" data-reveal style="margin-top:16px">
+          The money moves to <span class="ph-swash">your account</span>, not ours.
+        </h2>
+        <p class="ph-lede" data-reveal style="margin-top:20px">
+          The clinic's card on file is charged when the prescriber signs, and the funds
+          for the preparation settle to your own Stripe account.
+        </p>
+
+        <ul class="pg-spec" data-reveal style="margin-top:28px">
+          <li><strong>You are the merchant of record.</strong> The card-network relationship, and responsibility for the dispensed preparation, stay with the pharmacy.</li>
+          <li><strong>Your price is your price.</strong> Pharity's platform fee is a separate line, never folded into the preparation.</li>
+          <li><strong>Nothing is held in the middle.</strong> Settlement runs to your own connected account, not through a Pharity balance.</li>
+        </ul>
+
+        <div data-reveal style="margin-top:28px">
+          <a class="ph-arrow" href="pricing.html">See how the fee is presented <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg></a>
+        </div>
+      </div>
+
+      <div data-reveal>
+        <div class="pg-rec">
+          <div class="pg-rec__head">
+            <span>Settlement record</span>
+            <span class="pg-rec__tag">Sample data</span>
+          </div>
+          <div class="pg-rec__body">
+
+            <div class="pg-rec__r"><span class="pg-rec__k">Order</span><span class="pg-rec__v">ORD-DEMO-4471</span></div>
+            <div class="pg-rec__r"><span class="pg-rec__k">Clinic</span><span class="pg-rec__v">Northside Aesthetics</span></div>
+            <div class="pg-rec__r"><span class="pg-rec__k">Prescriber</span><span class="pg-rec__v">Dr. A. Reyes</span></div>
+            <div class="pg-rec__r"><span class="pg-rec__k">Patient</span><span class="pg-rec__v">R.M.</span></div>
+
+            <hr class="pg-rec__sep">
+
+            <div class="pg-rec__r"><span class="pg-rec__k">Preparation</span><span class="pg-rec__v">Methylcobalamin 10 mL</span></div>
+            <div class="pg-rec__r"><span class="pg-rec__k">Price</span><span class="pg-rec__v">set by the pharmacy</span></div>
+            <div class="pg-rec__r"><span class="pg-rec__k">Shipping</span><span class="pg-rec__v">set by the pharmacy</span></div>
+
+            <hr class="pg-rec__sep">
+
+            <div class="pg-rec__r"><span class="pg-rec__k">Card charged</span><span class="pg-rec__v">at prescriber signature</span></div>
+
+            <div class="pg-rec__r pg-rec__r--key">
+              <span class="pg-rec__k">Merchant of record</span>
+              <span class="pg-rec__v">Apex Compounding Pharmacy
+                <span class="pg-rec__n">funds settle to your Stripe account</span>
+              </span>
+            </div>
+
+            <div class="pg-rec__r pg-rec__r--key">
+              <span class="pg-rec__k">Pharity fee</span>
+              <span class="pg-rec__v">separate line item
+                <span class="pg-rec__n">not bundled into the preparation price</span>
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+        <p class="ph-body ph-body--sm ph-muted" style="margin-top:14px">
+          Sample record. Names, order reference and patient initials are illustrative.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ ELIGIBILITY AND SCREENING ═══════════════ -->
+<section class="ph-section ph-band--paper" id="eligibility">
+  <div class="ph-container">
+
+    <p class="ph-eyebrow" data-reveal>Eligibility and screening</p>
+    <h2 class="ph-h2" data-reveal style="margin-top:16px;max-width:24ch">
+      Screening runs on both sides of the network.
+    </h2>
+    <p class="ph-lede" data-reveal style="margin-top:18px">
+      It is why a clinic can trust the order it sends you, and why you can trust the
+      prescriber who signed it.
+    </p>
+
+    <div class="ph-grid ph-grid--2 ph-lead-gap">
+
+      <div class="ph-card" data-reveal>
+        <span class="ph-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18"/></svg>
+        </span>
+        <h3 class="ph-h3">Licensure, state by state</h3>
+        <p class="ph-body ph-body--sm">
+          Your license is recorded per state. Routing offers you only to clinics whose
+          patient sits in a state you can ship to.
+        </p>
+      </div>
+
+      <div class="ph-card" data-reveal>
+        <span class="ph-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8 20 6v6c0 5-3.4 8.1-8 9.2C7.4 20.1 4 17 4 12V6z"/><path d="m8.8 12.2 2.3 2.3 4.1-4.3"/></svg>
+        </span>
+        <h3 class="ph-h3">Exclusion screening</h3>
+        <p class="ph-body ph-body--sm">
+          Prescribers and partner pharmacies are screened against federal exclusion
+          lists at onboarding, then on a schedule.
+        </p>
+      </div>
+
+      <div class="ph-card" data-reveal>
+        <span class="ph-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/></svg>
+        </span>
+        <h3 class="ph-h3">Prescriber license status</h3>
+        <p class="ph-body ph-body--sm">
+          NPI and license status are checked before a prescription can be signed, then
+          re-checked while the prescriber stays active.
+        </p>
+      </div>
+
+      <div class="ph-card" data-reveal>
+        <span class="ph-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/><path d="M9 13h6M9 17h4"/></svg>
+        </span>
+        <h3 class="ph-h3">An audit trail you can export</h3>
+        <p class="ph-body ph-body--sm">
+          Every state transition is timestamped and attributable. You can produce the
+          full history of any order you filled.
+        </p>
+      </div>
+
+    </div>
+
+    <hr class="ph-hr" style="margin-block:56px">
+
+    <div data-reveal>
+      <h3 class="ph-h3">What we ask for at onboarding</h3>
+      <p class="ph-body" style="margin-top:12px;max-width:52ch">
+        Nothing unusual, and nothing you would not already hold. We verify it once,
+        then keep it current with you.
+      </p>
+    </div>
+
+    <ul class="pg-spec pg-spec--2col" data-reveal style="margin-top:28px">
+      <li>A pharmacy license for each state you ship to</li>
+      <li>503A registration and current inspection status</li>
+      <li>DEA registration where it applies to your catalog</li>
+      <li>A certificate of insurance</li>
+      <li>A Stripe account to settle into</li>
+    </ul>
+
+  </div>
+</section>
+
+<!-- ═══════ NAVY PHOTO BAND: one per page: CLOSING CTA ═══════ -->
+<section class="ph-section ph-band--navy" id="apply" style="--band-pos:50% 46%">
+  <img class="ph-band__img" src="assets/pharmacy-workspace-navy.png" alt="" aria-hidden="true">
+  <div class="ph-container ph-container--tight ph-cta-close" style="text-align:center">
+
+    <span class="ph-cta-rule" data-reveal aria-hidden="true"></span>
+    <p class="ph-eyebrow" data-reveal style="justify-content:center">Pharmacy partners</p>
+
+    <h2 class="ph-h2" data-reveal style="margin-top:18px;color:#fff">
+      Join the network. <span class="ph-gold">Keep your independence.</span>
+    </h2>
+
+    <p class="ph-lede" data-reveal style="margin-top:20px;margin-inline:auto;max-width:52ch;text-align:center">
+      Tell us the states you are licensed in and what you compound. We will walk you
+      through screening, BAA availability and settlement setup.
+    </p>
+
+    <div class="ph-btn-row" data-reveal style="margin-top:32px;justify-content:center">
+      <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html?role=pharmacy">
+        Apply to join
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+      </a>
+      <!-- The primary above carries ?role=pharmacy so the application opens on
+           the pharmacy questions rather than the clinic ones. This secondary is
+           the other intent entirely: someone with a question, not an
+           application, so it goes to the contact page. -->
+      <a class="ph-btn ph-btn--on-dark ph-btn--lg" href="contact.html">Talk to the partnerships team</a>
+    </div>
+
+    <div class="ph-trust" data-reveal style="margin-top:34px;justify-content:center">
+      <span class="ph-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.2 2.5 2.5 4.9-5"/></svg>
+        Free to join the network
+      </span>
+      <span class="ph-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.4"/><path d="M2.5 10h19"/></svg>
+        You remain the merchant of record
+      </span>
+      <span class="ph-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15"/><path d="M14 10h4a2 2 0 0 1 2 2v9"/><path d="M2 21h20"/></svg>
+        You set your own pricing
+      </span>
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+<footer class="ph-footer">
+  <div class="ph-container">
+    <div class="ph-footer__top">
+      <div>
+        <a class="ph-logo" href="index.html" aria-label="Pharity home">
+          <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+               width="868" height="200" decoding="async">
+        </a>
+        <p class="ph-footer__blurb">
+          One coordinated layer between wellness clinics and licensed 503A compounding
+          pharmacies.
+        </p>
+        <p class="ph-footer__blurb ph-footer__contact">
+          <a href="mailto:hello@pharity.com">hello@pharity.com</a>
+        </p>
+      </div>
+      <div>
+        <p class="ph-footer__h">Platform</p>
+        <ul class="ph-footer__list">
+          <li><a href="for-clinics.html">For Clinics</a></li>
+          <li><a href="for-pharmacies.html">For Pharmacies</a></li>
+          <li><a href="why-pharity.html">Why Pharity</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Company</p>
+        <ul class="ph-footer__list">
+          <li><a href="request-access.html">Apply for access</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="sign-in.html">Sign in</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Legal</p>
+        <ul class="ph-footer__list">
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ph-footer__legal">
+      <p class="ph-disclosure"><strong>Cash-pay only.</strong> Pharity does not bill or accept insurance, Medicare, Medicaid, or Tricare.</p>
+      <p class="ph-disclosure"><strong>Prescriber-directed.</strong> Pharity does not prescribe, dispense, or practice medicine, and does not provide medical advice. All prescriptions are written by independently licensed prescribers who retain clinical responsibility. All medications are compounded and dispensed by independently licensed 503A pharmacies, which act as the merchant of record. Telehealth access is optional and available to clinics without a prescriber on staff.</p>
+      <p class="ph-disclosure"><strong>Sample data.</strong> The settlement record shown on this page is illustrative. It is not a real patient, prescriber, clinic, pharmacy or order.</p>
+    </div>
+
+    <div class="ph-footer__base">
+      <span>© 2026 Pharity Health LLC. All rights reserved.</span>
+      <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/pharity-site.js"></script>
+</body>
+</html>

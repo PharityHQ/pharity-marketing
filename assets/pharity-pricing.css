@@ -1,0 +1,619 @@
+/* ============================================================================
+   PHARITY: pricing page
+   Loaded by pricing.html ONLY, after pharity-site.css.
+
+   Why a second sheet, given the shell's own header records that a second sheet
+   was retired: that one (pharity-polish.css) RESTATED shared rhythm tokens for
+   some pages and not others, so the site ran three section rhythms at once.
+   This sheet restates nothing. It defines net-new components used on exactly
+   one page, all namespaced .ph-pr*, and consumes the shell's tokens, sections,
+   bands, buttons, cards and lists unchanged. Precedent: pharity-hiw.js.
+
+   Everything interactive here is CSS-only: the clinics/pharmacies switch and
+   the four-layer rail are radio inputs read with :checked, and the FAQ is
+   <details>. Nothing on this page needs JavaScript to operate, so it survives
+   JS being off rather than merely rendering under it.
+   ========================================================================== */
+
+
+/* ── The radio inputs that drive both controls ────────────────────────────
+   Kept in the flow but reduced to a point so they cannot affect layout. NOT
+   display:none and NOT visibility:hidden: either would take them out of the
+   tab order and the controls would stop being keyboard operable. The visible
+   affordance is the <label>, which is lit from the input's :focus-visible. */
+.ph-prctl {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: 0; padding: 0; border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+
+/* ── 1. Hero: a photograph under a warm wash ─────────────────────────────
+   The light counterpart to .ph-band--navy. Same construction (a real <img>,
+   because a relative url() inside a custom property resolves against the
+   stylesheet and silently 404s) with a cream wash instead of a blue one.
+
+   The wash is two layers: a vertical cream ramp over the whole frame, and a
+   soft bloom behind the headline column. The bloom is what makes the type
+   safe: the photograph is bright in the centre but carries dark shelving on
+   the right, and the H1 crosses into it at wide viewports. Measured against
+   the darkest pixel the headline can reach, navy on the washed photo is
+   10.9:1, so the type clears AA by a wide margin at every width. */
+.ph-prhero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  text-align: center;
+}
+.ph-prhero__img {
+  position: absolute; inset: 0; z-index: -2;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: 50% 62%;
+  pointer-events: none;
+}
+.ph-prhero::after {
+  content: "";
+  position: absolute; inset: 0; z-index: -1;
+  background:
+    radial-gradient(78% 62% at 50% 44%, rgb(255 255 255 / .72), transparent 78%),
+    linear-gradient(180deg,
+      rgb(253 248 234 / .58)  0%,
+      rgb(253 248 234 / .46) 44%,
+      rgb(250 246 236 / .74) 84%,
+      rgb(253 248 234 / .96) 100%);
+}
+
+/* The hero's own copy is centered, so the eyebrow's inline-flex dot has to be
+   centered with it rather than left in the text flow. */
+.ph-prhero .ph-eyebrow { justify-content: center; }
+.ph-prhero .ph-h1,
+.ph-prhero .ph-lede { margin-inline: auto; }
+.ph-prhero .ph-lede { text-align: center; }
+
+/* One clause per line, everywhere on this page that a navy phrase is followed
+   by a gold one. text-wrap: balance evens the lines out by character count,
+   which on a "Free to connect." + "Add layers as you need them." pair lands
+   the break inside the second clause and strands "Add" at the end of line one,
+   away from the rest of its own sentence. Every heading here has that shape,
+   so promoting the gold span to a block puts the break where the full stop
+   already is. It still wraps freely within itself on a narrow screen.
+
+   Deliberately scoped to the hero and the two sides: the fee heading
+   ("Itemized, never bundled.") and the closing heading both fit on one line,
+   and forcing a break into them would invent one that is not there. */
+.ph-prhero .ph-h1 .ph-gold,
+.ph-prside  .ph-h2 .ph-gold { display: block; }
+
+
+/* ── 2. The four-item strip ──────────────────────────────────────────────
+   The same 12px uppercase as .ph-eyebrow, set as a row of facts. Gold is the
+   dot only; the words are navy, because gold is never body text on light. */
+.ph-prstrip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px 30px;
+  margin-top: 34px;
+}
+.ph-prstrip li {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--navy);
+}
+.ph-prstrip li::before {
+  content: "";
+  flex: none;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+
+/* ── 3. The clinics / pharmacies switch ──────────────────────────────────
+   Sits on the photograph at the foot of the hero. White ground so it reads as
+   a control rather than as part of the picture. */
+.ph-prswitch {
+  display: inline-flex;
+  gap: 4px;
+  margin-top: 40px;
+  padding: 5px;
+  background: var(--paper);
+  border: 1px solid var(--line-gold);
+  border-radius: var(--r-pill);
+}
+.ph-prswitch__opt {
+  display: inline-flex; align-items: center; justify-content: center;
+  /* 44, not 42. These labels ARE the control: the radios they drive are
+     visually hidden 1x1 inputs, so nothing else on the page can be aimed at
+     to switch sides. At 42 they were the only interactive target on the site
+     still under 44 once ::before hit areas were accounted for, and this is
+     the primary control on the pricing page. Two pixels, and the container
+     grows by two, which no other measurement on this page depends on. */
+  height: 44px;
+  padding-inline: 24px;
+  border-radius: var(--r-pill);
+  font-size: .9375rem; font-weight: 600;
+  letter-spacing: -.005em;
+  color: var(--ink-2);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 170ms var(--ease), color 170ms var(--ease);
+}
+.ph-prswitch__opt:hover { background: rgb(212 168 79 / .14); color: var(--navy); }
+
+/* Declared after :hover so the selected option keeps its navy ground while the
+   pointer is on it. */
+#pr-clinics:checked ~ * .ph-prswitch__opt[for="pr-clinics"],
+#pr-pharm:checked   ~ * .ph-prswitch__opt[for="pr-pharm"] {
+  background: var(--navy);
+  color: #fff;
+}
+#pr-clinics:focus-visible ~ * .ph-prswitch__opt[for="pr-clinics"],
+#pr-pharm:focus-visible   ~ * .ph-prswitch__opt[for="pr-pharm"] {
+  outline: 2px solid var(--navy);
+  outline-offset: 3px;
+}
+
+/* The two sides. Default hidden, revealed by :checked, so the markup carries
+   `checked` on the clinics input and the page opens correct with JS off. */
+.ph-prside { display: none; }
+#pr-clinics:checked ~ * .ph-prside--clinics,
+#pr-pharm:checked   ~ * .ph-prside--pharm { display: block; }
+
+
+/* ── 4. Layers: rail beside panel ────────────────────────────────────────
+   The four radio inputs are the grid's first children and are taken out of
+   flow by .ph-prctl, so the rail and the one visible panel are the only grid
+   items and land in columns 1 and 2 by themselves. */
+.ph-prlayers {
+  display: grid;
+  grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr);
+  gap: clamp(28px, 3.2vw, 48px);
+  align-items: start;
+}
+
+/* The rail and the standing facts travel together, so the sticky sits on the
+   wrapper rather than on the rail. Pinning the rail alone would have left the
+   facts card behind at the top of the section the moment the page moved. */
+.ph-praside {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  position: sticky;
+  top: calc(var(--nav-h) + 20px);
+}
+
+.ph-prrail {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.ph-prrail__opt {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: background-color 170ms var(--ease);
+}
+.ph-prrail__opt:hover { background: rgb(212 168 79 / .12); }
+.ph-prrail__name {
+  display: block;
+  font-size: .9375rem; font-weight: 650;
+  letter-spacing: -.005em;
+  color: var(--navy);
+}
+.ph-prrail__note {
+  display: block;
+  margin-top: 3px;
+  font-size: .8125rem;
+  line-height: 1.35;
+  color: var(--ink-3);
+}
+/* The price is on the rail row so all four are scannable without clicking.
+   Small gold ink, so it takes the deeper leaf. */
+.ph-prrail__price {
+  flex: none;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: .8125rem; font-weight: 600;
+  letter-spacing: -.01em;
+  color: var(--gold-ink-deep);
+}
+
+/* Six layers now, four on the clinics rail and two on the pharmacies rail.
+   Each `~` chain is scoped inside its own .ph-prlayers, so the two rails
+   cannot reach each other and the enumerated lists stay independent. */
+#pr-l1:checked ~ .ph-praside .ph-prrail__opt[for="pr-l1"],
+#pr-l2:checked ~ .ph-praside .ph-prrail__opt[for="pr-l2"],
+#pr-l3:checked ~ .ph-praside .ph-prrail__opt[for="pr-l3"],
+#pr-l4:checked ~ .ph-praside .ph-prrail__opt[for="pr-l4"],
+#pr-p1:checked ~ .ph-praside .ph-prrail__opt[for="pr-p1"],
+#pr-p2:checked ~ .ph-praside .ph-prrail__opt[for="pr-p2"] { background: var(--navy); }
+
+#pr-l1:checked ~ .ph-praside .ph-prrail__opt[for="pr-l1"] .ph-prrail__name,
+#pr-l2:checked ~ .ph-praside .ph-prrail__opt[for="pr-l2"] .ph-prrail__name,
+#pr-l3:checked ~ .ph-praside .ph-prrail__opt[for="pr-l3"] .ph-prrail__name,
+#pr-l4:checked ~ .ph-praside .ph-prrail__opt[for="pr-l4"] .ph-prrail__name,
+#pr-p1:checked ~ .ph-praside .ph-prrail__opt[for="pr-p1"] .ph-prrail__name,
+#pr-p2:checked ~ .ph-praside .ph-prrail__opt[for="pr-p2"] .ph-prrail__name { color: #fff; }
+
+#pr-l1:checked ~ .ph-praside .ph-prrail__opt[for="pr-l1"] .ph-prrail__note,
+#pr-l2:checked ~ .ph-praside .ph-prrail__opt[for="pr-l2"] .ph-prrail__note,
+#pr-l3:checked ~ .ph-praside .ph-prrail__opt[for="pr-l3"] .ph-prrail__note,
+#pr-l4:checked ~ .ph-praside .ph-prrail__opt[for="pr-l4"] .ph-prrail__note,
+#pr-p1:checked ~ .ph-praside .ph-prrail__opt[for="pr-p1"] .ph-prrail__note,
+#pr-p2:checked ~ .ph-praside .ph-prrail__opt[for="pr-p2"] .ph-prrail__note { color: rgb(255 255 255 / .72); }
+
+#pr-l1:checked ~ .ph-praside .ph-prrail__opt[for="pr-l1"] .ph-prrail__price,
+#pr-l2:checked ~ .ph-praside .ph-prrail__opt[for="pr-l2"] .ph-prrail__price,
+#pr-l3:checked ~ .ph-praside .ph-prrail__opt[for="pr-l3"] .ph-prrail__price,
+#pr-l4:checked ~ .ph-praside .ph-prrail__opt[for="pr-l4"] .ph-prrail__price,
+#pr-p1:checked ~ .ph-praside .ph-prrail__opt[for="pr-p1"] .ph-prrail__price,
+#pr-p2:checked ~ .ph-praside .ph-prrail__opt[for="pr-p2"] .ph-prrail__price { color: var(--gold-soft); }
+
+#pr-l1:focus-visible ~ .ph-praside .ph-prrail__opt[for="pr-l1"],
+#pr-l2:focus-visible ~ .ph-praside .ph-prrail__opt[for="pr-l2"],
+#pr-l3:focus-visible ~ .ph-praside .ph-prrail__opt[for="pr-l3"],
+#pr-l4:focus-visible ~ .ph-praside .ph-prrail__opt[for="pr-l4"],
+#pr-p1:focus-visible ~ .ph-praside .ph-prrail__opt[for="pr-p1"],
+#pr-p2:focus-visible ~ .ph-praside .ph-prrail__opt[for="pr-p2"] {
+  outline: 2px solid var(--navy);
+  outline-offset: 2px;
+}
+
+.ph-prpanel { display: none; }
+#pr-l1:checked ~ .ph-prpanel--1,
+#pr-l2:checked ~ .ph-prpanel--2,
+#pr-l3:checked ~ .ph-prpanel--3,
+#pr-l4:checked ~ .ph-prpanel--4,
+#pr-p1:checked ~ .ph-prpanel--p1,
+#pr-p2:checked ~ .ph-prpanel--p2 { display: block; }
+
+
+/* ── 4b. The standing facts, under the rail ──────────────────────────────
+   The rail is 320px and the panel beside it runs 660px on Base access and
+   850px on Growth, so the left column used to end in 350 to 530px of empty
+   page. This card is what occupies it. It carries the three things that stay
+   true whichever layer is selected, which is exactly the reassurance a reader
+   wants while comparing prices, and it is worded differently from the fee
+   section further down so the two are not the same sentence twice.
+
+   Flat ground and a hairline. No gradient fill: the client was explicit about
+   not wanting gold gradient washes behind the pricing copy, and that applies
+   to any new surface added here as much as to the note it was said about. */
+.ph-prfacts {
+  padding: 22px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: none;
+}
+.ph-prfacts__h {
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--navy);
+}
+.ph-prfacts__list {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ph-prfacts__list li {
+  position: relative;
+  padding-left: 18px;
+  font-size: .875rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.ph-prfacts__list li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: .5em;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+.ph-prfacts__link {
+  display: inline-block;
+  /* 7 + 11 = the 18 this used to carry, so the link does not move: the margin
+     is traded for padding, which is the part a finger can land on. It sits on
+     its own line rather than inside a sentence, so the inline exception to
+     the 44px target guidance does not cover it, and at a .875rem line-height
+     its box was only 22.4px tall. Padding takes it to 44.4 without touching
+     the type, the color or the position. */
+  margin-top: 7px;
+  padding-block: 11px;
+  font-size: .875rem; font-weight: 600;
+  color: var(--gold-ink-deep);
+  text-decoration: none;
+}
+.ph-prfacts__link:hover { color: var(--navy); }
+
+
+/* ── 5. The price line ───────────────────────────────────────────────────
+   Serif, because it is a display number rather than a record. Tabular figures
+   so $1,500 / $3,000 / $5,000 align down the plan list. */
+.ph-prprice {
+  display: flex; align-items: baseline; flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 26px;
+}
+.ph-prprice__amt {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 1.7rem + 1.7vw, 2.9rem);
+  line-height: 1;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--navy);
+}
+.ph-prprice__per {
+  font-size: .9375rem;
+  color: var(--ink-3);
+}
+
+.ph-prpanel .ph-list { margin-top: 22px; }
+.ph-prpanel .ph-btn-row { margin-top: 28px; }
+
+/* A hairline between the price block and the list, so the panel reads as a
+   priced object rather than as one run of text. */
+.ph-prrule {
+  height: 1px; border: 0;
+  background: var(--line-soft);
+  margin-block: 24px 0;
+}
+
+
+/* ── 6. Growth plans ─────────────────────────────────────────────────────
+   Three rows, not three cards. At this column width three cards would each be
+   about 240px, which is too narrow for a name, a price and a line of scope,
+   and stacking rows keeps the three figures in one vertical column where they
+   can actually be compared. */
+.ph-prplans { display: grid; margin-top: 24px; }
+.ph-prplan {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 16px 24px;
+  padding-block: 20px;
+  border-top: 1px solid var(--line-soft);
+}
+.ph-prplan:first-of-type { border-top: 0; padding-top: 4px; }
+.ph-prplan__name {
+  font-family: var(--sans);
+  font-weight: 650;
+  font-size: 1rem;
+  letter-spacing: -.005em;
+  color: var(--navy);
+}
+.ph-prplan__scope {
+  margin-top: 5px;
+  font-size: .9375rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+  max-width: 46ch;
+}
+.ph-prplan__fig {
+  flex: none;
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  line-height: 1.1;
+  letter-spacing: -.015em;
+  font-variant-numeric: tabular-nums;
+  color: var(--navy);
+  white-space: nowrap;
+}
+.ph-prplan__fig span {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--sans);
+  font-size: .8125rem;
+  letter-spacing: 0;
+  color: var(--ink-3);
+}
+@media (max-width: 520px) {
+  .ph-prplan { flex-direction: column; align-items: flex-start; gap: 10px; }
+}
+
+
+/* ── 7. The plain note ───────────────────────────────────────────────────
+   Flat, hairline, no fill. This is the element the gold gradient wash used to
+   be on, and the client's note was explicit about it: no gradient. */
+/* Neutral hairline, not gold. On the Pharity Approved panel this note sits a
+   few hundred pixels under the badge specimen, and two gold-ringed boxes in
+   one panel split the accent between them so neither read as the important
+   one. Gold hairline now means the badge and nothing else inside a panel; the
+   note is marked by its navy lead-in, which is the louder signal anyway. */
+.ph-prnote {
+  margin-top: 26px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: none;
+  font-size: .9375rem;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.ph-prnote strong { color: var(--navy); font-weight: 650; }
+
+
+/* ── 8. FAQ ──────────────────────────────────────────────────────────────
+   <details>, so it opens with JS off. The sign is a plus whose vertical bar
+   is hidden when open, matching the nav burger's swap: nothing moves, nothing
+   rotates, which is the site's rule for state changes. */
+.ph-prfaq { display: grid; gap: 10px; }
+.ph-prfaq__item {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  transition: border-color 170ms var(--ease);
+}
+.ph-prfaq__item:hover { border-color: var(--line-gold); }
+.ph-prfaq__q {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 24px;
+  padding: 20px 24px;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--sans);
+  font-size: 1rem; font-weight: 600;
+  letter-spacing: -.005em;
+  color: var(--navy);
+  border-radius: var(--r-lg);
+  transition: background-color 170ms var(--ease);
+}
+.ph-prfaq__q::-webkit-details-marker { display: none; }
+.ph-prfaq__q::marker { content: ""; }
+.ph-prfaq__q:hover { background: #FFFCF4; }
+.ph-prfaq__sign {
+  flex: none;
+  display: grid; place-items: center;
+  width: 28px; height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--gold-ink-deep);
+}
+.ph-prfaq__sign svg { width: 13px; height: 13px; }
+.ph-prfaq__item[open] .ph-prfaq__sign .ph-prfaq__v { display: none; }
+.ph-prfaq__item[open] .ph-prfaq__q { border-end-start-radius: 0; border-end-end-radius: 0; }
+.ph-prfaq__a {
+  padding: 0 24px 22px;
+  font-size: .9375rem;
+  line-height: 1.65;
+  color: var(--ink-2);
+  max-width: 74ch;
+}
+
+
+/* ── 8b. Pharity Approved: the badge ─────────────────────────────────────
+   The mark is the LOGO's own silhouette: a rounded arch on a flat base, the
+   outer shape of the Pharity "A", drawn as a hairline with a check inside it.
+   A tick in a circle would have been the generic choice and would have looked
+   like every other verification badge on the internet; this one can only be
+   this brand's.
+
+   Gold as INK, so it takes --gold-ink rather than --gold. On the selected
+   rail row the ground turns navy, where --gold-ink drops to about 2.4:1, so
+   the mark switches to --gold-soft alongside the price that already does. */
+.ph-apprmark {
+  width: 22px; height: 22px;
+  flex: none;
+  color: var(--gold-ink);
+}
+.ph-apprmark--sm { width: 16px; height: 16px; }
+
+/* The rail name is display:block everywhere else; the one row that carries a
+   mark becomes a flex line so the glyph sits on the label's baseline band
+   instead of above it. */
+.ph-prrail__name--mark { display: flex; align-items: center; gap: 7px; }
+
+#pr-p2:checked ~ .ph-praside .ph-prrail__opt[for="pr-p2"] .ph-apprmark {
+  color: var(--gold-soft);
+}
+
+/* The specimen. This is the one object on the page allowed a gold hairline
+   ring, because it IS the badge rather than a card describing one: showing
+   the credential is more use to a pharmacy than another paragraph about it.
+   No fill and no shadow, so it stays inside the site's flat contract, and no
+   fictional pharmacy name sits next to it. */
+/* inline-flex, NOT flex. Stretched to the panel width it was a 637px bar
+   holding 250px of content, which read as an unfinished table row rather
+   than as a credential. Sized to its contents it reads as the object it is:
+   something a pharmacy could picture sitting on its own profile. */
+.ph-apprlock {
+  display: inline-flex; align-items: center;
+  gap: 14px;
+  max-width: 100%;
+  margin-top: 26px;
+  padding: 15px 20px 15px 16px;
+  border: 1px solid var(--line-gold);
+  border-radius: var(--r-md);
+  background: none;
+}
+.ph-apprlock__seal {
+  display: grid; place-items: center;
+  width: 42px; height: 42px;
+  flex: none;
+  border: 1px solid var(--line-gold);
+  border-radius: 50%;
+  color: var(--gold-ink);
+}
+.ph-apprlock__name {
+  display: block;
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--navy);
+}
+.ph-apprlock__sub {
+  display: block;
+  margin-top: 5px;
+  font-size: .875rem;
+  line-height: 1.4;
+  color: var(--ink-3);
+}
+
+
+/* ── 8c. Cleanup ─────────────────────────────────────────────────────────
+   Three corrections, all of them consistency rather than new decoration.
+
+   1. The left column stacked two different grounds: the rail on white paper
+      and the standing facts on nothing at all. One column, one surface, so
+      the aside now reads as a single object rather than a card beside a
+      ghost of one.
+
+   2. A price line whose "figure" is a WORD. "Contact us" set at the numeric
+      display size read as a second headline competing with the H2 directly
+      above it. Words take a smaller step; real figures are untouched, so
+      $0 / $399 / $1,500 keep their full display size.
+
+   3. .ph-split centers its columns, so on the fee section a short copy
+      column floated about 30px below the top of the taller card grid beside
+      it and the two read as misaligned. Measured at 1440: eyebrow top 836
+      against first card top 806. Top-aligning them is the fix, scoped to
+      this one section so the site's other centered splits are untouched. */
+.ph-prfacts { background: var(--paper); }
+
+.ph-prprice__amt--word {
+  font-size: clamp(1.7rem, 1.4rem + 1vw, 2.1rem);
+  letter-spacing: -.015em;
+}
+
+.ph-prfee .ph-split { align-items: start; }
+
+
+/* ── 9. Narrow ───────────────────────────────────────────────────────────
+   The rail stacks above the panel and stops being sticky: pinned, it would
+   eat the top third of a phone screen for the whole section. */
+@media (max-width: 900px) {
+  .ph-prlayers { grid-template-columns: minmax(0, 1fr); }
+
+  /* One column, so the aside stops being a column and its two children become
+     grid items in their own right. That is the only way to get the facts card
+     BELOW the panel: left inside the wrapper it would sit between the rail and
+     the prices, interrupting the one thing the reader came to read. Sticky is
+     dropped with it, since pinned it would eat the top third of a phone. */
+  .ph-praside  { display: contents; }
+  .ph-prrail   { position: static; order: 1; }
+  .ph-prpanel  { order: 2; }
+  .ph-prfacts  { order: 3; }
+}
+
+@media (max-width: 620px) {
+  .ph-prstrip { gap: 12px 20px; margin-top: 28px; }
+  .ph-prstrip li { font-size: 11px; letter-spacing: .12em; }
+  .ph-prswitch { margin-top: 32px; width: 100%; }
+  .ph-prswitch__opt { flex: 1; padding-inline: 12px; font-size: .875rem; }
+  .ph-prfaq__q { padding: 17px 18px; font-size: .9375rem; gap: 14px; }
+  .ph-prfaq__a { padding: 0 18px 18px; }
+  .ph-prrail__opt { padding: 13px 14px; }
+}

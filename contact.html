@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact | Pharity</title>
+<meta name="description" content="Talk to the Pharity team. Questions about routing, pharmacy partnership, pricing or a launch build, answered by email.">
+<link rel="icon" href="assets/pharity-mark-gold.png">
+<script>document.documentElement.classList.add('js')</script>
+<link rel="stylesheet" href="assets/pharity-site.css">
+</head>
+<body>
+<a class="ph-skip" href="#main">Skip to content</a>
+
+<header class="ph-nav">
+  <div class="ph-container ph-nav__inner">
+    <a class="ph-logo" href="index.html" aria-label="Pharity home">
+      <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+           width="868" height="200" decoding="async">
+    </a>
+
+    <nav class="ph-nav__links" aria-label="Primary">
+      <a class="ph-nav__link" href="index.html">Home</a>
+      <a class="ph-nav__link" href="for-clinics.html">For Clinics</a>
+      <a class="ph-nav__link" href="for-pharmacies.html">For Pharmacies</a>
+      <a class="ph-nav__link" href="why-pharity.html">Why Pharity</a>
+      <a class="ph-nav__link" href="pricing.html">Pricing</a>
+    </nav>
+
+    <div class="ph-nav__actions">
+      <a class="ph-nav__signin ph-wipe" href="sign-in.html">Sign in</a>
+      <a class="ph-btn ph-btn--gold ph-btn--sm" href="request-access.html">Apply for access</a>
+      <div class="ph-nav__mobile">
+        <details class="ph-nav__disclosure">
+          <summary class="ph-nav__burger" aria-label="Menu">
+            <svg class="ph-nav__bars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3.5 7h17M3.5 12h17M3.5 17h17"/></svg>
+            <svg class="ph-nav__x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </summary>
+          <div class="ph-nav__panel">
+            <a href="index.html">Home</a>
+            <a href="for-clinics.html">For Clinics</a>
+            <a href="for-pharmacies.html">For Pharmacies</a>
+            <a href="why-pharity.html">Why Pharity</a>
+            <a href="pricing.html">Pricing</a>
+            <hr>
+            <a href="contact.html">Contact</a>
+            <a href="sign-in.html">Sign in</a>
+            <a href="request-access.html">Apply for access</a>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<section class="ph-section ph-section--sm ph-band--light" style="padding-bottom:96px">
+  <div class="ph-container">
+    <p class="ph-eyebrow" data-reveal>Contact</p>
+    <h1 class="ph-h1" data-reveal style="margin-top:18px;max-width:16ch">
+      Talk to the team.
+    </h1>
+    <p class="ph-lede" data-reveal style="margin-top:22px">
+      Routing, pharmacy partnership, pricing, or a launch build. Send it here
+      and someone on the team picks it up.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FORM ═══════════════════════════ -->
+<section class="ph-section ph-section--flush-top ph-band--light" style="padding-bottom:120px">
+  <div class="ph-container">
+    <div class="ph-split ph-split--copy-lead" style="align-items:start">
+
+      <div class="ph-panel" data-reveal>
+        <!-- ══════════════════════════════════════════════════════════════
+             Posts to POST /api/leads in the Pharity app — the SAME endpoint
+             the request-access form uses. One front door, one queue.
+
+             It used to post to `mailto:hello@pharity.com` with
+             enctype="text/plain", enhanced by a script that composed a mailto
+             URI. That had two real failure modes: several mail clients
+             silently truncate a mailto past ~2,000 characters (the reason the
+             textarea carried maxlength="1200"), and the whole thing depended on
+             the visitor having a configured desktop mail client. A message
+             typed here now lands in Postgres as a Lead.
+
+             The `action` is rewritten at boot from PHARITY_API_BASE in
+             assets/pharity-site.js; it is spelled out here so a
+             no-JavaScript submit still lands.
+             ══════════════════════════════════════════════════════════════ -->
+        <form class="ph-form" id="ph-contact-form" data-lead-form
+              method="post" action="https://app.pharity.com/api/leads"
+              data-done="Everything that arrives is read by a person and answered by email. Anything that needs a call gets scheduled once we know what we are talking about.">
+
+          <!-- Honeypot — see request-access.html. Named fax_number rather than
+               the classic "website"/"company" because those get autofilled by
+               password managers, and `company` is a real field on this form. -->
+          <div class="ph-hp" aria-hidden="true">
+            <label for="fax_number">Fax number</label>
+            <input id="fax_number" name="fax_number" type="text"
+                   tabindex="-1" autocomplete="off">
+          </div>
+
+          <p class="ph-form__status" role="alert" hidden></p>
+
+          <div class="ph-form__row">
+            <div class="ph-field">
+              <label class="ph-field__l" for="fullName">Full name</label>
+              <input class="ph-input" id="fullName" name="fullName" type="text" autocomplete="name" required>
+            </div>
+            <div class="ph-field">
+              <label class="ph-field__l" for="email">Work email</label>
+              <input class="ph-input" id="email" name="email" type="email" autocomplete="email" required>
+            </div>
+          </div>
+
+          <div class="ph-form__row">
+            <div class="ph-field">
+              <label class="ph-field__l" for="companyName">Company <span>(optional)</span></label>
+              <input class="ph-input" id="companyName" name="companyName" type="text" autocomplete="organization">
+            </div>
+            <div class="ph-field">
+              <!-- Canonical lowercase VALUES, matching the request-access
+                   selector and LeadRole. Labels unchanged. -->
+              <label class="ph-field__l" for="role">Role</label>
+              <select class="ph-select" id="role" name="role" required>
+                <option value="clinic">Clinic or med spa</option>
+                <option value="pharmacy">Compounding pharmacy</option>
+                <option value="other" selected>Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="ph-field">
+            <label class="ph-field__l" for="message">Message</label>
+            <!-- The old maxlength="1200" was a workaround for the mailto URI
+                 ceiling, not an editorial choice. It comes off now that this
+                 posts to a real endpoint; the server caps at 4,000. -->
+            <textarea class="ph-textarea" id="message" name="message" required
+              placeholder="A few sentences is plenty. If you already know what you want to route, or what you compound, say that."></textarea>
+          </div>
+
+          <label class="ph-check">
+            <input type="checkbox" name="consentTerms" required>
+            <span>I agree to the <a class="ph-inline-link ph-inline-link--quiet" href="terms.html">Terms</a> and
+            <a class="ph-inline-link ph-inline-link--quiet" href="privacy.html">Privacy Policy</a>.</span>
+          </label>
+
+          <div class="ph-btn-row" style="margin-top:4px">
+            <button class="ph-btn ph-btn--gold ph-btn--lg" type="submit">
+              Send message
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+            </button>
+          </div>
+
+          <p class="ph-form__note">
+            This goes straight to the team. Prefer plain email? Write to
+            <a class="ph-inline-link" href="mailto:hello@pharity.com">hello@pharity.com</a>
+            and it lands in the same place.
+          </p>
+        </form>
+      </div>
+
+      <div data-reveal>
+        <p class="ph-eyebrow">Direct</p>
+        <h2 class="ph-h3" style="margin-top:14px;max-width:18ch">Or just write to us.</h2>
+
+        <p class="ph-body ph-body--sm" style="margin-top:16px;max-width:44ch;color:var(--ink-3)">
+          The form and plain email land in the same place and are read by the
+          same people. Use whichever you prefer.
+        </p>
+
+        <p style="margin-top:20px">
+          <a class="ph-inline-link" href="mailto:hello@pharity.com"
+             style="font-size:1.0625rem">hello@pharity.com</a>
+        </p>
+
+        <p class="ph-body ph-body--sm" style="margin-top:14px;max-width:44ch;color:var(--ink-3)">
+          Everything that arrives is read, and we reply by email. Anything that
+          needs a call gets scheduled once we know what we are talking about.
+        </p>
+
+        <div class="ph-stack" style="margin-top:30px">
+          <a class="ph-card ph-card--flat" href="request-access.html">
+            <h3 class="ph-h4">Applying to the network</h3>
+            <p class="ph-body ph-body--sm">
+              Clinics, pharmacies and practices starting from zero go through the
+              application, because access is granted after we verify licensure.
+            </p>
+            <span class="ph-arrow">Apply for access <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg></span>
+          </a>
+          <a class="ph-card ph-card--flat" href="sign-in.html">
+            <h3 class="ph-h4">Already on the network</h3>
+            <p class="ph-body ph-body--sm">
+              Clinics and partner pharmacies already connected sign in here.
+            </p>
+            <span class="ph-arrow">Sign in <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg></span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="ph-footer">
+  <div class="ph-container">
+    <div class="ph-footer__top">
+      <div>
+        <a class="ph-logo" href="index.html" aria-label="Pharity home">
+          <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+               width="868" height="200" decoding="async">
+        </a>
+        <p class="ph-footer__blurb">
+          One coordinated layer between wellness clinics and licensed 503A compounding
+          pharmacies.
+        </p>
+        <p class="ph-footer__blurb ph-footer__contact">
+          <a href="mailto:hello@pharity.com">hello@pharity.com</a>
+        </p>
+      </div>
+      <div>
+        <p class="ph-footer__h">Platform</p>
+        <ul class="ph-footer__list">
+          <li><a href="for-clinics.html">For Clinics</a></li>
+          <li><a href="for-pharmacies.html">For Pharmacies</a></li>
+          <li><a href="why-pharity.html">Why Pharity</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Company</p>
+        <ul class="ph-footer__list">
+          <li><a href="request-access.html">Apply for access</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="sign-in.html">Sign in</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Legal</p>
+        <ul class="ph-footer__list">
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ph-footer__legal">
+      <p class="ph-disclosure"><strong>Cash-pay only.</strong> Pharity does not bill or accept insurance, Medicare, Medicaid, or Tricare.</p>
+      <p class="ph-disclosure"><strong>Prescriber-directed.</strong> Pharity does not prescribe, dispense, or practice medicine, and does not provide medical advice. All prescriptions are written by independently licensed prescribers who retain clinical responsibility. All medications are compounded and dispensed by independently licensed 503A pharmacies, which act as the merchant of record. Telehealth access is optional and available to clinics without a prescriber on staff.</p>
+    </div>
+
+    <div class="ph-footer__base">
+      <span>© 2026 Pharity Health LLC. All rights reserved.</span>
+      <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/pharity-site.js"></script>
+
+
+</body>
+</html>

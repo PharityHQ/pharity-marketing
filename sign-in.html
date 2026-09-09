@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in | Pharity</title>
+<meta name="description" content="Sign in to Pharity. For clinics and licensed 503A partner pharmacies already on the network.">
+<link rel="icon" href="assets/pharity-mark-gold.png">
+<script>document.documentElement.classList.add('js')</script>
+<link rel="stylesheet" href="assets/pharity-site.css">
+</head>
+<body>
+<a class="ph-skip" href="#main">Skip to content</a>
+
+<header class="ph-nav">
+  <div class="ph-container ph-nav__inner">
+    <a class="ph-logo" href="index.html" aria-label="Pharity home">
+      <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+           width="868" height="200" decoding="async">
+    </a>
+
+    <nav class="ph-nav__links" aria-label="Primary">
+      <a class="ph-nav__link" href="index.html">Home</a>
+      <a class="ph-nav__link" href="for-clinics.html">For Clinics</a>
+      <a class="ph-nav__link" href="for-pharmacies.html">For Pharmacies</a>
+      <a class="ph-nav__link" href="why-pharity.html">Why Pharity</a>
+      <a class="ph-nav__link" href="pricing.html">Pricing</a>
+    </nav>
+
+    <div class="ph-nav__actions">
+      <a class="ph-nav__signin ph-wipe" href="sign-in.html">Sign in</a>
+      <a class="ph-btn ph-btn--gold ph-btn--sm" href="request-access.html">Apply for access</a>
+      <div class="ph-nav__mobile">
+        <details class="ph-nav__disclosure">
+          <summary class="ph-nav__burger" aria-label="Menu">
+            <svg class="ph-nav__bars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3.5 7h17M3.5 12h17M3.5 17h17"/></svg>
+            <svg class="ph-nav__x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </summary>
+          <div class="ph-nav__panel">
+            <a href="index.html">Home</a>
+            <a href="for-clinics.html">For Clinics</a>
+            <a href="for-pharmacies.html">For Pharmacies</a>
+            <a href="why-pharity.html">Why Pharity</a>
+            <a href="pricing.html">Pricing</a>
+            <hr>
+            <a href="contact.html">Contact</a>
+            <a href="sign-in.html">Sign in</a>
+            <a href="request-access.html">Apply for access</a>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="ph-section ph-band--light">
+  <div class="ph-container ph-container--tight">
+    <div class="ph-panel" data-reveal style="max-width:460px;margin-inline:auto">
+      <p class="ph-eyebrow">Partner sign in</p>
+      <h1 class="ph-h3" style="margin-top:12px">Sign in to Pharity.</h1>
+      <p class="ph-body ph-body--sm" style="margin-top:10px;color:var(--ink-3)">
+        For clinics and partner pharmacies already on the network. Sign-in
+        happens in the Pharity app.
+      </p>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           This is a LINK, not a form, and it must stay one.
+
+           RULE: credentials are only ever typed into the origin that owns the
+           session. Never add an email/password field to this static site, and
+           never post one anywhere from here — not to the app, not to a proxy.
+
+           The app owns login: rate limiting, per-account lockout, MFA and the
+           session cookie all live there. So this page hands the visitor over
+           instead of imitating it.
+
+           PHARITY_APP_URL is the one place to change the destination; it
+           mirrors PHARITY_API_BASE in assets/pharity-site.js.
+           ══════════════════════════════════════════════════════════════ -->
+      <div style="margin-top:26px">
+        <a class="ph-btn ph-btn--gold ph-btn--lg" id="ph-signin-link"
+           href="https://app.pharity.com/login" style="width:100%;justify-content:center">
+          Continue to sign in
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+        </a>
+        <p class="ph-form__note">
+          You will be taken to the Pharity app to enter your password. Not on
+          the network yet? <a class="ph-inline-link" href="request-access.html">Request access</a>.
+        </p>
+      </div>
+
+      <script>
+        (function () {
+          var base = window.PHARITY_APP_URL || window.PHARITY_API_BASE;
+          var a = document.getElementById('ph-signin-link');
+          if (base && a) a.href = String(base).replace(/\/+$/, '') + '/login';
+        })();
+      </script>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="ph-footer">
+  <div class="ph-container">
+    <div class="ph-footer__top">
+      <div>
+        <a class="ph-logo" href="index.html" aria-label="Pharity home">
+          <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+               width="868" height="200" decoding="async">
+        </a>
+        <p class="ph-footer__blurb">
+          One coordinated layer between wellness clinics and licensed 503A compounding
+          pharmacies.
+        </p>
+        <p class="ph-footer__blurb ph-footer__contact">
+          <a href="mailto:hello@pharity.com">hello@pharity.com</a>
+        </p>
+      </div>
+      <div>
+        <p class="ph-footer__h">Platform</p>
+        <ul class="ph-footer__list">
+          <li><a href="for-clinics.html">For Clinics</a></li>
+          <li><a href="for-pharmacies.html">For Pharmacies</a></li>
+          <li><a href="why-pharity.html">Why Pharity</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Company</p>
+        <ul class="ph-footer__list">
+          <li><a href="request-access.html">Apply for access</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="sign-in.html">Sign in</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Legal</p>
+        <ul class="ph-footer__list">
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ph-footer__legal">
+      <p class="ph-disclosure"><strong>Cash-pay only.</strong> Pharity does not bill or accept insurance, Medicare, Medicaid, or Tricare.</p>
+      <p class="ph-disclosure"><strong>Prescriber-directed.</strong> Pharity does not prescribe, dispense, or practice medicine, and does not provide medical advice. All prescriptions are written by independently licensed prescribers who retain clinical responsibility. All medications are compounded and dispensed by independently licensed 503A pharmacies, which act as the merchant of record. Telehealth access is optional and available to clinics without a prescriber on staff.</p>
+    </div>
+
+    <div class="ph-footer__base">
+      <span>© 2026 Pharity Health LLC. All rights reserved.</span>
+      <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/pharity-site.js"></script>
+</body>
+</html>

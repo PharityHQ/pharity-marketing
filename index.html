@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pharity: one clean layer between your clinic and the pharmacy</title>
+<meta name="description" content="Pharity connects med spas and wellness clinics to licensed 503A compounding pharmacies: intake, e-prescribing, pharmacy routing, settlement, order tracking and an audit trail in one coordinated operating layer.">
+<link rel="icon" href="assets/pharity-mark-gold.png">
+
+<!-- Gate the reveal state before first paint. Without this the page still
+     renders fully visible: the hidden state is scoped to html.js. -->
+<script>document.documentElement.classList.add('js')</script>
+
+<link rel="stylesheet" href="assets/pharity-site.css">
+
+<style>
+/* ==========================================================================
+   HOME: page-local only. Everything structural lives in pharity-site.css.
+   Six blocks: gold-leaf display line, hero stage, trust band, operating
+   layer grid, the two doors, the compliance grid, closing CTA.
+   ========================================================================== */
+
+/* ── Gold display line ────────────────────────────────────────────────────
+   This WAS a background-clip:text gradient (#D5AC57 -> #BE8E39 -> #99691F)
+   whose comment claimed it "averages ~3.1:1 against white". Measured, it does
+   not: with the glyph mask eroded so antialiased edge pixels cannot be
+   mistaken for ink, the median ink came out 2.94:1 on the h1 and 2.74:1 on
+   the h2, and because a ramp is only as strong as its lightest end the first
+   few letters measured 2.21:1 and 1.96:1. Large text needs 3:1, so the line
+   failed everywhere and failed worst where it starts, which is exactly where
+   a reader lands. It was visible to the eye: "pharmacy." opened pale and
+   deepened to the right.
+
+   An average is the wrong measure for a gradient anyway. Every point of a
+   run has to clear the bar, so the only stop that matters is the weakest one.
+
+   The fix is not a new color: it is the one the rest of the site already
+   uses. --gold-ink (#A5762A) is the token .ph-gold applies on for-clinics,
+   for-pharmacies, why-pharity and pricing, and it measures 4.02:1 on white
+   and 3.49:1 on the warm panel: clear of the 3:1 large-text bar at both ends
+   with real margin, because a flat color has no weak end. Index was running
+   a second, weaker gold system for the same job; now there is one.          */
+.h-leaf { color: var(--gold-ink); }
+
+/* ── Hero ─────────────────────────────────────────────────────────────────
+   The machine is a whole object in frame, straight on. With the rotation
+   gone its box is exactly its silhouette, so nothing here has to make room
+   for a lid projecting past --hw-w or a front lip landing below the box.
+   The padding that remains is for the contact shadow, which is drawn with a
+   negative offset and would otherwise be clipped by the section.           */
+.h-hero {
+  /* Was overflow:hidden. That clip exists for ONE reason, stated below: the
+     machine is sized off vw and a rounding error either side of the fit rule
+     would put its right edge past the window and raise a horizontal
+     scrollbar. It only ever needed to clip the X axis, but it was clipping Y
+     as well, and the ground shadow is drawn downward with a negative offset:
+     at 1440 the deck lands at y=869 and this section ended at y=917, so the
+     pool had 48px to fade in and was being sliced straight across at the
+     seam. That slice is the visible edge under the machine.
+
+     overflow-x:clip with overflow-y:visible is the one combination that
+     separates the two. hidden/visible cannot be split (the spec blockifies
+     visible to auto when its partner is hidden, which would have made this a
+     scroll container), but clip/visible is honoured, and clip creates no
+     scroll container at all. The horizontal guarantee is unchanged.
+
+     Safe here specifically because the next section is .ph-band--light,
+     i.e. background:transparent over the same page base, so the pool fades
+     across the seam onto continuous colour rather than onto a new surface.
+     It reaches zero ~60px above that section's first content. If a solid or
+     dark band is ever placed directly after this hero, revisit this. */
+  overflow-x: clip;
+  overflow-y: visible;
+  /* No padding-top here on purpose. The shell ships ONE opening for the site
+     and this page used to state its own (80 against the shell's 120), which
+     is the same class of divergence the section-rhythm note below describes
+     as why the home page read as "stacked". Measured across the site the
+     opening under the sticky nav ran 80 here, 120 on for-pharmacies and 128
+     on for-clinics, so moving between top-level pages the gap visibly jumped.
+     Inheriting .ph-section's 120 settles it. padding-bottom stays local
+     because it is seam arithmetic against the trust strip, explained below. */
+  /* 48, not 32. The hero's bottom padding plus the trust strip's top padding
+     IS the seam between them, and at 32 + 80 it measured 112px against a site
+     scale that holds every other seam at 120 or more. The extra 16 goes here
+     rather than on the strip because this padding also has to clear the
+     contact shadow the hardware draws with a negative offset. */
+  padding-bottom: var(--s6);
+}
+/* Bottom-align the columns so the deck sits on the copy's baseline. The deck
+   is what makes it read as hardware rather than a floating screenshot. */
+.h-hero__grid { align-items: end; }
+.h-hero__stage { position: relative; }
+.h-hero__copy { padding-bottom: var(--s9); }
+
+/* ── The machine, with JavaScript off ────────────────────────────────────
+   .ph-hw is an EMPTY div in the source; every pixel of the screen is built
+   by pharity-site.js. Its lid and base are drawn as ::before/::after so the
+   layout is stable while that happens, which is the right call with JS on.
+
+   With JS off nothing ever fills it, so the hero rendered a 662x487 empty
+   white rectangle with a hairline border and a small bar under it: the exact
+   shape of a broken image. That is the "a previous build rendered blank"
+   failure, surviving in the one place still built at runtime.
+
+   So on the no-JS path the machine is not drawn at all. An empty frame is a
+   worse answer than no frame: it tells the reader something failed to load.
+   Nothing is lost, because the device was already aria-hidden and carried an
+   sr-only description, i.e. it was never the way this content was conveyed.
+   The hero keeps its eyebrow, headline, lede, both CTAs and the RUO note.
+
+   Gated on html:not(.js), matching the reveal system: the .js class is set
+   by an inline script in <head> BEFORE this sheet, so a JS-enabled browser
+   never matches this and there is no flash of a collapsed hero. */
+html:not(.js) .h-hero__stage { display: none; }
+/* ...and the copy takes the full width, so hiding the stage cannot leave a
+   dead 45% column beside it. */
+html:not(.js) .h-hero__grid { grid-template-columns: minmax(0, 1fr); }
+html:not(.js) .h-hero__copy { padding-bottom: 0; }
+/* Sized so the WHOLE machine is visible at 1440: the previous 51vw/748px
+   ran the lid to x1457 in a 1440 window and the section clipped 17px of it,
+   which is precisely the "doesn't show the full thing" complaint. This keeps
+   the lid's right edge inside the window with a real margin, and it leaves
+   the gutter the lifted pane hangs into.
+
+   MUST stay inside the min-width query. Unscoped, this selector is (0,2,0)
+   against the shell's (0,1,0) and no media query, so its 460px floor beat the
+   shell's fit-to-viewport rule at EVERY width: which is how the machine went
+   on being clipped by 130px at 390px after the shell was already fixed. The
+   split happens at 1150, so the two rules meet exactly there and never
+   overlap. */
+/* The clamp is the width of the OBJECT, not of the lid, so it is divided by
+   --hw-base-w. The deck runs 9.7% past the lid on each side now; undivided,
+   this ran the deck to x1439 in a 1440 window, one pixel off the edge, which
+   is the clipping this rule was written to stop.
+
+   50vw/760, not 46vw/700, because the object grew a deck. The lid is anchored
+   to the stage's left edge and the deck hangs off both sides of it, so the
+   object's right edge is stageLeft + lid x 1.097. At 46vw that landed at
+   x1321 in a 1440 window: safe, but 54px shy of where the machine has been
+   sitting, and the whole difference came out of the dashboard, which is the
+   one thing the hero is actually showing. 50vw/760 puts the right edge back
+   at x1374 -- the same footprint as before this rebuild -- and spends the
+   deck's width on the deck rather than on the screen. */
+@media (min-width: 1151px) {
+  .h-hero .ph-hw { --hw-w: calc(clamp(460px, 50vw, 760px) / var(--hw-base-w)); }
+}
+
+/* The hero h1 now uses the shared .ph-h1, the same class the other three
+   pages use, so the site has ONE h1 size instead of three. */
+
+/* Hero rhythm. The spacing used to be inline styles on each element; it is a
+   sequence, so it belongs together where it can be read as one. The lede was
+   one 3-line paragraph carrying two different jobs: what the product does,
+   and what Pharity will do for you. Split, the second line lands. */
+.h-hero__h1   { margin-top: 24px; }
+/* balance, not pretty: at 40ch the line broke after "settlement and", which
+   hangs a conjunction off the end of the line. These are 2-line blocks:
+   balance is what they want. */
+.h-hero__lede { margin-top: 28px; max-width: 42ch; text-wrap: balance; }
+.h-hero__pos  {
+  margin-top: 14px;
+  max-width: 42ch;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  font-weight: 500;
+  color: var(--navy-soft);
+  text-wrap: balance;
+}
+.h-hero__cta  { margin-top: 40px; }
+
+.h-hero__note {
+  margin-top: var(--s5);
+  padding-top: 18px;
+  border-top: 1px solid var(--line-soft);
+  max-width: 46ch;
+  font-size: .875rem;
+  line-height: 1.6;
+  color: var(--ink-3);
+}
+.h-hero__note b { font-weight: 600; color: var(--ink-2); }
+
+/* The hero stacks EARLIER than the rest of the site's splits: at 1000px a
+   460px machine beside a 420px copy column is cramped, and the machine is
+   the thing that suffers. Below the split the shell sizes it to fit the
+   viewport (see section 12), so --hw-w is deliberately NOT set here; a
+   page-local width would silently re-open the clip that rule exists to
+   close.                                                                   */
+@media (max-width: 1150px) {
+  .h-hero__grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .h-hero { padding-top: var(--s6); }
+  .h-hero__copy { padding-bottom: 0; }
+  /* Centred: below the split the machine is the only object in its row, so
+     it either fills the column or sits deliberately within it. The shell
+     also sets margin-inline:auto on .ph-hw, which is what actually does the
+     centring for a flex item; this states the same intent on the container
+     so the two cannot be read as disagreeing. */
+  .h-hero__stage { margin-top: var(--s2); display: flex; justify-content: center; }
+}
+
+/* ── Section rhythm ───────────────────────────────────────────────────────
+   The page-local rhythm overrides that used to live here are gone. The shell
+   now ships ONE scale for the whole site (120/80px), so this page no longer
+   states its own: that divergence was why the home page read as "stacked"
+   while the other three read as composed.
+
+   What is left is the two intervals that are genuinely local to this page:
+   the doors' internal header-to-grid beat, and a hairline that states the
+   boundary where the doors' dark cards meet the dark band below them.      */
+.h-doors__head > * + * { margin-top: 16px; }
+.h-doors__head .ph-h2 { max-width: 20ch; }
+.h-doors__grid { margin-top: 72px; gap: var(--s4); }
+
+/* THE DOORS-TO-COMPLIANCE SEAM.
+   Two things used to stand in this gap and both are gone at the client's
+   request: first an <hr class="h-seam"> gold hairline, then the slim
+   partnering strip that replaced it and drew that same hairline at each of
+   its own edges. The compliance grid now follows the doors directly.
+
+   That leaves two ordinary .ph-sections touching, which by default is
+   120 + 120 = 240px, the largest interval on the page and about a fifth
+   more than any other seam here. It reads as a hole rather than as a beat,
+   and it argues against the thing the client actually asked for, which was
+   for the compliance grid to sit RIGHT under the two cards.
+
+   So the grid gives back part of its top padding at exactly this junction,
+   and only here: 120 + 44 = 164px desktop, 80 + 28 = 108px mobile. Both are
+   still above the site's 120/80 section-seam floor once the head's own
+   leading is counted, and both are visibly a seam rather than a gap. The
+   rule is keyed on the adjacency rather than on a class, so it cannot leak
+   to the same section used anywhere else, and it evaporates by itself if
+   anything is ever inserted between the two again.                        */
+.h-doors + .h-compliance { padding-top: 44px; }
+
+@media (max-width: 860px) {
+  .h-doors__grid { margin-top: 48px; }
+  .h-doors + .h-compliance { padding-top: 28px; }
+}
+
+/* ── The two doors ────────────────────────────────────────────────────────
+   Photograph under the blue faded gradient, same recipe as the navy band.
+   These carry their own on-dark colors: the .ph-band--navy descendant
+   rules do not reach a card that lives on a light section.                */
+.h-door {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  min-height: 372px;
+  padding: 36px;
+  border-radius: var(--r-lg);
+  background-color: var(--navy-ink);
+  color: var(--ink-on-dark);
+  transition: transform 0ms; /* explicitly nothing moves on hover */
+}
+.h-door__img {
+  position: absolute; inset: 0; z-index: -2;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: var(--door-pos, 50% 50%);
+  transform: scale(1.04);
+}
+/* The veil runs 150deg: heaviest top-left where the copy sits, lightest
+   bottom-right where the photograph is allowed to come through. He asked
+   for the imagery to be visible, so this is tuned to the lightest veil the
+   copy can carry, not the safest one. */
+.h-door::after {
+  content: "";
+  position: absolute; inset: 0; z-index: -1;
+  background:
+    radial-gradient(66% 80% at 84% 6%, rgb(212 168 79 / .16), transparent 64%),
+    linear-gradient(150deg,
+      rgb(5 24 50 / .90)  0%,
+      rgb(8 36 74 / .80) 46%,
+      rgb(34 66 107 / .52) 100%);
+  transition: background 180ms var(--ease);
+}
+.h-door:hover::after {
+  background:
+    radial-gradient(66% 80% at 84% 6%, rgb(212 168 79 / .26), transparent 64%),
+    linear-gradient(150deg,
+      rgb(5 24 50 / .86)  0%,
+      rgb(8 36 74 / .74) 46%,
+      rgb(34 66 107 / .44) 100%);
+}
+.h-door:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+.h-door__icon {
+  display: grid; place-items: center;
+  width: 44px; height: 44px;
+  border-radius: var(--r-md);
+  background: rgb(241 223 179 / .16);
+  border: 1px solid rgb(255 255 255 / .14);
+  color: var(--gold-soft);
+  margin-bottom: var(--s4);
+}
+.h-door__icon svg { width: 20px; height: 20px; }
+.h-door .ph-eyebrow { color: var(--gold-soft); }
+.h-door__t { color: #fff; margin-top: 14px; max-width: 17ch; }
+.h-door__d {
+  margin-top: 14px;
+  color: var(--ink-on-dark-2);
+  font-size: .9375rem; line-height: 1.6;
+  max-width: 40ch;
+}
+/* flex-start, not stretch: the door is a column flex container, so the arrow
+   would otherwise span the whole card and drag its hover underline with it. */
+.h-door .ph-arrow {
+  margin-top: auto;
+  padding-top: var(--s3);
+  align-self: flex-start;
+  color: #fff;
+}
+.h-door .ph-arrow svg { color: var(--gold-soft); }
+.h-door .ph-arrow::after { background: var(--gold-soft); }
+
+@media (max-width: 620px) { .h-door { min-height: 320px; padding: 28px; } }
+
+/* ── The compliance grid ─────────────────────────────────────────────────
+   The itemized "Pharmacy charge / Pharity charge" block that used to close
+   the doors section is gone at the client's request. It is not lost: For
+   Pharmacies itemizes the same split at length and Why Pharity carries the
+   reasoning, and the one fact that was worth keeping on the home page (the
+   pharmacy is the merchant of record, the platform fee settles on its own
+   line) is now the third item in this grid. So the home page states it once
+   instead of twice, and states it where the rest of the model is stated.
+
+   STRUCTURE. Head, then a 3x2 grid, then one arrow link at the bottom left:
+   the client's own layout. It is built from components this site already
+   owns rather than from his stylesheet: .ph-eyebrow, .ph-h2, .ph-lede,
+   .ph-card__icon for the tile, .ph-h4 for the item title and .ph-arrow for
+   the link. The only thing genuinely new here is the spacing.
+
+   NO CARD AROUND THE ITEMS, deliberately. .ph-card is a bordered white
+   surface and it means "this is a thing you can act on": the two doors, the
+   pricing lanes. These six are a statement of posture, nothing to click, and
+   six bordered boxes directly under two large photographic cards would read
+   as a second, weaker set of the same object. The icon tile carries the
+   vocabulary and the grid carries the structure, which is the same choice
+   .ph-onband makes on the navy band for the same reason.
+
+   The grid reuses .ph-grid--3, so the two breakpoints are the site's tested
+   ones (3 across, 2 at 960, 1 at 620) rather than a third set invented here.
+   Only the gutter is local: --s3 is right for cards that own a border, and
+   too tight for borderless items, where the whitespace IS the separator. */
+.h-compliance__head > * + * { margin-top: 16px; }
+/* 26ch sets the client's three lines. .ph-h2 already carries
+   text-wrap:balance, so the measure picks the count and balance divides the
+   words evenly: no <br>, which the hero note explains does not survive a
+   size change. */
+.h-compliance__head .ph-h2 { max-width: 26ch; }
+/* Under the site default of 54ch this ran to a third line of two words.  */
+.h-compliance__head .ph-lede { max-width: 52ch; }
+
+/* 72px, the same head-to-grid beat the doors section above it uses, so the
+   two blocks are built on one interval. */
+.h-compliance__grid {
+  margin-top: 72px;
+  column-gap: clamp(24px, 3.4vw, 56px);
+  row-gap: clamp(38px, 4vw, 56px);
+}
+/* The row gap has to stay clearly larger than the gap inside an item, or the
+   six read as one column of twelve things. Item internals total ~22px, the
+   row gap starts at 38. */
+/* Icon INLINE-LEFT of the title, body indented to the title's own left edge.
+   This is his artifact's structure and it had been built stacked, icon above
+   title: measured against his file, his icon and title share a baseline
+   (same y, icon at x=569 and title at x=604) where ours sat 62px apart on
+   two rows.
+
+   A two-column grid rather than a flex row, because the body has to hang from
+   the TITLE's left edge, not the icon's, and only a grid lets row 2 start in
+   column 2. The 34ch measure is preserved by adding the gutter back to the
+   cap, otherwise moving the icon into the row would have silently narrowed
+   every body paragraph by 60px and re-wrapped all six. */
+.h-compliance__i {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  column-gap: 16px;
+  /* The <li> is a stretch item in the outer 3-across grid, so in a row where
+     one sibling's body runs to four lines the shorter items are stretched to
+     match. Without this the surplus is handed to the inner ROWS, and measured,
+     items 0 and 1 opened a 20px title-to-body gap while items 2-5 held 8px:
+     the same component reading two different ways in one row. Pack the rows
+     to the top and let the surplus fall below the item, where it is invisible. */
+  align-content: start;
+  max-width: calc(34ch + 60px);
+}
+/* The tile SPANS both rows rather than sitting in row 1. It is 44px against a
+   21.6px title line, so occupying row 1 alone made that row 44px tall and
+   pushed every body paragraph 22px clear of its own heading -- the title and
+   its copy stopped reading as one unit. Spanning takes the tile out of the
+   row-height calculation entirely, which is also how his file behaves: there
+   the tile visibly extends past the title and alongside the first body line.
+
+   The offset then centres it on the title's FIRST line: (21.6 - 44) / 2, where
+   21.6px is .ph-h4's computed line box at this size. Written as the arithmetic
+   rather than the result so the derivation is checkable.
+
+   NOT calc((1lh - 44px)/2), which an earlier pass used: `lh` resolves against
+   the element it is written on, and this is written on the ICON, whose own
+   line-height comes from the body font. Measured, that landed the tile 2.8px
+   low. The number that matters belongs to the heading next to it, so it has
+   to be stated, not inherited. */
+.h-compliance__i > .ph-card__icon {
+  grid-column: 1; grid-row: 1 / span 2;
+  align-self: start;
+  margin-top: calc((21.6px - 44px) / 2);
+  margin-bottom: 0;
+}
+/* Without this the heading stretches to the full row and its text sits at the
+   top of a box taller than itself, which is what made the gap measurable. */
+.h-compliance__it { grid-column: 2; grid-row: 1; margin-top: 0; align-self: start; }
+.h-compliance__ib {
+  grid-column: 2; grid-row: 2;
+  margin-top: 8px;
+  font-size: .9375rem; line-height: 1.6;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+.h-compliance__more { margin-top: 64px; }
+
+@media (max-width: 860px) {
+  .h-compliance__grid { margin-top: 48px; }
+  .h-compliance__more { margin-top: 44px; }
+}
+/* Single column: the 34ch cap is what keeps a line length readable in a
+   3-across grid, and at one column it does the opposite, stranding the copy
+   in the left half of a full-width row. */
+@media (max-width: 620px) {
+  .h-compliance__i { max-width: calc(46ch + 60px); }
+}
+
+/* ── Closing CTA ──────────────────────────────────────────────────────────*/
+.h-close { text-align: center; }
+/* The sign-in link now uses the site's shared wipe, so it behaves like every
+   other text link instead of carrying a static underline nothing else has.
+   .ph-wipe is inline, and its rule is drawn on the element's own box, so the
+   underline is exactly as wide as the words. */
+.h-close__in {
+  color: var(--navy);
+  font-weight: 600;
+  transition: color 170ms var(--ease);
+}
+.h-close__in:hover { color: var(--navy-ink); }
+.h-close .ph-eyebrow,
+.h-close .ph-lede { margin-inline: auto; }
+.h-close .ph-lede { max-width: 48ch; }
+.h-close .ph-btn-row { justify-content: center; }
+
+/* Centre the navy band's copy without touching the shell. */
+.h-band-copy { max-width: 44ch; margin-inline: auto; text-align: center; }
+.h-band-copy .ph-lede { margin-inline: auto; }
+.h-band-copy .ph-btn-row { justify-content: center; }
+</style>
+</head>
+
+<body>
+<a class="ph-skip" href="#main">Skip to content</a>
+
+<!-- ════════════════════════════════════ NAV ════════════════════════════ -->
+<header class="ph-nav">
+  <div class="ph-container ph-nav__inner">
+    <a class="ph-logo" href="index.html" aria-label="Pharity home">
+      <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+           width="868" height="200" decoding="async">
+    </a>
+
+    <nav class="ph-nav__links" aria-label="Primary">
+      <a class="ph-nav__link" href="index.html" aria-current="page">Home</a>
+      <a class="ph-nav__link" href="for-clinics.html">For Clinics</a>
+      <a class="ph-nav__link" href="for-pharmacies.html">For Pharmacies</a>
+      <a class="ph-nav__link" href="why-pharity.html">Why Pharity</a>
+      <a class="ph-nav__link" href="pricing.html">Pricing</a>
+    </nav>
+
+    <div class="ph-nav__actions">
+      <a class="ph-nav__signin ph-wipe" href="sign-in.html">Sign in</a>
+      <a class="ph-btn ph-btn--gold ph-btn--sm" href="request-access.html">Apply for access</a>
+      <div class="ph-nav__mobile">
+        <details class="ph-nav__disclosure">
+          <summary class="ph-nav__burger" aria-label="Menu">
+            <svg class="ph-nav__bars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3.5 7h17M3.5 12h17M3.5 17h17"/></svg>
+            <svg class="ph-nav__x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </summary>
+          <div class="ph-nav__panel">
+            <a href="index.html" aria-current="page">Home</a>
+            <a href="for-clinics.html">For Clinics</a>
+            <a href="for-pharmacies.html">For Pharmacies</a>
+            <a href="why-pharity.html">Why Pharity</a>
+            <a href="pricing.html">Pricing</a>
+            <hr>
+            <a href="contact.html">Contact</a>
+            <a href="sign-in.html">Sign in</a>
+            <a href="request-access.html">Apply for access</a>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+<main id="main">
+
+<!-- ═══════════════════════════════════ HERO ════════════════════════════ -->
+<section class="ph-section h-hero ph-band--light">
+  <div class="ph-container">
+    <div class="ph-split ph-split--copy-lead h-hero__grid">
+
+      <div class="h-hero__copy">
+        <p class="ph-eyebrow" data-reveal>One coordinated operating layer</p>
+
+        <!-- No hard break. A <br> after "between" only holds if the line
+             before it fits, and at this size in this column it does not:
+             it wrapped anyway and left "The clean" stranded on its own line.
+             text-wrap:balance divides the four lines evenly instead. -->
+        <h1 class="ph-h1 h-hero__h1" data-reveal>
+          The clean layer between your clinic and the
+          <span class="h-leaf">pharmacy.</span>
+        </h1>
+
+        <p class="ph-lede h-hero__lede" data-reveal>
+          Intake, e-prescribing, pharmacy routing, settlement and a full
+          audit trail, coordinated in one place.
+        </p>
+
+        <p class="h-hero__pos" data-reveal>
+          Starting from zero, Pharity can be the launch team.
+        </p>
+
+        <div class="ph-btn-row h-hero__cta" data-reveal>
+          <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html">
+            Apply for access
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+          </a>
+          <a class="ph-btn ph-btn--ghost ph-btn--lg" href="for-pharmacies.html">I’m a pharmacy</a>
+        </div>
+
+        <p class="h-hero__note" data-reveal>
+          <b>Cash-pay, prescriber-directed.</b> Pharity is not a pharmacy, a
+          prescriber or a dispenser. Licensed prescribers write; licensed 503A
+          partner pharmacies fill under their own licenses.
+        </p>
+      </div>
+
+      <div class="h-hero__stage">
+        <div class="ph-hw" data-bleed="center" data-hw data-reveal></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════ TRUST BAND ═══════════════════════════
+     The four approved phrases, verbatim, in the shared site component, and
+     the same four on every page that carries this strip. Do not add a fifth
+     cell, reword a cell, or let the wording drift between pages.
+
+     Standing copy rules for this strip:
+
+       - "HIPAA" over "ALIGNED PLATFORM" reads as "HIPAA-aligned platform".
+         That is the ceiling and the only claim made here. Never state or
+         imply certification, accreditation or compliance under HIPAA.
+       - No fulfilment-time, turnaround or state-coverage figures. A coverage
+         number in a trust strip reads as an insurance claim.
+       - No emblem beside any figure: a credential word at display size with
+         a medical or approval glyph locked to it reads as a seal no matter
+         what the label says. See the stylesheet for the full reasoning.
+
+     The figure-over-label split is intentional and is kept. The words, not
+     the typography, are what is load-bearing here.
+
+     Do not quote rejected wording in these comments. A comment ships to the
+     browser like everything else, and a claim we would not print on the page
+     is no safer in page source.                                          -->
+<section class="ph-section ph-section--sm ph-band--light">
+  <div class="ph-container">
+    <div class="ph-trustrow" data-reveal>
+      <div class="ph-trust--grid">
+      <div class="ph-trust__item"><span class="ph-trust__fig">HIPAA</span><p class="ph-trust__label">Aligned platform</p></div>
+      <div class="ph-trust__item"><span class="ph-trust__fig">503<span class="ph-trust__sub">A/B</span></span><p class="ph-trust__label">Licensed partner pharmacies</p></div>
+      <div class="ph-trust__item"><span class="ph-trust__fig">Cash-pay</span><p class="ph-trust__label">Prescriber-directed</p></div>
+      <div class="ph-trust__item"><span class="ph-trust__fig">Audit</span><p class="ph-trust__label">Full trail on every order</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════ OPERATING LAYER ═════════════════════════
+     The six capabilities advance horizontally as the page scrolls. All six
+     are in the DOM, fully written, at all times: the pinned mode only
+     changes how they are laid out. See section 14 of pharity-site.css.   -->
+<section class="ph-section ph-band--paper ph-flow" data-flow>
+  <div class="ph-flow__sticky">
+
+    <div class="ph-container">
+      <div class="ph-flow__head">
+        <p class="ph-eyebrow" data-reveal>The operating layer</p>
+        <!-- All navy. The gold leaf that used to sit on "coordinated" was gold
+             TYPE on a white section, and it competed with the rail, the
+             counter and the active marker for the one warm note this block is
+             allowed. Gold here means "you are reading this step", nothing
+             else. -->
+        <h2 class="ph-h2" data-reveal>
+          Six moving parts. One coordinated workflow.
+        </h2>
+        <p class="ph-lede" data-reveal>
+          Each piece is owned by whoever is licensed to own it. Pharity
+          coordinates the handoffs and keeps the record.
+        </p>
+      </div>
+
+      <div class="ph-flow__rail" aria-hidden="true">
+        <span class="ph-flow__rail-line"></span>
+        <span class="ph-flow__rail-fill"></span>
+        <span class="ph-flow__ticks"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      </div>
+      <p class="ph-flow__count" aria-hidden="true">
+        <span class="ph-flow__now">01</span> / 06
+      </p>
+    </div>
+
+    <div class="ph-flow__viewport">
+      <ol class="ph-flow__track">
+
+        <li class="ph-flow__i is-active">
+          <span class="ph-flow__n">01</span>
+          <span class="ph-flow__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1.2"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h4"/></svg></span>
+          <h3 class="ph-flow__t">Intake</h3>
+          <!-- Do not use the word "eligibility" in this step. In a pharmacy
+               context it reads as INSURANCE eligibility, and this site states
+               on every page that it is cash-pay only and does not bill
+               insurance. The screening the product actually runs is exclusion
+               and license screening on prescribers and pharmacies, which the
+               section foot states in its own words. -->
+          <p class="ph-flow__d">Patient details captured once, then carried through the whole order.</p>
+        </li>
+
+        <li class="ph-flow__i is-next">
+          <span class="ph-flow__n">02</span>
+          <span class="ph-flow__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="13" height="12" rx="2.4"/><path d="m15.5 10.5 6-3.2v9.4l-6-3.2z"/></svg></span>
+          <h3 class="ph-flow__t">Telehealth</h3>
+          <p class="ph-flow__d">An optional prescriber path for clinics with none on staff.</p>
+        </li>
+
+        <li class="ph-flow__i">
+          <span class="ph-flow__n">03</span>
+          <span class="ph-flow__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.5 2.5 11 13"/><path d="M21.5 2.5 15 21.5l-4-8.5-8.5-4z"/></svg></span>
+          <h3 class="ph-flow__t">E-prescribing</h3>
+          <p class="ph-flow__d">The prescriber signs; the order routes to the partner pharmacy.</p>
+        </li>
+
+        <li class="ph-flow__i">
+          <span class="ph-flow__n">04</span>
+          <span class="ph-flow__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.6" y="8.4" width="18.8" height="7.2" rx="3.6" transform="rotate(-45 12 12)"/><path d="M8.5 8.5l7 7"/></svg></span>
+          <h3 class="ph-flow__t">Pharmacy fills</h3>
+          <p class="ph-flow__d">A 503A partner dispenses under its own license, tracked to delivery.</p>
+        </li>
+
+        <li class="ph-flow__i">
+          <span class="ph-flow__n">05</span>
+          <span class="ph-flow__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.4"/><path d="M2.5 10h19"/></svg></span>
+          <h3 class="ph-flow__t">Payment routing</h3>
+          <p class="ph-flow__d">The card on file is charged at signature, with the fee on its own line.</p>
+        </li>
+
+        <!-- Step six is "Refill + retention" again, and the wording matters.
+             A previous pass replaced it on the reasoning that it described
+             Pharity prompting patients. It does not have to, and the product
+             does not work that way: Active Programs track nextRefillDueAt and
+             surface a renew card TO THE PRESCRIBER, and a patient's refill
+             request lands in the clinic's queue and never auto-approves. So
+             the capability is real and the copy states who acts: the
+             prescriber reviews and signs every renewal. That is also the
+             deliberate difference from the one-tap auto-renew patterns this
+             product refuses to copy, so it is worth saying out loud. -->
+        <li class="ph-flow__i">
+          <span class="ph-flow__n">06</span>
+          <span class="ph-flow__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M20.6 4.2v4.6H16"/><path d="M12 8v4.3l2.8 1.7"/></svg></span>
+          <h3 class="ph-flow__t">Refill + retention</h3>
+          <p class="ph-flow__d">Programs track when a refill is due. The prescriber reviews and signs every renewal.</p>
+        </li>
+
+      </ol>
+    </div>
+
+    <div class="ph-container">
+      <div class="ph-flow__foot">
+        <!-- The merchant-of-record and itemization points moved down to the
+             settlement note under the two doors, where they belong to a
+             decision. Repeating them here, forty pixels under step 05, was
+             saying the same sentence twice. What the foot carries instead is
+             the capability step 06 gave up when it went back to refills:
+             screening and the audit record, which are genuinely cross-cutting
+             rather than a stage of their own. -->
+        <p class="ph-body ph-body--sm ph-muted">
+          Exclusion and license screening runs at every step, and every step
+          writes to an audit record that exports.
+        </p>
+        <a class="ph-arrow" href="why-pharity.html">
+          Why Pharity
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ TWO DOORS ═══════════════════════════ -->
+<section class="ph-section h-doors ph-band--light">
+  <div class="ph-container">
+
+    <div class="h-doors__head">
+      <p class="ph-eyebrow" data-reveal>Two doors, one platform</p>
+      <h2 class="ph-h2" data-reveal>
+        Pick the path that matches where you are.
+      </h2>
+      <p class="ph-lede" data-reveal>
+        Same coordination layer, same audit trail, two different starting points.
+      </p>
+    </div>
+
+    <div class="ph-grid ph-grid--2 h-doors__grid">
+
+      <a class="h-door" href="for-clinics.html" data-reveal style="--door-pos:60% 50%">
+        <img class="h-door__img" src="assets/provider-workspace-navy.png" alt="" aria-hidden="true">
+        <span class="h-door__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 1.9 4.9L19 9.8l-5.1 1.9L12 16.6l-1.9-4.9L5 9.8l5.1-1.9z"/><path d="M19 15.5 19.8 18l2.2.9-2.2.9-.8 2.5-.8-2.5-2.2-.9 2.2-.9z"/></svg></span>
+        <p class="ph-eyebrow">For clinics and med spas</p>
+        <h3 class="ph-h3 h-door__t">Launch or scale with one clean operator.</h3>
+        <!-- "Keep your own prescribers, or use ours" said Pharity supplies
+             prescribers: contradicted by this page's own footer four hundred
+             pixels below it, which states Pharity is not a prescriber or a
+             telehealth provider. The construction the other pages already use
+             is accurate: the telehealth path is optional and staffed by
+             independent licensed prescribers, not by Pharity. -->
+        <p class="h-door__d">
+          Start at $0. Add telehealth and launch support as the practice is
+          ready. Keep your own prescribers, or add an optional telehealth path.
+        </p>
+        <span class="ph-arrow">
+          For clinics
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+        </span>
+      </a>
+
+      <a class="h-door" href="for-pharmacies.html" data-reveal style="--door-pos:44% 50%">
+        <img class="h-door__img" src="assets/pharmacy-workspace-navy.png" alt="" aria-hidden="true">
+        <span class="h-door__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.6" y="8.4" width="18.8" height="7.2" rx="3.6" transform="rotate(-45 12 12)"/><path d="M8.5 8.5l7 7"/></svg></span>
+        <p class="ph-eyebrow">For 503A compounding pharmacies</p>
+        <h3 class="ph-h3 h-door__t">Join the network and stay focused on fulfillment.</h3>
+        <!-- What a pharmacy receives is itemized on For Pharmacies and this
+             sentence must not exceed it: the prescription, the shipping
+             details and the signature record. Never "the patient record". -->
+        <p class="h-door__d">
+          Join at $0. Receive routed, screened orders with the prescription,
+          the shipping details and the signature record attached. You remain
+          the merchant of record.
+        </p>
+        <span class="ph-arrow">
+          For pharmacies
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+        </span>
+      </a>
+
+    </div>
+
+    <!-- The itemized "Pharmacy charge / Pharity charge" block that used to
+         close this section was removed at the client's request. The split is
+         stated at length on For Pharmacies and How It Works, and the single
+         fact worth keeping on the home page (merchant of record, fee on its
+         own line) is now item three of the compliance grid below, so it is
+         still said here, once, in the place the rest of the model is said.
+         Nothing takes its place in this section: the doors grid is the end
+         of the argument and .ph-section's own 120px closes it. -->
+
+  </div>
+</section>
+
+
+<!-- ═════════════════════════ THE COMPLIANCE GRID ═══════════════════════
+     Sits directly under the two door cards, with nothing between them. Do
+     not reinstate a partnering strip in that gap: both of its buttons
+     already exist on this page in the closing block, and the doors section
+     directly above is itself two large call-to-action cards.
+
+     STANDING COPY RULES FOR THIS GRID.
+
+     1. HIPAA and agreements. "HIPAA-aligned infrastructure" is the ceiling;
+        never state or imply certification, accreditation or compliance.
+        Business associate agreements are described only as "a BAA is
+        available on request", never as executed, in place, or pre-cleared.
+        Both phrases belong to the approved set this site ships verbatim in
+        the trust strip above.
+
+     2. Care. Nothing here may place Pharity in the care path. The product
+        coordinates the handoffs and keeps the record; it does not deliver,
+        provide or ensure care, and no sentence may end with Pharity's work
+        producing a patient outcome. The footer states this twice.
+
+     3. Payments. The payment item carries the fact and nothing more:
+        merchant of record, fee on its own line. No figures, percentages or
+        dollar amounts anywhere in this grid.
+
+     Vocabulary matches the rest of the site: prescribers rather than
+     providers, fill rather than fulfill.
+
+     Do not quote rejected wording in these comments. They ship to the
+     browser, so reproducing a phrase leaves it greppable in served source. -->
+<section class="ph-section h-compliance ph-band--light">
+  <div class="ph-container">
+
+    <div class="h-compliance__head">
+      <p class="ph-eyebrow" data-reveal>Built on the right side of compliance</p>
+      <h2 class="ph-h2" data-reveal>
+        Partnering with Pharity brings end-to-end peace of mind in a
+        fragmented landscape.
+      </h2>
+      <p class="ph-lede" data-reveal>
+        The model is intentionally clear about who provides care, who fills
+        prescriptions and how Pharity coordinates the handoffs.
+      </p>
+    </div>
+
+    <ul class="ph-grid ph-grid--3 h-compliance__grid">
+
+      <li class="h-compliance__i" data-reveal>
+        <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.6" y="8.4" width="18.8" height="7.2" rx="3.6" transform="rotate(-45 12 12)"/><path d="M8.5 8.5l7 7"/></svg></span>
+        <h3 class="ph-h4 h-compliance__it">Not a pharmacy or prescriber</h3>
+        <p class="h-compliance__ib">
+          Licensed prescribers retain clinical responsibility. Licensed 503A
+          partner pharmacies fill under their own licenses.
+        </p>
+      </li>
+
+      <li class="h-compliance__i" data-reveal>
+        <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3.4" width="7.6" height="6" rx="1.6"/><rect x="13.4" y="14.6" width="7.6" height="6" rx="1.6"/><path d="M6.8 9.4v5.4a2.8 2.8 0 0 0 2.8 2.8h3.8"/></svg></span>
+        <h3 class="ph-h4 h-compliance__it">Clean business workflows</h3>
+        <p class="h-compliance__ib">
+          Built for B2B wellness operations, with responsibilities stated
+          clearly across prescribers, pharmacies and Pharity.
+        </p>
+      </li>
+
+      <li class="h-compliance__i" data-reveal>
+        <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.4"/><path d="M2.5 10h19"/></svg></span>
+        <h3 class="ph-h4 h-compliance__it">Payment routing clarity</h3>
+        <p class="h-compliance__ib">
+          The pharmacy is the merchant of record. The platform fee settles on
+          its own line, never folded into the price of the medication.
+        </p>
+      </li>
+
+      <li class="h-compliance__i" data-reveal>
+        <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.2" y="10.4" width="15.6" height="10.4" rx="2.4"/><path d="M8 10.4V7.6a4 4 0 0 1 8 0v2.8"/></svg></span>
+        <h3 class="ph-h4 h-compliance__it">Sensitive data handled carefully</h3>
+        <p class="h-compliance__ib">
+          Patient identifiers and clinical context reach only the partner
+          licensed to act on them.
+        </p>
+      </li>
+
+      <li class="h-compliance__i" data-reveal>
+        <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8 20 6v6c0 5-3.4 8.1-8 9.2C7.4 20.1 4 17 4 12V6z"/><path d="m8.8 12.2 2.3 2.3 4.1-4.3"/></svg></span>
+        <h3 class="ph-h4 h-compliance__it">HIPAA-aligned infrastructure</h3>
+        <p class="h-compliance__ib">
+          Protected health information stays inside the systems and partner
+          workflows that need it. A BAA is available on request.
+        </p>
+      </li>
+
+      <li class="h-compliance__i" data-reveal>
+        <span class="ph-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15"/><path d="M14 10h4a2 2 0 0 1 2 2v9"/><path d="M2 21h20"/><path d="M7.5 8h3M7.5 12h3M7.5 16h3"/></svg></span>
+        <h3 class="ph-h4 h-compliance__it">Pharmacy and clinic coordination</h3>
+        <p class="h-compliance__ib">
+          Pharity coordinates the handoffs between the clinic and the partner
+          pharmacy, and keeps the record.
+        </p>
+      </li>
+
+    </ul>
+
+    <a class="ph-arrow h-compliance__more" href="why-pharity.html" data-reveal>
+      Read why Pharity is built this way
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+    </a>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════ NAVY PHOTO BAND (one per page) ══════════════ -->
+<section class="ph-band--navy ph-section ph-section--sm" style="--band-pos:50% 62%">
+  <img class="ph-band__img" src="assets/clinic-room.png" alt="" aria-hidden="true">
+  <div class="ph-container">
+    <div class="h-band-copy">
+      <p class="ph-eyebrow" data-reveal>Simple pricing</p>
+      <h2 class="ph-h2" data-reveal style="margin-top:18px;color:#fff">
+        Free to connect. Add layers <span class="ph-gold">as you need them.</span>
+      </h2>
+      <p class="ph-lede" data-reveal style="margin-top:18px">
+        Clinics start at $0. Pharmacies join at $0. Everything else stays optional.
+      </p>
+      <div class="ph-btn-row" data-reveal style="margin-top:30px">
+        <a class="ph-btn ph-btn--on-dark ph-btn--lg" href="pricing.html">
+          See pricing
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════ CLOSING CTA ═════════════════════════
+     Slimmer: --sm rhythm instead of the full 120px, the lede cut to one line,
+     and the sign-in line carrying the shared .ph-wipe underline instead of a
+     hand-rolled inline text-decoration. This block and the navy band above it
+     were together ~1050px of tail on a page that has already made its case.
+     Nothing was removed except words.                                       -->
+<section class="ph-section ph-section--sm h-close-sec ph-band--warm">
+  <div class="ph-container h-close ph-cta-close">
+    <span class="ph-cta-rule" data-reveal aria-hidden="true"></span>
+    <p class="ph-eyebrow" data-reveal>Get started</p>
+    <h2 class="ph-h2" data-reveal style="margin-top:18px">
+      Build the pharmacy layer<br>
+      <span class="h-leaf">your clinic already runs on.</span>
+    </h2>
+    <p class="ph-lede" data-reveal style="margin-top:16px">
+      Apply for access and we’ll walk you through it.
+    </p>
+    <div class="ph-btn-row" data-reveal style="margin-top:30px">
+      <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html">
+        Apply for access
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+      </a>
+      <a class="ph-btn ph-btn--ghost ph-btn--lg" href="why-pharity.html">Why Pharity</a>
+    </div>
+    <p class="ph-body ph-body--sm ph-muted" data-reveal style="margin-top:20px">
+      Already a partner? <a class="ph-wipe h-close__in" href="sign-in.html">Sign in</a>
+    </p>
+  </div>
+</section>
+
+</main>
+
+
+<!-- ═══════════════════════════════════ FOOTER ══════════════════════════ -->
+<footer class="ph-footer">
+  <div class="ph-container">
+
+    <div class="ph-footer__top">
+      <div>
+        <a class="ph-logo" href="index.html" aria-label="Pharity home">
+          <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+               width="868" height="200" decoding="async">
+        </a>
+        <p class="ph-footer__blurb">
+          One coordinated layer between wellness clinics and licensed 503A compounding
+          pharmacies.
+        </p>
+        <p class="ph-footer__blurb ph-footer__contact">
+          <a href="mailto:hello@pharity.com">hello@pharity.com</a>
+        </p>
+      </div>
+
+      <div>
+        <p class="ph-footer__h">Platform</p>
+        <ul class="ph-footer__list">
+          <li><a href="for-clinics.html">For Clinics</a></li>
+          <li><a href="for-pharmacies.html">For Pharmacies</a></li>
+          <li><a href="why-pharity.html">Why Pharity</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="ph-footer__h">Company</p>
+        <ul class="ph-footer__list">
+          <li><a href="request-access.html">Apply for access</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="sign-in.html">Sign in</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="ph-footer__h">Legal</p>
+        <ul class="ph-footer__list">
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- One disclosure block, byte-identical on every page that carries it.
+         If you edit these three paragraphs, edit them everywhere in the same
+         change: disclosure wording that drifts between pages is the defect. -->
+    <div class="ph-footer__legal">
+      <p class="ph-disclosure"><strong>Cash-pay only.</strong> Pharity does not bill or accept insurance, Medicare, Medicaid, or Tricare.</p>
+      <p class="ph-disclosure"><strong>Prescriber-directed.</strong> Pharity does not prescribe, dispense, or practice medicine, and does not provide medical advice. All prescriptions are written by independently licensed prescribers who retain clinical responsibility. All medications are compounded and dispensed by independently licensed 503A pharmacies, which act as the merchant of record. Telehealth access is optional and available to clinics without a prescriber on staff.</p>
+      <p class="ph-disclosure"><strong>Sample data.</strong> The interface shown on this page is illustrative. It is not a real patient, prescriber, clinic, pharmacy or order.</p>
+    </div>
+
+    <div class="ph-footer__base">
+      <span>© 2026 Pharity Health LLC. All rights reserved.</span>
+      <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+    </div>
+
+  </div>
+</footer>
+
+<script src="assets/pharity-site.js"></script>
+</body>
+</html>

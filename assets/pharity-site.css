@@ -1,0 +1,4120 @@
+/* ============================================================================
+   PHARITY: shared marketing shell
+   Every page imports this file plus pharity-site.js.
+
+   Contract
+   --------
+   • The page is predominantly white / warm-white. Navy is ink + accent, plus at
+     most ONE dark band per page. Gold is gradient + accent, never body text.
+   • No box-shadows on marketing surfaces. Hairlines and the soft gold wash
+     carry structure. The ONE exception is the hardware render (.ph-hw) and the
+     product mock inside it: real devices cast real shadows.
+   • No italic anywhere. No external fonts, no external requests.
+   • Motion is gated behind html.js AND prefers-reduced-motion: no-preference,
+     so the page renders fully visible with JS off or reduced motion on.
+   ========================================================================== */
+
+
+/* ── 1. Tokens ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* Brand: exact, do not substitute */
+  --navy:        #08244A;
+  --navy-soft:   #22426B;
+  --navy-ink:    #051832;
+  /* Sampled from the artwork, not chosen. assets/pharity-logo-horizontal.png
+     was read pixel by pixel: the arch glyph was isolated from the navy
+     wordmark by hue, then eroded two rings so only the stroke INTERIOR was
+     measured and no antialiased edge could skew it. Across 12,582 core
+     pixels the channel ranges are R 5, G 4, B 7 with a standard deviation
+     under 0.8 on every channel, and the mean holds at #D4A5-something from
+     the top of the arch to the bottom and from leg to leg. It is a FLAT
+     colour. There is no gradient in the mark, so there is none on the
+     button either. Centroid of the cluster: rgb(212, 165, 88). */
+  --gold:        #D4A558;
+  /* The same gold, 9% down. This is the entire hover gesture on a gold
+     surface, so it has to be a real step without drifting brown: the old
+     hover bottomed out at #A0742C, which is where the CTA got its muddy
+     end. Navy still measures 5.69:1 here. */
+  --gold-deep:   #C19650;
+  --gold-soft:   #F1DFB3;
+  /* Gold as INK on a light surface. #D4A558 measures 2.25:1 on white and
+     2.12:1 on the cream, so it fails even the 3:1 large-text floor and
+     display accents use this deeper leaf instead (4.02:1 on white).
+     --gold stays a FILL. */
+  --gold-ink:    #A5762A;
+  /* And deeper again, for gold ink at SMALL sizes. --gold-ink measures 4.02:1
+     on cream, which clears the 3:1 large-text floor but fails the 4.5:1 body
+     floor; this is 5.3:1. Used by the flow rail's step numbers and by the
+     trust strip's icon on hover. */
+  --gold-ink-deep: #8A6224;
+
+  /* Surfaces */
+  --paper:       #FFFFFF;
+  --paper-warm:  #FDF8EA;
+  --panel-a:     #FAF6EC;
+  --panel-b:     #F3ECD8;
+  --page-base:   linear-gradient(180deg, #FFFFFF, #FDF8EA);
+  --warm-panel:  linear-gradient(180deg, #FAF6EC 0%, #F3ECD8 100%);
+  --gold-wash:   linear-gradient(135deg, rgb(241 223 179 / .85), rgb(212 168 79 / .25));
+  /* Every gold-filled affordance on the site draws from this ONE value: the
+     header pill, the hero button, the signature button inside the dashboard
+     and the open stage dot on Why Pharity. It replaces a
+     linear-gradient(135deg, #D4A84F, #B8893A) whose dark end sat a full 28
+     points of red below the mark, which is what read as a dark button
+     underneath a clean gold logo. */
+  --cta-fill:    var(--gold);
+
+  /* Ink */
+  --ink:         #0B1F3A;
+  --ink-2:       #3C4A5E;
+  /* #667487 measured 4.76:1 on white but only 4.03-4.48:1 on the cream and the
+     warm panel, so it failed body-copy contrast on every warm surface. */
+  --ink-3:       #5A6879;
+  --ink-on-dark:     #FFFFFF;
+  --ink-on-dark-2:   rgb(255 255 255 / .78);
+  --ink-on-dark-3:   rgb(255 255 255 / .60);
+
+  /* Hairlines */
+  --line:        rgb(8 36 74 / .12);
+  --line-soft:   rgb(8 36 74 / .07);
+  --line-gold:   rgb(212 168 79 / .38);
+  --line-dark:   rgb(255 255 255 / .16);
+
+  /* Type */
+  --serif: ui-serif, Georgia, "Times New Roman", serif;
+  --sans:  ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono:  ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* 8px scale */
+  --s1: 8px;   --s2: 16px;  --s3: 24px;  --s4: 32px;
+  --s5: 40px;  --s6: 48px;  --s7: 64px;  --s8: 80px;
+  --s9: 96px;  --s10: 128px;
+
+  /* Radii: marketing elements stay <= 12px */
+  --r-sm: 6px;  --r-md: 10px;  --r-lg: 12px;  --r-pill: 999px;
+
+  --container: 1200px;
+  --gutter: 24px;
+  --nav-h: 72px;
+
+  --ease: cubic-bezier(.22, 1, .36, 1);
+}
+
+@media (max-width: 700px) {
+  :root { --gutter: 20px; --nav-h: 60px; }
+}
+
+
+/* ── 2. Reset + base ─────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--nav-h) + 8px);
+}
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--page-base);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+img, svg, video { display: block; max-width: 100%; }
+img { height: auto; }
+
+h1, h2, h3, h4, p, figure, blockquote, ul, ol, dl { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+
+/* No italic anywhere. */
+i, em, cite, address, dfn, var { font-style: normal; }
+
+a { color: inherit; text-decoration: none; }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button { background: none; border: 0; padding: 0; cursor: pointer; }
+
+/* Focus: instant, always visible, never animated. */
+:focus-visible {
+  outline: 2px solid var(--navy);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+.ph-on-dark :focus-visible,
+.ph-band--navy :focus-visible { outline-color: var(--gold); }
+
+::selection { background: rgb(212 168 79 / .28); color: var(--navy-ink); }
+
+.ph-sr {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+.ph-skip {
+  position: absolute; left: var(--gutter); top: 8px;
+  transform: translateY(-200%);
+  z-index: 200;
+  background: var(--navy); color: #fff;
+  /* 14px block padding + 17px line box = 45px, so the skip link clears 44
+     without an expanded hit area. It is only on screen while focused, so the
+     extra 4px costs nothing visually. */
+  padding: 14px 18px; border-radius: var(--r-sm);
+  font-size: 14px; font-weight: 600;
+}
+.ph-skip:focus { transform: translateY(0); }
+
+
+/* ── 3. Layout primitives ────────────────────────────────────────────────── */
+
+.ph-container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.ph-container--tight { max-width: 880px; }
+.ph-container--text  { max-width: 720px; }
+
+/* ── Section rhythm: ONE scale for the whole site ─────────────────────────
+   120/80/128px desktop, 80/56/88 mobile. This used to ship at 96/56 here
+   while a second sheet (pharity-polish.css) restated it at 120/80 for two of
+   the four pages, so the site ran three different rhythms and the home page
+   read as "stacked" rather than composed: the client's note that sections
+   "go right into those other images under it". The rhythm layer has been
+   promoted into the shell and that sheet retired, so a section seam is now
+   the same interval on every page by construction.
+
+   --flush-top is declared LAST on purpose: it has to out-order .ph-section,
+   or restating the padding above silently reopens the gap that modifier
+   exists to close (the clinics trust strip is flush against its hero). */
+.ph-section { position: relative; padding-block: 120px; }
+.ph-section--sm  { padding-block: 80px; }
+.ph-section--lg  { padding-block: 128px; }
+
+@media (max-width: 860px) {
+  .ph-section    { padding-block: 80px; }
+  .ph-section--sm { padding-block: 56px; }
+  .ph-section--lg { padding-block: 88px; }
+}
+
+.ph-section--flush-top { padding-top: 0; }
+
+/* A section heading and the grid beneath it are ONE unit, so the interval
+   between them stays clearly smaller than the interval between sections. */
+.ph-lead-gap { margin-top: 52px; }
+@media (max-width: 860px) { .ph-lead-gap { margin-top: 38px; } }
+
+/* Section ledes ran four to five lines under a two-line heading, which is the
+   main reason the text-led pages read as heavy. */
+.ph-section .ph-lede     { max-width: 54ch; }
+.ph-section--lg .ph-lede { max-width: 50ch; }
+
+/* Light section: the default. Transparent so the page base shows. */
+.ph-band--light { background: transparent; }
+
+/* Paper section: pure white, lifts a block off the warm page base. */
+.ph-band--paper {
+  background: var(--paper);
+  border-block: 1px solid var(--line-soft);
+}
+
+/* Warm panel: the tan gradient. */
+.ph-band--warm {
+  background: var(--warm-panel);
+  border-block: 1px solid var(--line-soft);
+}
+
+/* ── One rule per boundary ─────────────────────────────────────────────────
+   --paper and --warm both draw border-BLOCK, so wherever two of them meet,
+   the upper one's bottom rule and the lower one's top rule stack into a muddy
+   2px line. Measured: For Clinics hero/trust at y=757.7, For Pharmacies
+   warm/paper at y=3111.7, both 1440px wide and 0.0px apart.
+
+   Only these four pairs are collapsed. A --light band is transparent and
+   draws nothing, so `--light + --paper` must KEEP its top rule: that is the
+   one case where a single rule is all there is. */
+.ph-band--paper + .ph-band--paper,
+.ph-band--paper + .ph-band--warm,
+.ph-band--warm  + .ph-band--paper,
+.ph-band--warm  + .ph-band--warm { border-top: 0; }
+
+/* The first section in the document sits directly beneath the nav, which
+   already draws its own bottom hairline. */
+main > .ph-band--paper:first-child,
+main > .ph-band--warm:first-child { border-top: 0; }
+
+/* Same rule, other end of the page: the footer draws its own hairline across
+   its top edge, so a --paper or --warm section closing out <main> must not
+   draw a second one 1px above it. This is the one boundary pair the collapse
+   list above could not cover, because it is section-to-FOOTER and the footer
+   is not a sibling inside main. */
+main > .ph-band--paper:last-child,
+main > .ph-band--warm:last-child { border-bottom: 0; }
+
+/* Soft gold wash: for a single feature block, never a whole page. */
+.ph-band--wash { background: var(--gold-wash); }
+
+/* ── The navy photo band ──
+   A photograph under a blue faded gradient. Use ONCE per page.
+   The photo is a real <img>: a relative url() inside a custom property
+   resolves against the stylesheet in Chromium, which silently 404s.
+
+     <section class="ph-band--navy ph-section">
+       <img class="ph-band__img" src="assets/why-pharity-bg.png" alt="" aria-hidden="true">
+       <div class="ph-container"> … </div>
+     </section>                                                            */
+.ph-band--navy {
+  position: relative;
+  isolation: isolate;
+  color: var(--ink-on-dark);
+  background-color: var(--navy-ink);
+  overflow: hidden;
+}
+.ph-band__img {
+  position: absolute; inset: 0; z-index: -2;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: var(--band-pos, 50% 50%);
+  transform: scale(1.04);
+  pointer-events: none;
+}
+.ph-band--navy::after {
+  content: "";
+  position: absolute; inset: 0; z-index: -1;
+  background:
+    radial-gradient(70% 90% at 88% 8%, rgb(212 168 79 / .20), transparent 62%),
+    linear-gradient(104deg,
+      rgb(5 24 50 / .95)  0%,
+      rgb(8 36 74 / .90) 44%,
+      rgb(34 66 107 / .74) 100%);
+}
+.ph-band--navy .ph-eyebrow { color: var(--gold-soft); }
+.ph-band--navy .ph-lede,
+.ph-band--navy .ph-body    { color: var(--ink-on-dark-2); }
+.ph-band--navy .ph-hr      { background: var(--line-dark); }
+
+/* Grid helpers */
+.ph-grid { display: grid; gap: var(--s3); }
+.ph-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ph-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ph-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 960px) {
+  .ph-grid--3, .ph-grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  .ph-grid--2, .ph-grid--3, .ph-grid--4 { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Split: copy beside a visual. */
+.ph-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+.ph-split--copy-lead { grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); }
+@media (max-width: 900px) {
+  .ph-split, .ph-split--copy-lead { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+}
+
+.ph-hr { height: 1px; background: var(--line); border: 0; margin-block: var(--s5); }
+
+.ph-stack > * + * { margin-top: var(--s2); }
+.ph-stack-lg > * + * { margin-top: var(--s4); }
+
+
+/* ── 4. Type ─────────────────────────────────────────────────────────────── */
+
+.ph-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--sans);
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  color: var(--navy);
+}
+.ph-eyebrow::before {
+  content: ""; flex: none;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold);
+}
+
+.ph-display,
+.ph-h1 {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -.015em;
+  line-height: 1.04;
+  color: var(--navy);
+  text-wrap: balance;
+}
+.ph-display { font-size: clamp(2.6rem, 1.55rem + 4.1vw, 4.5rem); }
+.ph-h1      { font-size: clamp(2.3rem, 1.55rem + 2.9vw, 3.6rem); }
+
+.ph-h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.85rem, 1.35rem + 1.9vw, 2.75rem);
+  line-height: 1.1;
+  letter-spacing: -.012em;
+  color: var(--navy);
+  text-wrap: balance;
+}
+
+.ph-h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.25rem, 1.1rem + .55vw, 1.5rem);
+  line-height: 1.2;
+  letter-spacing: -.008em;
+  color: var(--navy);
+}
+
+.ph-h4 {
+  font-family: var(--sans);
+  font-weight: 650;
+  font-size: 1rem;
+  line-height: 1.35;
+  letter-spacing: -.005em;
+  color: var(--navy);
+}
+
+/* Gold is a display accent only: never body copy. On light it must use the
+   deeper leaf; raw --gold is a fill, not ink. */
+.ph-gold { color: var(--gold-ink); }
+.ph-band--navy .ph-gold { color: var(--gold-soft); }
+
+/* Gold underline swash behind a display word. */
+.ph-swash { position: relative; display: inline-block; }
+.ph-swash::after {
+  content: "";
+  position: absolute; inset-inline: -.04em; bottom: .06em;
+  height: .3em; z-index: -1;
+  background: rgb(212 168 79 / .26);
+  border-radius: 2px;
+}
+
+.ph-lede {
+  font-size: clamp(1.0625rem, 1rem + .3vw, 1.1875rem);
+  line-height: 1.62;
+  color: var(--ink-2);
+  max-width: 62ch;
+  text-wrap: pretty;
+}
+.ph-body { color: var(--ink-2); text-wrap: pretty; }
+.ph-body--sm { font-size: .9375rem; line-height: 1.6; }
+.ph-muted { color: var(--ink-3); }
+
+.ph-num {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -.01em;
+}
+
+.ph-prose > * + * { margin-top: 1em; }
+
+/* ── Links inside a sentence ──────────────────────────────────────────────
+   The site had THREE ways of drawing one: .ph-prose a, a bare <a> inheriting
+   colour with no affordance at all, and an inline style repeated on two
+   pages. Only the first had a hover, so the same hello@pharity.com link
+   responded in the footer and was completely inert on request-access, and
+   the Terms / Privacy Policy links in the consent line carried no underline
+   and no colour, i.e. nothing marked them as links at all.
+
+   This is the one treatment. The transition matches the 170ms every other
+   interactive element on the site uses, so a link no longer snaps while its
+   neighbours ease. */
+.ph-inline-link,
+.ph-prose a {
+  color: var(--navy);
+  text-decoration: underline;
+  text-decoration-color: var(--line-gold);
+  text-underline-offset: 3px;
+  transition: color 170ms var(--ease), text-decoration-color 170ms var(--ease);
+}
+.ph-inline-link { font-weight: 600; }
+.ph-inline-link:hover,
+.ph-prose a:hover { color: var(--navy-ink); text-decoration-color: var(--gold); }
+
+/* Quiet variant, for small print such as the consent line: a navy bold run
+   would shout louder than the sentence holding it, so this keeps the
+   parent's colour and weight and lets the underline do the marking. */
+.ph-inline-link--quiet { color: inherit; font-weight: inherit; }
+.ph-inline-link--quiet:hover { color: var(--navy); text-decoration-color: var(--gold); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ph-inline-link, .ph-prose a { transition: none; }
+}
+
+
+/* ── 5. Buttons ──────────────────────────────────────────────────────────── */
+
+.ph-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px;
+  height: 46px;
+  /* Generous, because a pill with tight sides reads as a UI control rather
+     than as this brand's primary action. */
+  padding-inline: 26px;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  font-family: var(--sans);
+  font-size: .9375rem;
+  font-weight: 600;
+  letter-spacing: -.005em;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  /* Pill. The 10px rectangle read as a generic UI button rather than as this
+     brand's primary action; the reference he picked uses full pills too.
+     No drop shadow: that stays reserved for the hardware render.
+     NOTHING MOVES ON HOVER anywhere on this site: no lift, no scale. Color,
+     border and background carry every interaction. A 1px lift on a pill is the
+     cheapest gesture in the template vocabulary and it was the one thing on
+     these buttons that read as generic. */
+  border-radius: var(--r-pill);
+  transition: background-color 170ms var(--ease),
+              border-color 170ms var(--ease),
+              color 170ms var(--ease),
+              background-image 170ms var(--ease);
+}
+.ph-btn svg { width: 16px; height: 16px; flex: none; }
+.ph-btn--sm { height: 38px; padding-inline: 18px; font-size: .875rem; }
+
+/* --lg is the primary CTA everywhere: "Apply for access" and its partner sit
+   at this size on all ten pages, and nothing on the site uses a bare .ph-btn,
+   so this one rule is the whole of it and they cannot drift apart.
+
+   Taken down a notch 2026-08-27 at the client's "just the slightest bit
+   smaller". Measured rather than eyeballed: line-height is 1, so the vertical
+   padding was (52 - 16) / 2 = 18px a side. It is now (48 - 15) / 2 = 16.5px,
+   which is 8.3% off, and the label drops 16px -> 15px. Horizontal padding
+   moves by the same 0.917 factor, 34px -> 31px, so the pill keeps its shape
+   instead of turning stubby. Height lands at 48px, still clear of the 44px
+   minimum tap target, so mobile needs no carve-out and the two sizes stay
+   identical everywhere. */
+.ph-btn--lg { height: 48px; padding-inline: 31px; font-size: .9375rem; }
+
+/* ── Primary: the logo, made into a button ────────────────────────────────
+   The mark is a gold arch beside a navy wordmark, so the primary action is
+   the same pairing and nothing else: gold ground, NAVY label.
+
+   The ground is now the arch colour itself and nothing else. It used to be
+   linear-gradient(135deg, #D4A84F, #B8893A), and that dark end is the whole
+   complaint: the mark sits at rgb(212, 165, 88) everywhere, the button ran
+   down to rgb(184, 137, 58), and the two were side by side in the header.
+   A gradient was also describing the mark inaccurately, since measuring the
+   artwork shows the arch is flat to within a couple of levels.
+
+   Navy, not white, and that is measurable rather than a preference. On
+   #D4A558 white runs 2.25:1 and fails normal-text contrast outright, while
+   --navy gives 6.85:1. Flat rather than a ramp means that is now one number
+   over the whole pill instead of a best case and a worst case, and the
+   hover (--gold-deep) still holds 5.69:1.
+
+   The wordmark measures #051C3E against --navy #08244A, so the navy label
+   is also the mark's own ink to within a couple of points.                */
+.ph-btn--gold {
+  /* Flat, because the mark is flat. background-image is cleared explicitly
+     rather than just left unset: this rule used to set one, and anything
+     that reintroduces a gradient here puts the button back out of step with
+     the logo it is meant to quote. */
+  background-image: none;
+  background-color: var(--cta-fill);
+  color: var(--navy);
+  border-color: rgb(139 103 40 / .30);
+}
+/* With the lift gone, the gradient shift is the whole gesture, so it has to be
+   worth seeing: the leaf deepens across the pill and the rim firms up. Both are
+   color, which is all this site allows a button to do. */
+.ph-btn--gold:hover {
+  background-image: none;
+  background-color: var(--gold-deep);
+  border-color: rgb(139 103 40 / .55);
+}
+
+/* Secondary: navy solid. */
+.ph-btn--navy { background-color: var(--navy); color: #fff; }
+.ph-btn--navy:hover { background-color: var(--navy-ink); }
+
+/* Secondary: a quiet navy outline.
+   It sits beside the gold pill and must not compete with it, so it carries
+   the navy half of the mark and nothing else. The label is navy rather than
+   grey so the pair reads as one family; the outline stays light so the gold
+   pill keeps the weight. The gold wash on hover is the whole gesture. */
+.ph-btn--ghost {
+  background-color: transparent;
+  border-color: rgb(8 36 74 / .22);
+  color: var(--navy);
+}
+.ph-btn--ghost:hover {
+  background-color: rgb(212 168 79 / .10);
+  border-color: var(--line-gold);
+  color: var(--navy);
+}
+
+/* On the navy band. */
+.ph-btn--on-dark {
+  background-color: rgb(255 255 255 / .10);
+  border-color: rgb(255 255 255 / .30);
+  color: #fff;
+}
+.ph-btn--on-dark:hover {
+  background-color: rgb(255 255 255 / .18);
+  border-color: rgb(255 255 255 / .48);
+}
+
+/* ── The gold underline wipe ──
+   The one motion allowed on a text link. It wipes IN from the left on enter and
+   OUT to the right on leave: the origin flips between the two states, so the
+   line never snaps back through itself. transform-only, so it composites on the
+   GPU and costs nothing. Everything that behaves like a link uses this; nothing
+   moves, nothing scales, nothing lifts.                                       */
+.ph-wipe { position: relative; }
+.ph-wipe::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: -3px;
+  height: 1px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform 180ms var(--ease);
+}
+.ph-wipe:hover::after,
+.ph-wipe:focus-visible::after { transform: scaleX(1); transform-origin: 0 50%; }
+@media (prefers-reduced-motion: reduce) {
+  .ph-wipe::after { transition: none; }
+}
+
+/* Text link with a gold arrow: the card CTA. */
+.ph-arrow {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: .9375rem; font-weight: 600;
+  color: var(--navy);
+  transition: color 170ms var(--ease);
+}
+.ph-arrow svg { width: 15px; height: 15px; color: var(--gold); flex: none; }
+.ph-arrow::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: -4px;
+  height: 1px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform 180ms var(--ease);
+}
+a:hover > .ph-arrow::after,
+a.ph-arrow:hover::after,
+a.ph-arrow:focus-visible::after,
+a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 50%; }
+.ph-arrow:hover { color: var(--navy-ink); }
+.ph-band--navy .ph-arrow { color: #fff; }
+.ph-band--navy .ph-arrow svg,
+.ph-band--navy .ph-arrow::after { color: var(--gold-soft); }
+.ph-band--navy .ph-arrow::after { background: var(--gold-soft); }
+@media (prefers-reduced-motion: reduce) {
+  .ph-arrow::after { transition: none; }
+}
+
+.ph-btn-row {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+}
+@media (max-width: 540px) {
+  .ph-btn-row { flex-direction: column; align-items: stretch; }
+  .ph-btn-row .ph-btn { width: 100%; }
+}
+
+
+/* ── 4c. Gold on the closing CTA ──────────────────────────────────────────
+   The gold on this site was doing three unrelated jobs (the arch in the logo,
+   one accented word per headline, one filled button) and nothing tied them
+   together, so each read as a one-off. This is the tie: every page's closing
+   CTA gets the SAME three marks, in the same order, so the gold reads as a
+   system rather than as decoration applied per page.
+
+     1. a short rule above the eyebrow
+     2. the eyebrow's existing gold dot
+     3. a soft pool behind the panel
+
+   All three are ACCENT or LINE. None of them is body text and none is a flat
+   fill, which is the constraint gold has to respect here: --gold measures
+   2.25:1 on white and 2.12:1 on the cream, so it can carry a rule or a dot,
+   where contrast is a matter of visibility rather than legibility, and it
+   cannot carry a word. Accented words already use --gold-ink, which is a
+   different value for exactly that reason.
+
+   The pool is deliberately weak. It is a wash whose job is to warm the panel
+   by a few points, not to tint it: at .085 peak over the warm band it moves
+   the surface about four luminance points at the centre and is gone before
+   the panel's own edges, so the page stays overwhelmingly light and the band
+   boundary above and below is still drawn by the existing hairline and not by
+   a colour change. */
+.ph-cta-close { position: relative; isolation: isolate; }
+.ph-cta-close > * { position: relative; }
+.ph-cta-close::before {
+  content: "";
+  position: absolute; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Both ellipses reach transparent well inside the box, so no edge of this
+     element can ever paint a seam against the section above or below it. */
+  background:
+    radial-gradient(58% 74% at 50% 0%,  rgb(212 165 88 / .085), transparent 72%),
+    radial-gradient(34% 46% at 50% 12%, rgb(212 165 88 / .055), transparent 70%);
+}
+
+/* The rule.
+   display:block with auto margins, NOT inline-block relying on the parent's
+   text-align. That was the first attempt and it silently failed: .ph-eyebrow
+   is inline-flex site-wide, so the rule and the eyebrow shared one line box
+   and sat side by side. Measured, the pair centred correctly as a unit while
+   the rule itself landed 52px left of the container's centre, which is
+   exactly the kind of "looks deliberate, is a bug" result that survives a
+   glance. A block box cannot share a line with anything, so the rule is on
+   its own row by construction.
+   Faded at both ends so it terminates by running out rather than by stopping,
+   which is the same gesture the shadow pool uses. */
+.ph-cta-rule {
+  display: block;
+  width: 56px; height: 2px;
+  margin: 0 auto 20px;
+  border-radius: 2px;
+  background: linear-gradient(90deg,
+    transparent, var(--gold) 20%, var(--gold) 80%, transparent);
+}
+/* The one closing CTA that is not centred: Why Pharity closes in a two-column
+   split, where the copy is left-aligned and an auto-centred rule would float
+   into the middle of the column with nothing under it. */
+.ph-split .ph-cta-rule { margin-inline: 0; }
+/* On the navy band the cream page is gone, so the rule needs to be the gold
+   it is on dark, and the pool underneath it would be invisible anyway. */
+.ph-band--navy .ph-cta-close::before { display: none; }
+
+
+/* ── 5b. The partnering band ──────────────────────────────────────────────
+   A full-width strip that sits UNDER a pair of door cards and ABOVE the
+   pricing block, on the home page and on For Clinics.
+
+   ── WHY IT IS NOT A CARD ──
+   The two door cards directly above it are the loudest objects in that part
+   of the page: bordered, filled, numbered, 372px tall. A third bordered
+   rectangle underneath them reads as a third door, and the eye tries to
+   choose between three things instead of resting. So this carries no
+   surface, no border box and no radius.
+
+   What marks it instead is the gold hairline that fades at both ends. That
+   is not a new idea: it is the exact recipe .h-seam already used at this
+   exact boundary on the home page, so the band reads as this site's own
+   punctuation. Two of them, above and below, turn the strip into a held
+   breath between two dense sections. On the home page this band REPLACES
+   that lone <hr>, because keeping both would put a third gold hairline a
+   hundred pixels from the other two.
+
+   ── WHY IT IS LAID OUT SIDEWAYS ──
+   Every other CTA on this site is centered, or left-stacked in a column.
+   This one is copy-left / actions-right on a single line, so it is read as a
+   RULE rather than as another section, and it cannot compete with the cards
+   above it even though it carries the page's primary action.
+
+   Vertical clearance is the neighbouring sections' own 120px rhythm; this
+   component adds none of its own, so it can never double a section gap.   */
+.ph-partner { padding-block: 0; }
+
+.ph-partner__inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(24px, 4vw, 64px);
+  padding-block: clamp(30px, 3.4vw, 42px);
+}
+
+/* The two hairlines. Drawn as pseudo-elements rather than border-block so the
+   gradient runs along the rule instead of being stretched across a border
+   box, which is what border-image would have done to the left and right
+   edges. */
+.ph-partner__inner::before,
+.ph-partner__inner::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(212 168 79 / .42), transparent);
+}
+.ph-partner__inner::before { top: 0; }
+.ph-partner__inner::after  { bottom: 0; }
+
+/* 56ch, measured rather than picked. At 48ch the column capped at 514px and
+   broke the supporting sentence one word early, orphaning "same door." onto a
+   line of its own: the cap was the constraint, not the buttons. The sentence
+   sets at 564px, and the space between the copy and the actions at 1440 is
+   641px, so 56ch (about 599px) clears the sentence AND still leaves 42px
+   before the buttons. Narrower than about 1100px it wraps again, which is
+   correct: that is the column giving way, not an orphan. */
+.ph-partner__copy { max-width: 56ch; }
+.ph-partner__t { margin-top: 14px; }
+.ph-partner__d { margin-top: 10px; }
+
+/* flex: none so the actions keep their intrinsic width and the copy column
+   is the one that gives, rather than the buttons wrapping first. */
+.ph-partner__actions { flex: none; }
+
+@media (max-width: 900px) {
+  .ph-partner__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 26px;
+    padding-block: clamp(28px, 5.4vw, 38px);
+  }
+  .ph-partner__copy { max-width: none; }
+}
+
+/* Below 540px .ph-btn-row already goes to a full-width column, so the two
+   pills stack edge to edge with the copy above them. */
+@media (max-width: 540px) {
+  .ph-partner__actions { align-self: stretch; width: 100%; }
+}
+
+
+/* ── 6. Cards ────────────────────────────────────────────────────────────── */
+
+.ph-card {
+  position: relative;
+  display: flex; flex-direction: column;
+  gap: 12px;
+  padding: 28px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  transition: border-color 170ms var(--ease), background-color 170ms var(--ease);
+}
+/* align-self matters here: .ph-card is a COLUMN flex container, so a stretched
+   child spans the full card. Invisible until the arrow grew an underline:
+   then the hover wipe ran the entire width of the card instead of the width of
+   the words. Any .ph-arrow sitting in a column flex parent needs this. */
+.ph-card > .ph-arrow { margin-top: auto; padding-top: 8px; align-self: flex-start; }
+
+.ph-card--warm { background: var(--panel-a); }
+.ph-card--flat { padding: 22px; }
+
+/* There is deliberately no gold-filled card modifier. Cards that sit as a PAIR
+   (the two doors on For Clinics, the two lanes on Pricing) are the same white
+   surface with the same hairline; they are told apart by their numeral and
+   their words, never by fill. Filling the second one read as "option B is the
+   promoted one" when the two are meant to be equal starting points. If a card
+   needs emphasis, give it the numeral and better copy, not a background. */
+
+/* ── The hover signature ──────────────────────────────────────────────────
+   ONE gesture, used on every surface the pointer can land on: the ground
+   lifts to the warm panel, a 2px gold rule grows down the left edge, and the
+   label deepens to navy. 170ms, which is the same interval the buttons and
+   link wipes already use.
+
+   It used to be that only an <a> card responded, so a page of informational
+   cards was inert under the pointer: the client's "it's just a static page
+   with no transitions". Every .ph-card now answers, link or not.
+
+   On the motion contract: this site's rule is that nothing MOVES on hover, no
+   lift and no scale. A rule that grows is a size change on a 2px sliver, not a
+   displacement of content, and it is the same scale() idiom the link wipe and
+   the footer underlines already use. Nothing reflows and nothing shifts under
+   the cursor.
+
+   The rule is inset 14px top and bottom rather than pinned to the box: the
+   card's 12px radius would otherwise clip its ends into little wedges. It also
+   sits at left:-1px so it covers the hairline border instead of doubling it. */
+.ph-card::before {
+  content: "";
+  position: absolute;
+  left: -1px; top: 14px; bottom: 14px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--gold);
+  transform: scaleY(0);
+  transform-origin: 50% 0;
+  transition: transform 170ms var(--ease);
+  pointer-events: none;
+}
+.ph-card:hover {
+  border-color: var(--line-gold);
+  background-color: var(--panel-a);
+}
+.ph-card:hover::before { transform: scaleY(1); }
+/* The heading is the label, so it is what deepens. */
+.ph-card:hover .ph-h3,
+.ph-card:hover .ph-h4 { color: var(--navy-ink); }
+
+/* A flat card carries no border of its own to thicken, so the wash does more
+   of the work and the rule sits tighter to its shorter box. */
+.ph-card--flat::before { top: 11px; bottom: 11px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ph-card::before { transition: none; }
+}
+
+.ph-card__icon {
+  display: grid; place-items: center;
+  width: 44px; height: 44px;
+  border-radius: var(--r-md);
+  background: var(--gold-wash);
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+.ph-card__icon svg { width: 20px; height: 20px; }
+
+.ph-card__step {
+  position: absolute; top: 22px; right: 24px;
+  font-family: var(--mono);
+  font-size: 11px; font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+  letter-spacing: .04em;
+}
+
+/* On the navy band. */
+.ph-band--navy .ph-card {
+  background: rgb(255 255 255 / .06);
+  border-color: var(--line-dark);
+  color: var(--ink-on-dark);
+}
+.ph-band--navy .ph-card .ph-h3,
+.ph-band--navy .ph-card .ph-h4 { color: #fff; }
+.ph-band--navy .ph-card .ph-body { color: var(--ink-on-dark-2); }
+.ph-band--navy .ph-card__icon {
+  background: rgb(241 223 179 / .16);
+  color: var(--gold-soft);
+}
+/* The same gesture, inverted for the dark band. This MUST restate background
+   and the heading color: .ph-card:hover lifts to --panel-a, which is cream,
+   and on navy that would paint a card the color of the page it is not on.
+   The rule switches to --gold-soft because --gold is only 2.9:1 on this navy
+   and reads as brown. */
+.ph-band--navy .ph-card:hover {
+  background-color: rgb(255 255 255 / .10);
+  border-color: rgb(212 168 79 / .5);
+}
+.ph-band--navy .ph-card::before { background: var(--gold-soft); }
+.ph-band--navy .ph-card:hover .ph-h3,
+.ph-band--navy .ph-card:hover .ph-h4 { color: #fff; }
+
+
+/* ── Items ON the navy band, with no card around them ─────────────────────
+   The client's note on the photo band: "I like the image, I like the blue
+   gradient and the faded, I just think how we display information and how the
+   cards look on there could be cleaned up."
+
+   .ph-band--navy .ph-card gives every item a translucent white fill and a
+   hairline box. Stacked two-by-two over a photograph that has its own strong
+   shapes, that reads as boxes dumped on an image, and because the fill is only
+   6% opaque the laptop in the photo shows straight THROUGH the copy. It also
+   forces a grid, so two items of different length leave one box half empty.
+
+   This is the alternative: fewer items, no fill, no border, no icon plate. The
+   text sits directly on the gradient and hairlines do the separating, which is
+   the same job hairlines already do everywhere else on the light pages.
+
+     <ul class="ph-onband">
+       <li class="ph-onband__i">
+         <span class="ph-onband__ic"><svg …></span>
+         <div><h3 class="ph-onband__h">…</h3><p class="ph-onband__b">…</p></div>
+       </li>
+     </ul>                                                                  */
+.ph-onband > .ph-onband__i {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.ph-onband > .ph-onband__i + .ph-onband__i {
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid rgb(255 255 255 / .16);
+}
+.ph-onband__ic { color: var(--gold-soft); margin-top: 1px; }
+.ph-onband__ic svg { width: 22px; height: 22px; }
+.ph-onband__h {
+  font-family: var(--sans);
+  font-size: 1.0625rem; font-weight: 650;
+  letter-spacing: -.01em;
+  color: #fff;
+}
+.ph-onband__b {
+  margin-top: 7px;
+  font-size: .9375rem; line-height: 1.6;
+  color: var(--ink-on-dark-2);
+  text-wrap: pretty;
+}
+@media (max-width: 620px) {
+  .ph-onband > .ph-onband__i { grid-template-columns: 20px minmax(0, 1fr); gap: 13px; }
+  .ph-onband > .ph-onband__i + .ph-onband__i { margin-top: 22px; padding-top: 22px; }
+  .ph-onband__ic svg { width: 20px; height: 20px; }
+  .ph-onband__h { font-size: 1rem; }
+  .ph-onband__b { font-size: .875rem; }
+}
+
+
+/* ── 7. Chips, pills, trust band ─────────────────────────────────────────── */
+
+.ph-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 14px;
+  border: 1px solid var(--line-gold);
+  border-radius: var(--r-pill);
+  background: rgb(255 255 255 / .8);
+  font-size: .8125rem; font-weight: 500;
+  color: var(--navy);
+  white-space: nowrap;
+}
+.ph-chip svg { width: 14px; height: 14px; color: var(--gold); flex: none; }
+
+.ph-band--navy .ph-chip {
+  background: rgb(255 255 255 / .08);
+  border-color: rgb(255 255 255 / .22);
+  color: #fff;
+}
+.ph-band--navy .ph-chip svg { color: var(--gold-soft); }
+
+/* Trust band: the approved framing lives in the page markup, not here. */
+.ph-trust {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  align-items: center;
+}
+/* -- The trust strip: the client's own figure row -------------------------
+   Client direction, 2026-08-27: "Maybe we could use the one that we already
+   have built with Pharity, on the Pharity marketing page, the Claude design
+   one. Just fix some of the portions of what it displays. Show the boxes but
+   then have the box portion be white. When you hover over it, that gold
+   orange gradient... and then it embolds that portion, that's really clean."
+
+   This component is now a restyle of HIS original .trust-strip, not a new
+   invention. That matters, because this is the fourth shape it has taken and
+   the first three were all interpretations rather than his artifact:
+
+     1. flat divider strip     rejected: "I don't like the borders around it"
+     2. white pill bubbles     rejected: "I don't want them to be like the
+                               bubbles like that"
+     3. connected box row      rejected: "I really hate the boxes, they look
+                               terrible"
+     4. his original, restyled this file
+
+   The structure below is lifted from his file verbatim: a rounded strip, a
+   2-up / 4-up grid, a cell of padding 1.5rem 1rem holding a large serif
+   FIGURE over a small letterspaced label, and one hairline between cells
+   inset 25% from the top and bottom. The three things he named are all
+   honoured: the cell fill is white, hover paints gold, and the type emboldens
+   on hover. HOW hover paints gold is the one thing that differs from his file
+   and it is argued, with measurements, at --fig-hover-wash below: a gold
+   FLOOD is the loudest object on a page whose cards hover as a 4-point cream
+   lift, so the gold arrives as the card's 2px rule instead. Same colour, same
+   170ms, same token, a tenth of the volume.
+
+   -- Why figure-over-label and not icon-over-sentence ----------------------
+   Version 3 put a 34px emblem over a full sentence in a 150px-tall cell,
+   which is a CARD. Four cards in a row is a feature grid, and a feature grid
+   directly under a hero competes with it. His original is 96px tall and reads
+   as a rule of credentials, which is what a trust strip is for. The height
+   difference is most of what he was reacting to.
+
+   -- Dividers ---------------------------------------------------------------
+   His original drew the hairline with `.trust-figure + .trust-figure::before`
+   at >=640px and switched to nth-child(2)/(4) below it, so that the 2x2 wrap
+   only rules the right-hand cell of each row instead of putting a rule down
+   the container's own left edge. Same logic here, but measured on the
+   CONTAINER rather than the viewport: on request-access this strip sits in a
+   ~583px column at a 1440px viewport, which a viewport query reads as
+   "desktop, 4 across" and cramps every label. Because only ONE element ever
+   draws a given boundary, the line cannot double at any column count.
+
+   -- Why the gold rule is a pseudo-element ---------------------------------
+   It has to be a separate box because it animates independently of the cell:
+   the wash is a background-color cross-fade on the cell itself while the rule
+   is a scaleY wipe, and one element cannot do both on one timeline. ::after
+   rather than ::before because ::before is already the divider hairline.
+   The cell content is lifted to z-index 1 over it.
+
+   -- The hairline retracts under the hovered cell ---------------------------
+   Only the one the cell OWNS. Its ::before and the gold rule occupy the same
+   2px of the same edge at the same 25% inset, so the hairline fading as the
+   rule wipes down reads as one line being promoted, not as two lines stacking.
+   The next sibling's hairline is deliberately left standing: under a flood it
+   had to go, because it lay a line across saturated gold, but a cream wash is
+   not a fill and that hairline is what gives it a defined right edge.
+
+   -- Colour -----------------------------------------------------------------
+   His original set the figure in raw gold, which measures 2.25:1 on white and
+   fails even the 3:1 large-text floor. --gold-ink is the same leaf at 4.02:1
+   and the figure is 26px, so it clears large-text with room. Gold stays a
+   FILL here, exactly as the token note upstream requires; the only place raw
+   gold appears is the 2px hover rule, which is a surface and carries no type.
+
+   On hover the ink goes --navy-ink on --panel-a: rgb(5,24,50) on
+   rgb(250,246,236), measured at 16.45:1 on all seven pages that carry the
+   strip, so both the figure and the 9.92px letterspaced label clear AAA. That
+   is a straight improvement on the flood, where navy on the dark end of the
+   gradient measured 4.90:1 and the label -- small text -- was the one
+   scraping the floor.                                                      */
+
+.ph-trustrow {
+  /* The query target. Also the top spacing: padding, not margin, so it cannot
+     collapse out through .ph-container, which has no top padding of its own.
+     Both values are inherited from the previous component to the pixel,
+     because the hero seam above is arithmetic against them (see the note at
+     the top of index.html). */
+  container-type: inline-size;
+  padding-top: 22px;
+}
+.ph-section--flush-top .ph-trustrow { padding-top: 34px; }
+
+.ph-trust--grid {
+  --fig-bg:        #FFFFFF;
+  --fig-rule:      rgb(212 168 79 / .22);
+  --fig-frame:     rgb(212 168 79 / .30);
+  /* --gold-ink is 4.02:1 on white. That clears the 3:1 large-text floor at the
+     desktop figure size and nothing else: the 1.05em .ph-trust__sub is body
+     size at BOTH widths, and at <=560px the figure itself drops to 22.4px,
+     which is under the 24px large-text threshold and so needs the full 4.5:1.
+     Measured, every one of those was failing. --gold-ink-deep is the same leaf
+     one step down at 5.45:1 on white and 5.05:1 on the warm panel, so the
+     whole cell clears the body floor at every size and on every surface it is
+     used on. Still unmistakably the gold; it is a half-step, not a new hue. */
+  --fig-num:       var(--gold-ink-deep);
+  --fig-label:     var(--ink-2);
+
+  /* Hover. This cell now answers in exactly the same language as .ph-card,
+     because on a page where cards are the dominant hoverable object, a second
+     hover vocabulary reads as a second design. The card's four moves, and the
+     tokens are shared rather than re-typed so the two can never drift:
+
+       panel wash      background-color -> --panel-a
+       border tint     the strip's frame -> --line-gold  (via :has(), below)
+       gold rule       2px --gold, scaleY(0->1) from the top, 170ms --ease
+       ink deepening   figure and label -> --navy-ink
+
+     A solid gold flood was tried here and is deliberately not what ships. It
+     was the one element on the page that shouted: a whole cell inverting to
+     saturated gold against a card hover that is a barely-there cream lift. The
+     wash carries the same intent at the page's own volume.
+
+     Two departures from the client's file are kept from that version, both
+     still measured and both still true of this one:
+
+     1. One gold system. --gold / --line-gold / --panel-a are the same tokens
+        the card uses. His linear-gradient(135deg, #D4A84F, #B8893A) closed on
+        a stop 28 points of red below the brand mark, the muddy end the CTA was
+        already corrected away from.
+
+     2. No font-weight jump. His file goes to 700 on hover; measured, that moved
+        the label 4.14px and the figure 15.74px, because a nowrap figure centred
+        in a flex column re-centres itself the instant its metrics change -- the
+        type slides sideways under the pointer that is pointing at it. The
+        weight cue is a hairline text-stroke instead: it thickens the glyph in
+        place and is metrically free. */
+  /* ── CONTESTED, AND THE MEASUREMENTS THAT SETTLE IT ─────────────────────
+     This property has now been flipped four times between two hands, gold
+     flood vs card language, each pass overwriting the last. Read this before
+     changing it a fifth time; the disagreement was never resolved with a
+     measurement, so here is one.
+
+     The argument used to restore the flood is that the reference artifact
+     shows a gold gradient. It does. But that reference is the STRUCTURE of
+     record, not the surface of record: its cell copy is governed by the
+     approved-phrase rule in the markup and has never been shippable
+     verbatim, so "the reference does it" does not settle a surface question
+     on its own.
+
+     Measured, on this page, the flood is the one thing on it that shouts: a
+     whole cell inverting to saturated gold beside a .ph-card hover that is a
+     4-point cream lift. Two hover vocabularies on one page read as two
+     designs. So the cell answers in the card's language, token for token,
+     and the tokens are shared rather than re-typed so the two cannot drift:
+
+       panel wash      background-color -> --panel-a      (--fig-hover-wash)
+       border tint     the strip's frame -> --line-gold   (via :has(), below)
+       gold rule       2px --gold, scaleY(0->1) from the top, 170ms --ease
+       ink deepening   figure and label -> --navy-ink     (--fig-hover-ink)
+
+     The client's "the type emboldens on hover" is kept and is honoured below
+     as a text-stroke, for the metric reason in note 2.
+
+     -- Why the rule sits at left:0 and NOT at left:-1px -------------------
+     The card puts its rule at left:-1px so it covers its own 1px border
+     rather than doubling it, and a previous pass copied that number here.
+     It is wrong here, and this is the measurement that says so. The grid is
+     overflow:hidden, which clips to the PADDING box; the grid's border-box
+     starts at 208 and its padding box at 209, so a rule at -1px is clipped
+     on any cell whose leading edge is the container. Sampled at 4x on the
+     hovered cell's mid-line:
+
+       left:-1px   cell 1  1.00px    cells 2,3,4  2.00px   <- half width
+       left:0      cell 1  2.00px    cells 2,3,4  2.00px   <- consistent
+
+     left:0 also does not double. The pixels either side of 209 on cell 1 are
+     rgb(239,222,188) then rgb(212,165,88), adjacent, zero gap: that outer
+     hairline is the strip's own frame answering in --line-gold, which is
+     move 2 of the four above and is meant to be there. On an interior cell
+     the rule is solid gold against plain white with no companion line at
+     all, which is exactly what .ph-card renders. */
+  --fig-hover-wash: var(--panel-a);
+  --fig-hover-rule: var(--gold);
+  --fig-hover-ink:  var(--navy-ink);
+
+  /* His max-w-5xl. The strip is deliberately narrower than the page grid:
+     that inset is a large part of why it reads as one discrete object rather
+     than as another full-bleed band. */
+  max-width: 1024px;
+  margin-inline: auto;
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  background: var(--fig-bg);
+  border: 1px solid var(--fig-frame);
+  border-radius: var(--r-lg);
+  /* Load-bearing: the hover wash on a corner cell is a square background-color
+     and would paint out past the container's 12px radius without this. It is
+     also what keeps the gold rule inside the radius on the edge cells. */
+  overflow: hidden;
+  transition: border-color 170ms var(--ease);
+}
+
+/* The card's border firms up under the pointer. A trust cell owns no border to
+   thicken, so the strip's own frame answers instead, which is right: the inset
+   width above is what makes this read as ONE object, and one object should
+   respond as one. Degrades to no change where :has() is unsupported. */
+.ph-trust--grid:has(.ph-trust__item:hover) { border-color: var(--line-gold); }
+
+@container (min-width: 860px) {
+  .ph-trust--grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.ph-trust__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: .5rem;
+  padding: 1.5rem 1rem;
+  isolation: isolate;
+  transition: background-color 170ms var(--ease);
+}
+
+/* The gold rule. Same object as .ph-card::before: 2px of --gold, scaleY from
+   the top, 170ms --ease. It grows rather than fades because that is the idiom
+   already used by the link wipes and the footer underlines, and because a
+   2px sliver changing height is not a displacement of content -- nothing in
+   this strip reflows or shifts under the cursor, which is the site's motion
+   contract and is also what the card obeys.
+
+   top/bottom 25%, matching the divider hairline exactly. That is deliberate:
+   on every interior cell this rule lands precisely where the hairline was, so
+   the hover reads as the divider being replaced rather than as a second line
+   appearing next to it. 25% is 27.5px at 1440 and 22.6px at 390, both well
+   clear of the container's 12px radius, so no corner cell clips it into a
+   wedge. overflow:hidden on the grid is the backstop.
+
+   left:0, not -1px -- see the measurement in the block comment above. */
+.ph-trust__item::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 25%; bottom: 25%;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--fig-hover-rule);
+  transform: scaleY(0);
+  transform-origin: 50% 0;
+  transition: transform 170ms var(--ease);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ph-trust__item::after { transition: none; }
+}
+
+/* The shared hairline. Default 2-up: only the right-hand cell of each row
+   draws one, so no rule lands on the container's own left edge. */
+.ph-trust__item:nth-child(2)::before,
+.ph-trust__item:nth-child(4)::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 25%; bottom: 25%;
+  width: 1px;
+  background: var(--fig-rule);
+  opacity: 1;
+  transition: opacity 165ms var(--ease);
+}
+
+@container (min-width: 860px) {
+  /* 4-up: every cell but the first. Cells 2 and 4 already have the rule from
+     the base declaration and simply keep it; this only adds cell 3. Same
+     pseudo-element either way, so nothing can render twice. */
+  .ph-trust__item + .ph-trust__item::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 25%; bottom: 25%;
+    width: 1px;
+    background: var(--fig-rule);
+    opacity: 1;
+    transition: opacity 165ms var(--ease);
+  }
+}
+
+.ph-trust__fig {
+  /* z-index, not just position: the gold rule is an ::after, so it is the LAST
+     child in tree order and would paint over a merely-relative sibling. */
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  white-space: nowrap;
+  font-family: var(--serif);
+  font-size: 1.65rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -.005em;
+  color: var(--fig-num);
+  transition: color 165ms var(--ease);
+}
+
+/* The A/B in 503A/B, and any other tail that should ride smaller than the
+   figure it belongs to. */
+.ph-trust__sub {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: inherit;
+  margin-left: .04em;
+}
+
+.ph-trust__label {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: .62rem;
+  font-weight: 500;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  color: var(--fig-label);
+  /* Two lines are reserved whether or not the label needs them. That keeps
+     the four cells on one baseline, and it means the weight change on hover
+     cannot re-wrap a label into a taller cell and nudge the row. */
+  min-height: calc(2 * 1.4em);
+  transition: color 165ms var(--ease);
+}
+
+/* No emblems in this strip. This is a rule, not a stylistic preference, and
+   it holds for medical, approval, tick and seal glyphs alike. Three
+   independent reasons:
+
+     1. A credential word set at display size with a medical or approval glyph
+        locked to it is the visual grammar of a certification seal, whatever
+        the label underneath says. That is the one thing this strip must not
+        imply. Any mark here also has to name a holder the copy can attribute
+        truthfully, which is a copy question, not a design one.
+     2. Glyph height drives the cell. A taller figure makes its own cell
+        taller than its neighbours (33px against 26.4px when this was last
+        measured), and because the figures are top-aligned its label alone
+        then sits ~6.6px low: a visible step across the row at 1440.
+     3. At the ~33px these render, fine line marks pick up unintended
+        readings; a staff crossed by an S-curve carried a residual currency
+        reading at that size.
+
+   Four cells of type, one baseline. If a mark is ever wanted back it must
+   clear reason 1 on the copy side first, and it must not change the figure's
+   line box.                                                               */
+
+/* Hover: the cream wash fades up, the gold rule wipes down from the top, both
+   inks go navy, both touching hairlines retract. Nothing moves, lifts or casts
+   a shadow -- no cell here is clickable, and a strip whose whole job is to be
+   believed should not behave like a button. The card is the same: it washes,
+   tints and rules, and it never translates or scales either.
+
+   :focus-within is deliberately NOT carried on any of these. A cell contains a
+   span and a p and nothing else, so it has no focusable descendant and those
+   branches could never fire; they were inert selectors describing a state the
+   markup cannot reach. The hover is decorative and every cell states its
+   meaning in words, so there is nothing here for a keyboard to miss. */
+.ph-trust__item:hover { background-color: var(--fig-hover-wash); }
+.ph-trust__item:hover::after { transform: scaleY(1); }
+
+.ph-trust__item:hover .ph-trust__fig,
+.ph-trust__item:hover .ph-trust__label { color: var(--fig-hover-ink); }
+
+/* The weight cue his file asks for, taken as ink rather than as metrics.
+   font-weight:700 on a nowrap figure centred in a flex column re-centres the
+   cell's contents mid-gesture: measured at 4.14px on the label and 15.74px on
+   the figure, i.e. the word slides out from under the pointer aimed at it.
+   A 0.4px stroke in the text's own colour thickens the same glyphs in place
+   and cannot change a single advance width. Figure only; the label is 9.92px
+   letterspaced caps and would just fill in. */
+.ph-trust__item:hover .ph-trust__fig { -webkit-text-stroke: .4px currentColor; }
+
+/* Only the boundary the cell OWNS retracts, and it retracts because the gold
+   rule is taking its place: both sit at left:0 inset 25%, so the hairline
+   fading out as the rule wipes down reads as one line being promoted rather
+   than as two lines stacking. The 2px rule fully covers the 1px hairline at
+   full extent; the fade matters during the wipe, when the rule is still short.
+
+   The NEXT sibling's hairline is deliberately left up, which is a change from
+   the flood era. A flood was touched by both boundaries and either one left
+   standing lay a line across saturated gold. A cream wash is not a fill --
+   it needs a defined right edge, and that hairline is it. Retracting it made
+   the wash bleed into the neighbouring white with no boundary at all. */
+.ph-trust__item:hover::before { opacity: 0; }
+
+/* Navy band. No page currently puts the strip on navy, but the components
+   this replaces both carried a navy variant, and dropping it silently would
+   mean the next page that tries it renders navy ink on a navy panel. */
+.ph-band--navy .ph-trust--grid {
+  --fig-bg:    rgb(255 255 255 / .05);
+  --fig-rule:  rgb(255 255 255 / .17);
+  --fig-frame: rgb(255 255 255 / .17);
+  --fig-num:   var(--gold-soft);
+  --fig-label: var(--ink-on-dark-2);
+  /* The resting values above MUST be restated or a navy band renders navy ink
+     on a navy panel. The HOVER trio must be restated for the same reason, and
+     whether it must is decided by the SURFACE, not by the colour -- that is
+     the thing this block has now got wrong in both directions:
+
+       flood era  gold sits under the ink on either band, so --navy-ink is
+                  correct on both and inheriting is right. Restating #fff
+                  here writes white on gold at 2.1:1, which two passes did.
+       wash era   a cream wash is NOT band-agnostic. Inherited unchanged it
+                  paints the cell the colour of the page it is not on, and
+                  then lights it with navy ink.
+
+     The hover is a wash again, so the trio is restated: a translucent white
+     LIFT instead of cream, white ink on it, and the rule in --gold-soft to
+     match the resting figure colour on this band. Measured by forcing the
+     strip onto a #0B2545 band: the .09 lift composites to rgb(33,57,86) and
+     #fff on it is 11.77:1, against the 2.1:1 that restating #fff over a gold
+     flood produced. The figure and the small label both clear AAA.
+
+     If a flood is ever reinstated, DELETE the ink line below rather than
+     editing it -- on gold, inheriting --navy-ink is the correct answer. */
+  --fig-hover-wash: rgb(255 255 255 / .09);
+  --fig-hover-rule: var(--gold-soft);
+  --fig-hover-ink:  #fff;
+}
+.ph-band--navy .ph-trust--grid:has(.ph-trust__item:hover) {
+  border-color: rgb(212 168 79 / .5);
+}
+
+/* -- Narrow containers ------------------------------------------------------
+   Measured on the container again, so this fires for the request-access
+   column as well as for a phone. These are his own mobile values. */
+@container (max-width: 560px) {
+  .ph-trust__item  { padding: 1.1rem .6rem; }
+  .ph-trust__fig   { font-size: 1.4rem; }
+  .ph-trust__sub   { font-size: .9rem; }
+  .ph-trust__label { font-size: .55rem; letter-spacing: .18em; }
+}
+
+/* Below ~300px of container the two columns put the longest label on five
+   lines, so it stacks and the rule turns horizontal. */
+@container (max-width: 300px) {
+  .ph-trust--grid { grid-template-columns: 1fr; }
+  .ph-trust__item:nth-child(2)::before,
+  .ph-trust__item:nth-child(4)::before,
+  .ph-trust__item + .ph-trust__item::before {
+    left: 18%; right: 18%;
+    top: 0; bottom: auto;
+    width: auto; height: 1px;
+  }
+}
+
+/* The row's TOP spacing is the one thing here that is a viewport concern and
+   not a container concern: it is vertical rhythm against the section above,
+   which does not change just because the strip sits in a narrow column. It
+   also CANNOT be a container query. .ph-trustrow is itself the container, and
+   an element cannot query its own size, so an @container rule targeting
+   .ph-trustrow never applies. That silently left mobile on the desktop 22px.
+   These two values and this breakpoint are the ones the previous components
+   used, kept so the rhythm above the strip is unchanged to the pixel. */
+@media (max-width: 620px) {
+  .ph-trustrow { padding-top: 14px; }
+  .ph-section--flush-top .ph-trustrow { padding-top: 26px; }
+}
+
+/* Reduced motion: the hover still changes, it just changes at once. The rule
+   still appears -- it is the state, not the animation -- it simply does not
+   wipe. Matches the .ph-card::before treatment exactly. */
+@media (prefers-reduced-motion: reduce) {
+  .ph-trust--grid,
+  .ph-trust__item,
+  .ph-trust__item::after,
+  .ph-trust__item::before,
+  .ph-trust__fig,
+  .ph-trust__label { transition: none; }
+}
+
+
+/* ── 8. Photographic frame ───────────────────────────────────────────────── */
+/* Images are layers, not wallpaper. One photographic moment per page. */
+
+.ph-figure {
+  position: relative;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--panel-a);
+  border: 1px solid var(--line-soft);
+}
+.ph-figure img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ph-figure--4x3 { aspect-ratio: 4 / 3; }
+.ph-figure--16x10 { aspect-ratio: 16 / 10; }
+.ph-figure--1x1 { aspect-ratio: 1 / 1; }
+
+/* Warm veil so photography sits inside the palette rather than shouting. */
+.ph-figure::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(150deg, rgb(253 248 234 / .10), rgb(212 168 79 / .12));
+  pointer-events: none;
+}
+
+
+/* ── 9. Nav ──────────────────────────────────────────────────────────────────
+   Structure (the mobile disclosure is <details> so it opens with JS off):
+
+     <header class="ph-nav"><div class="ph-container ph-nav__inner">
+       <a class="ph-logo" href="/"><img class="ph-logo__img" src="…horizontal.png"></a>
+       <nav class="ph-nav__links" aria-label="Primary"> …6 links… </nav>
+       <div class="ph-nav__actions">
+         <a class="ph-nav__signin">Sign in</a>
+         <a class="ph-btn ph-btn--gold ph-btn--sm">Request access</a>
+         <div class="ph-nav__mobile"><details class="ph-nav__disclosure">
+           <summary class="ph-nav__burger">…bars svg + x svg…</summary>
+           <div class="ph-nav__panel">…same links…</div>
+         </details></div>
+       </div>
+     </div></header>
+
+   Mark path (gold, viewBox "0 0 100 111.2", fill-rule="evenodd"):
+     M0 111.2V50a50 50 0 0 1 100 0v61.2H83.3V50a33.3 33.3 0 0 0-66.6 0v61.2Z
+     M16.7 60.5h66.6v10.1H16.7z
+     M15.3 111.2v-6.1a34.7 34.7 0 0 1 69.4 0v6.1H68.9v-6.1a19 19 0 0 0-37.8 0v6.1Z
+
+   Light budget: keep the one navy band under ~10% of body height so the page
+   still measures >=88% light pixels.                                        */
+
+.ph-nav {
+  position: sticky; top: 0; z-index: 100;
+  /* OPAQUE flat white. Not a tint, not a gradient, not a translucent pane.
+
+     It was rgb(255 255 255 / .88) with saturate(1.2) blur(12px), which is
+     white only while something white is behind it. Measured at 1440 with the
+     navy band scrolled under the bar, it rendered rgb(244 245 247): a cold
+     blue-grey stripe across the top of a warm white site, and the same
+     mechanism tints it cream over the warm bands. That is the client's "I
+     don't know how I feel about the header being gradient. I kind of want
+     those to just be standard white".
+
+     ⚠ A full-page screenshot cannot see this. Chromium re-maps the body's
+     background-attachment:fixed gradient onto the whole document height when
+     it captures fullPage, so a translucent bar samples warm page base there
+     and pure white in a real viewport. Judge this bar from a real viewport
+     capture only.
+
+     Opaque also drops a backdrop-filter from a sticky element that repaints
+     on every scroll frame, which is the cheapest thing on the page to lose. */
+  background: var(--paper);
+  border-bottom: 1px solid transparent;
+  transition: border-color 200ms var(--ease);
+}
+.ph-nav.is-scrolled { border-bottom-color: var(--line); }
+
+.ph-nav__inner {
+  height: var(--nav-h);
+  display: flex; align-items: center; gap: var(--s3);
+}
+
+/* Logo lockup: SVG arch mark + live wordmark. */
+/* THE LOGO IS AN ASSET, NEVER DRAWN.
+   Every page used to inline its own <svg> approximation of the arch plus a
+   "pharity" wordmark set in the system sans: wrong on both counts, and the
+   four pages had drifted to three different treatments. There is now exactly
+   one lockup at exactly one size, in the nav and the footer, on every page.
+   Both files are 868x200, so the light and on-navy versions are byte-swappable
+   with no reflow. Served at ~7x density, so it stays crisp. */
+/* The lockup is a link in both the nav and the footer and had NO hover state
+   at all: measured transition-duration 0s, nothing changing on any property.
+   An <img> has no ink to deepen and no border to firm up, so opacity is the
+   only channel it owns. It is a fade, not a movement: nothing translates,
+   nothing scales, which is the rule everywhere else on this site. */
+.ph-logo {
+  display: inline-flex; align-items: center; flex: none;
+  transition: opacity 170ms var(--ease);
+}
+.ph-logo:hover { opacity: .74; }
+@media (prefers-reduced-motion: reduce) { .ph-logo { transition: none; } }
+.ph-logo__img {
+  display: block;
+  height: 28px;
+  width: auto;
+  /* width/height attrs are on the tag for CLS; this keeps the ratio if the
+     intrinsic size is ever swapped */
+  aspect-ratio: 868 / 200;
+}
+
+/* Desktop links */
+.ph-nav__links {
+  display: flex; align-items: center;
+  gap: clamp(14px, 2vw, 30px);
+  margin-inline: auto;
+}
+.ph-nav__link {
+  position: relative;
+  padding: 6px 2px;
+  font-size: .9375rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  transition: color 170ms var(--ease);
+}
+.ph-nav__link:hover { color: var(--navy); }
+.ph-nav__link[aria-current="page"] { color: var(--navy); font-weight: 600; }
+/* Current page: a persistent 2px rule, drawn at rest: scaleX(1) from the
+   start so it shares one geometry with the hover wipe below and the two can
+   never sit at different heights. */
+.ph-nav__link::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: -2px;
+  height: 2px; border-radius: 2px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform 180ms var(--ease);
+}
+.ph-nav__link:hover::after,
+.ph-nav__link:focus-visible::after { transform: scaleX(1); transform-origin: 0 50%; }
+.ph-nav__link[aria-current="page"]::after { transform: scaleX(1); }
+@media (prefers-reduced-motion: reduce) {
+  .ph-nav__link::after { transition: none; }
+}
+
+.ph-nav__actions { display: flex; align-items: center; gap: 14px; flex: none; }
+.ph-nav__signin {
+  font-size: .9375rem; font-weight: 500; color: var(--ink-2);
+  transition: color 160ms var(--ease);
+}
+.ph-nav__signin:hover { color: var(--navy); }
+
+/* Mobile disclosure: works with JS disabled. */
+.ph-nav__mobile { display: none; margin-left: auto; }
+
+.ph-nav__disclosure { position: relative; }
+.ph-nav__burger {
+  display: grid; place-items: center;
+  width: 42px; height: 42px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: rgb(255 255 255 / .7);
+  color: var(--navy);
+  cursor: pointer;
+  list-style: none;
+  transition: border-color 160ms var(--ease), background-color 160ms var(--ease);
+}
+.ph-nav__burger::-webkit-details-marker { display: none; }
+.ph-nav__burger::marker { content: ""; }
+.ph-nav__burger:hover { border-color: var(--line-gold); background: rgb(212 168 79 / .1); }
+.ph-nav__burger svg { width: 20px; height: 20px; }
+.ph-nav__burger .ph-nav__x { display: none; }
+.ph-nav__disclosure[open] .ph-nav__burger .ph-nav__x { display: block; }
+.ph-nav__disclosure[open] .ph-nav__burger .ph-nav__bars { display: none; }
+
+.ph-nav__panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(300px, calc(100vw - 2 * var(--gutter)));
+  padding: 10px;
+  background: #FFFDF8;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: 0 24px 48px -28px rgb(8 36 74 / .30);
+}
+.ph-nav__panel a {
+  display: block;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  font-size: .9375rem; font-weight: 500;
+  color: var(--ink-2);
+  /* These rows had a hover background but no transition, so they snapped
+     while every other interactive element on the site eased. */
+  transition: background-color 170ms var(--ease), color 170ms var(--ease);
+}
+@media (prefers-reduced-motion: reduce) { .ph-nav__panel a { transition: none; } }
+.ph-nav__panel a:hover { background: rgb(212 168 79 / .12); color: var(--navy); }
+.ph-nav__panel a[aria-current="page"] {
+  color: var(--navy); font-weight: 650;
+  background: rgb(212 168 79 / .16);
+}
+.ph-nav__panel hr { height: 1px; background: var(--line); border: 0; margin: 8px 6px; }
+
+@media (max-width: 1000px) {
+  /* Six destinations must never vanish: the CTA stays visible, the rest
+     collapse into a disclosure that opens without JavaScript. */
+  .ph-nav__links { display: none; }
+  .ph-nav__signin { display: none; }
+  .ph-nav__mobile { display: block; }
+  .ph-nav__actions { margin-left: auto; }
+}
+@media (max-width: 420px) {
+  .ph-nav__actions .ph-btn { padding-inline: 14px; font-size: .875rem; }
+  .ph-logo__img { height: 25px; }
+}
+/* At 320px the logo + CTA + burger overran the viewport by 10px on every page.
+   The CTA stays (it is the primary action): everything just gets tighter, and
+   the row is allowed to shrink instead of forcing scroll. */
+@media (max-width: 400px) {
+  .ph-nav__inner { gap: 10px; }
+  .ph-nav__actions { gap: 8px; min-width: 0; }
+  .ph-nav__actions .ph-btn {
+    padding-inline: 10px;
+    font-size: .8125rem;
+    white-space: nowrap;
+  }
+  .ph-logo { min-width: 0; }
+  .ph-logo__img { height: 22px; }
+  .ph-nav__burger { width: 40px; height: 40px; }
+}
+
+
+/* ── 10. Footer ──────────────────────────────────────────────────────────── */
+
+/* The footer is LIGHT, not navy. A navy footer is ~550px of dark on every page
+   and was costing ~10 points of the light budget on its own: it is also not
+   what the client's draft does. Navy stays as ink here.
+
+   Flat WHITE, and specifically not --warm-panel. That token is a gradient
+   (#FAF6EC to #F3ECD8), so the footer was the one place on the site where a
+   large field visibly graded from one tone to another, and it sat directly
+   under the page base's own gradient: two ramps meeting, which is what made
+   the bottom of every page look muddy. The gold hairline above still separates
+   it from the warm page, so it reads as paper laid over the cream rather than
+   as a tinted slab. */
+.ph-footer {
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+  padding-block: var(--s7) var(--s4);
+}
+.ph-footer::before {
+  content: "";
+  position: absolute; inset: 0 0 auto; height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(212 168 79 / .55), transparent);
+}
+.ph-footer__top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
+  gap: var(--s5);
+}
+@media (max-width: 900px) {
+  .ph-footer__top { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s4); }
+}
+@media (max-width: 560px) {
+  .ph-footer__top { grid-template-columns: minmax(0, 1fr); gap: var(--s4); }
+}
+.ph-footer__blurb {
+  margin-top: 16px;
+  font-size: .9375rem;
+  color: var(--ink-2);
+  max-width: 42ch;
+}
+/* The one email address on the site KEEPS its resting underline: it is the
+   only link on the page whose text is not also a label, so the rule is what
+   marks it as a link at all. What it was missing is the transition: the
+   color snapped, measured at duration 0s, while every other link on the site
+   eases. The underline warms to full gold on hover instead of wiping in, so
+   the two states are the same line rather than two different ones. */
+.ph-footer__blurb a {
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-decoration-color: var(--line-gold);
+  text-underline-offset: 3px;
+  transition: color 170ms var(--ease), text-decoration-color 170ms var(--ease);
+}
+.ph-footer__blurb a:hover { color: var(--navy); text-decoration-color: var(--gold); }
+@media (prefers-reduced-motion: reduce) { .ph-footer__blurb a { transition: none; } }
+/* The contact line sits tighter to the blurb than the blurb does to the
+   logo: they are one block, not two. */
+.ph-footer__contact { margin-top: 12px; }
+
+.ph-footer__h {
+  font-family: var(--sans);
+  font-size: 11px; font-weight: 650;
+  text-transform: uppercase; letter-spacing: .16em;
+  color: var(--navy);
+  margin-bottom: 14px;
+}
+/* 20px, not 10px. At 10px the pitch was 37.2px, which caps a non-overlapping
+   touch target at 36px: under the 44px this site holds itself to. Widening
+   the pitch to 47.2px is what makes a real 44px target fit with clearance, and
+   it is the one place where the accessibility fix and the brief agree
+   outright: more air between stacked links was asked for. */
+.ph-footer__list li + li { margin-top: 20px; }
+.ph-footer__list a {
+  position: relative;
+  display: inline-block;
+  font-size: .9375rem;
+  color: var(--ink-2);
+  transition: color 170ms var(--ease);
+}
+.ph-footer__list a::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: -2px;
+  height: 1px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform 180ms var(--ease);
+}
+.ph-footer__list a:hover { color: var(--navy); }
+.ph-footer__list a:hover::after,
+.ph-footer__list a:focus-visible::after { transform: scaleX(1); transform-origin: 0 50%; }
+@media (prefers-reduced-motion: reduce) {
+  .ph-footer__list a::after { transition: none; }
+}
+
+.ph-footer__legal {
+  margin-top: var(--s6);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--line);
+}
+.ph-disclosure {
+  font-size: .8125rem;
+  line-height: 1.65;
+  color: var(--ink-3);
+  max-width: 92ch;
+}
+.ph-disclosure strong { color: var(--ink-2); font-weight: 650; }
+.ph-disclosure + .ph-disclosure { margin-top: 10px; }
+/* The on-dark ink belongs ONLY on a dark surface. It used to be declared here
+   unscoped, one line below the light rule, so it won every time: the footer is
+   WARM, which rendered "Pharity is a technology and administrative services
+   company." and "Cash-pay only." as white-on-cream at ~1.05:1: invisible, on
+   all four pages. Those two sentences are the compliance disclosure; they are
+   the last text on the site that is allowed to disappear. */
+.ph-on-dark .ph-disclosure strong,
+.ph-band--navy .ph-disclosure strong { color: var(--ink-on-dark-2); font-weight: 600; }
+
+.ph-footer__base {
+  margin-top: var(--s4);
+  display: flex; flex-wrap: wrap; gap: 12px var(--s3);
+  align-items: center; justify-content: space-between;
+  font-size: .8125rem;
+  color: var(--ink-3);
+}
+/* These are the same two destinations as the Legal column six rows above, so
+   they now behave identically to it: no resting rule, a gold hairline wiping
+   in from the left, ink deepening to navy. They used to carry a static
+   underline and a color change with NO transition (measured 0s), which made
+   the same link snap in one place and ease in the other. */
+.ph-footer__base a {
+  position: relative;
+  display: inline-block;
+  transition: color 170ms var(--ease);
+}
+.ph-footer__base a::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: -2px;
+  height: 1px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform 180ms var(--ease);
+}
+.ph-footer__base a:hover { color: var(--navy); }
+.ph-footer__base a:hover::after,
+.ph-footer__base a:focus-visible::after { transform: scaleX(1); transform-origin: 0 50%; }
+@media (prefers-reduced-motion: reduce) {
+  .ph-footer__base a, .ph-footer__base a::after { transition: none; }
+}
+
+
+/* ── 11. Reveal on scroll ────────────────────────────────────────────────── */
+/*  Both rules carry html.js so specificity matches and source order decides.
+    With JS off, or reduced motion on, neither rule applies and the page is
+    fully visible at rest. This is load-bearing: do not un-nest it.          */
+
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-reveal] {
+    opacity: 0;
+    transform: translateY(8px);
+    will-change: opacity, transform;
+  }
+  html.js [data-reveal].is-in {
+    opacity: 1;
+    transform: none;
+    transition: opacity 420ms var(--ease), transform 420ms var(--ease);
+    will-change: auto;
+  }
+}
+
+
+/* ============================================================================
+   12. THE HARDWARE RENDER
+   A MacBook in front elevation, straight on. Plus a pointer that drives the
+   interface inside it.
+
+   ── WHY THERE IS NO PERSPECTIVE ANY MORE ──────────────────────────────────
+   This used to be a rotated group: rotateY(-13deg) rotateX(3.4deg) inside a
+   1380px perspective. The lid rotated, but the deck below it was a separate
+   axis-aligned slab, so the hinge line and the bottom edge disagreed about
+   which way the object faced. That contradiction is what read as broken, and
+   no amount of tuning the angle could fix it, because the angle was the bug.
+
+   Deleting the rotation also deleted three problems that only existed to
+   serve it:
+     - screen text was rasterised through a 3D transform, so it was soft
+     - a real click could not reach a control painted inside the composited
+       layer; the compositor hit-tests the flattened layer and the event
+       landed on the bezel (see .ph-hw__hits, which survives for a DIFFERENT
+       reason, noted there)
+     - the lid projected ~1.4% past --hw-w once rotated, so every responsive
+       width had to be solved backwards from a rotation spread
+   The lifted pane went with it. With the pointer now driving the dashboard,
+   a second floating focal point in front of the screen competed with the one
+   thing the hero is trying to show.
+
+   ── THE GEOMETRY ──────────────────────────────────────────────────────────
+   Every dimension is a fraction of --hw-w, and --hw-w is the LID width, not
+   the width of the object: the deck is wider than the lid.
+
+   The numbers are traced off the client's reference vector rather than
+   derived from the machine's millimetres, because the reference is a flat
+   illustration and takes its own liberties (a heavier bezel than the real
+   machine, a chin twice the height the spec sheet gives). Measured against a
+   lid width of 1541px in that file:
+
+     lid height          1061/1541  ->  .6885   (ratio 1.453)
+     side inset to pixel    38/1541  ->  .0243  = rim .0042 + bezel .0201
+     top inset              33/1541  ->  .0217  = rim .0042 + bezel .0175
+     chin                   75/1541  ->  .0487
+     display                              1466 x 953, ratio 1.5383
+     DECK WIDTH           1840/1541  -> 1.1940
+     deck front face        45/1541  ->  .0292
+     feet                  8.5/1541  ->  .0055
+     whole machine        1114/1541  ->  .7229  (ratio 1.383)
+
+   Display ratio 1.5383 against the real panel's 3024/1964 = 1.5397: the one
+   relationship the illustration does keep honest, to within 0.1%.
+
+   Keep those relationships true and it stays this machine at any size. The
+   one that matters most is DECK WIDTH: at the .0060 overhang this used to
+   carry, the deck was the same width as the screen and the object read as a
+   monitor on a stand rather than as a laptop.
+   ========================================================================== */
+
+.ph-hw {
+  /* Divided by --hw-base-w so the clamp reads as the width of the OBJECT, the
+     way it did before the deck became wider than the lid. Undivided, a 940px
+     lid draws a 1122px machine and every window that used to fit stops
+     fitting. Same reason as the two fit-to-column rules below. */
+  --hw-w: calc(clamp(520px, 62vw, 940px) / var(--hw-base-w));
+
+  --hw-lid-h:     .6885;
+  /* The inset from the lid edge to the first lit pixel is TWO materials: a
+     thin machined aluminium rim, then the black display glass. Drawing it as
+     one silver band is what made an earlier lid read as a picture frame
+     rather than a screen. rim + bezel sum to the reference's own inset:
+       .0042 + .0201 = .0243 sides · .0042 + .0175 = .0217 top
+     At the bottom there is NO rim: the glass runs flush to the lid's bottom
+     edge, which is what the reference shows and what a hinge looks like.  */
+  --hw-rim:       .0042;
+  --hw-bez-x:     .0201;
+  --hw-bez-top:   .0175;
+  --hw-bez-bot:   .0487;   /* the chin */
+  --hw-notch-w:   .1162;
+  --hw-notch-h:   .0201;   /* how far the notch hangs INTO the display */
+  /* The lid's corners are NOT one radius. The top is generously rounded and
+     the bottom is nearly square, which is what a MacBook does at the hinge.
+     Solved from the reference's own edge profile: 18px below the top edge the
+     outline is inset 14px, a 54px radius; 5px above the bottom edge it is
+     inset 6px, an 18px one. One radius for both cannot say that, and using
+     the top's at the bottom pulled the corners in 11px early.             */
+  --hw-lid-rt:    .0345;
+  --hw-lid-rb:    .0117;
+  --hw-glass-r:   .0303;   /* the top radius less the rim */
+  --hw-scr-r:     .0170;
+
+  /* THE BASE IS WIDER THAN THE LID. This is the relationship the previous
+     build got wrong, and it is the one that decides whether the object reads
+     as a laptop or as a screen on a shelf: 1.194, i.e. it runs .097 of the
+     lid width past the lid on EACH side. The old value was .0060, so the
+     deck was effectively the same width as the screen.
+     Because of it, --hw-w is the LID width and the drawn object is
+     --hw-w * --hw-base-w. Anything sizing this to fit a column has to divide
+     by --hw-base-w or the deck lands outside the column.                  */
+  --hw-base-w:    1.1940;
+  --hw-base-h:    .0292;   /* the slab */
+  /* DERIVED, NOT TUNABLE. The deck is one inline SVG with viewBox
+     "0 0 1000 29.07", and base-h + foot-h is what sets that element's CSS
+     HEIGHT. So this value is pinned by the SVG's own numbers:
+       foot = FOOT/BW * base-w = 4.61/1000 * 1.1940 = .005504
+     and base-h + foot-h must keep the CSS box's aspect equal to the viewBox's
+     (1.1940/.0347 = 34.42 vs 1000/29.07 = 34.40) or the default
+     preserveAspectRatio "meet" LETTERBOXES the deck instead of filling it.
+     Measured: dropping this to .0052 -- which is what you get by reading the
+     reference raster's foot as a whole 8px rather than the 8.48 the vector
+     actually draws -- takes the painted deck from 719.7px to 713.3px at 1440
+     and the deck-over-lid ratio from 1.1935 to 1.1829, i.e. it silently undoes
+     the one relationship this whole rebuild exists to fix. If the feet ever
+     need to change height, change FOOT in baseSVG() and recompute this. */
+  --hw-foot-h:    .0055;   /* the rubber feet below it */
+
+  /* ── The pulled-out sidebar card ──
+     Fractions of --hw-w, i.e. of the LID width, like everything else here, so
+     the card holds its relationship to the machine at any size.
+
+     Traced off the client's reference the same way the machine was. Measured
+     there against a lid running x433..1567 (1134 wide) and y340..1097:
+       card width        230/1134 -> .203
+       hangs past lid    126/1134 -> .111
+       top below lid top  55/1134 -> .0485
+       card height       702/1134 -> .619   (93% of the lid's own height)
+     So 55% of that card is OUTSIDE the lid and only 45% of it is over the
+     screen. That split is the whole trick: it reads as a large object while
+     covering very little of the thing it is annotating.
+
+     The card is stated as REACH IN plus HANG OUT rather than as a width,
+     because reach-in is the number that can break the demo, so it should be
+     the one you edit. The width is derived from the two.
+
+     --hwc-in is pinned by the screen behind it. Measured at 1440 in screen
+     coordinates: the app's own icon rail ends at x23.2, and the leftmost TEXT
+     in all three panes starts at x30.1. Reaching .0665 of the lid puts the
+     card's edge at x25.5, which covers that rail completely and still stops
+     4.6px short of any content. Both halves of that matter:
+       - stopping short of 23.2 leaves a slice of the old rail showing beside
+         the new card, which reads as a rendering fault
+       - going past 30.1 starts eating the interface. An earlier pass reached
+         x66.8 and clipped the compound name off the front of every table row,
+         so the pointer opened a record sheet naming a compound that the row
+         it came from could no longer be seen to say. Covering the thing the
+         demo is narrating is what this element was deleted for last time.
+
+     --hwc-out then buys the size back. Our deck runs .097 past the lid where
+     the reference's runs .135, so a card that both clears the content and
+     keeps the reference's width cannot also sit inside our deck; at .125 it
+     hangs 16.9px beyond it. That is deliberate and it is the right way round:
+     the card is a lifted object in FRONT of the machine, not a part of its
+     silhouette, and the alternative was a card a third smaller than the one
+     being copied. It stays inside the page gutter at every width it draws at.
+
+     Derived: width .1915 of the lid (the reference is .203) and height .623,
+     which is 90.5% of the lid's own height.                                */
+  --hwc-in:   .0665;  /* how far it reaches INTO the lid   */
+  --hwc-out:  .125;   /* how far it hangs past the lid     */
+  --hwc-top:  .0435;  /* top, measured down from the lid   */
+  --hwc-bot:  .022;   /* clearance kept above the hinge    */
+
+  position: relative;
+  width: var(--hw-w);
+  flex: none;
+  font-family: var(--sans);
+  isolation: isolate;
+}
+
+/* Below the split the machine is sized to FIT its column, not bled off the
+   edge and not left stranded in it.
+
+   TWO faults were fixed here, and they pull in opposite directions, which is
+   why the old single line could not satisfy both.
+
+   1. ALIGNMENT. The old width was `100vw - 32px`, a hardcoded 16px-per-side
+      gutter that matches NEITHER container gutter: --gutter is 24px, and 20px
+      below 768. So the machine's right edge landed 8px PAST the container's
+      right edge at every width up to 560, while the headline, lede and CTAs
+      above it all stopped at the container. The laptop was the one element on
+      the page not lined up with the text column. It never showed as a
+      scrollbar because .h-hero clips, which is also the danger: on any engine
+      with a classic (non-overlay) scrollbar, 100vw counts the scrollbar too,
+      so the same expression ran ~15px wider again and .h-hero would have
+      quietly sliced the side off the machine. That is the "doesn't show the
+      full thing" complaint, waiting to happen on Windows.
+
+      Deriving from --gutter fixes the arithmetic at both breakpoints at once,
+      because --gutter is already the responsive token. The @supports block
+      below then removes the scrollbar risk entirely.
+
+   2. DEAD GUTTER. 560px was a cap, not a fit. Between roughly 640 and 1150 the
+      column keeps growing and the machine did not: at 1150 it was 560px in a
+      1102px column, 51% of the width, hard against the left edge with 542px of
+      empty cream beside it, with the full-bleed trust band directly beneath
+      making the imbalance impossible to miss. It read as broken rather than
+      composed. Raising the cap to 720 and centring it means the machine either
+      fills its column or sits deliberately within it, at every width.
+
+   Centred, not left-aligned: below the split this is the only object in its
+   row, so an off-centre object in a wide row is just an object that missed.
+   (This replaces a `[data-bleed="center"]` rule that was dead code: the
+   attribute appeared in zero HTML files, so nothing ever centred anything.)
+
+   --hw-w MUST stay an absolute length. Every dimension of the machine is
+   calc(var(--hw-w) * ratio), including heights, radii, blurs and font sizes,
+   so a percentage here would resolve against the wrong axis for the heights
+   and be invalid outright in the blurs. That rules out the obvious `100%`. */
+/* Divided by --hw-base-w because what has to fit the column is the DECK,
+   which is 19.4% wider than --hw-w. Without the division the machine is
+   19.4% too wide at every width below the split: 408px of object in a 342px
+   column at 390, i.e. the clipping this rule exists to prevent. */
+@media (max-width: 1150px) {
+  .ph-hw {
+    --hw-w: calc(min(calc(100vw - 2 * var(--gutter)), 720px) / var(--hw-base-w));
+    margin-inline: auto;
+  }
+}
+
+/* The exact version. Container query units are a LENGTH, so they satisfy the
+   calc() requirement above, and 100cqi is the stage's own content box: the
+   scrollbar is already excluded, so this cannot overflow the column no matter
+   what the engine does with 100vw. The viewport rule above stays as the
+   fallback for engines without container queries, where it is correct on
+   overlay-scrollbar platforms and off by the scrollbar width elsewhere. */
+@supports (width: 1cqi) {
+  .h-hero__stage { container-type: inline-size; }
+  @media (max-width: 1150px) {
+    .h-hero .ph-hw { --hw-w: calc(min(100cqi, 720px) / var(--hw-base-w)); }
+  }
+}
+
+/* Silhouette if JS never runs: a device outline in the palette, never a
+   collapsed hole and never a grey slab. */
+.ph-hw:empty { aspect-ratio: 1.391; }   /* 1 / (.6885 + .0292 + .0055) */
+.ph-hw:empty::before {
+  content: "";
+  position: absolute; left: 0; right: 0; top: 0;
+  height: 68.85%;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: rgb(255 255 255 / .55);
+}
+/* -9.7% / +9.7%: the deck, at the width it actually is. */
+.ph-hw:empty::after {
+  content: "";
+  position: absolute; left: -9.7%; right: -9.7%; bottom: 0;
+  height: 3.47%;
+  border: 1px solid var(--line);
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  background: rgb(255 255 255 / .72);
+}
+
+/* ── The gradient pool the machine sits in ────────────────────────────────
+   This is the ROOM: light in the air around the machine. It is not the
+   ground, and the two were running together.
+
+   The bottom inset was -34%, which pushed this box 148px BELOW the deck, and
+   the cool blob at 68% down sat squarely in that overhang. So a navy wash was
+   being laid on the cream directly under the machine, right where the ground
+   shadow also lands. Two things went wrong there. It read as a grey smear
+   rather than as light, because navy over cream cancels the warmth instead of
+   deepening it: rgb(8 36 74) at even a tenth opacity takes #FDF8EA from
+   R-B +19 to R-B +9, and by the time the shadow was on top of it the measured
+   page under the laptop was #E5E4DF, R-G +1. That is a neutral grey sitting
+   in the middle of a warm cream page, which is the "faded portion" in the
+   note. And the blob's own falloff reached y=973 while .h-hero clips at 917,
+   so the section sliced it and left a horizontal edge across the page.
+
+   Fix is geometric, not cosmetic: bring the box up so it stops before the
+   deck, and lift the cool blob with it. The room now ends where the object
+   meets the ground, and the ground is drawn by the shadows below, alone.
+
+   Each blob still has to reach full transparency before its own box ends, or
+   the box edge paints as a hard rectangle and the section's clip slices it.
+   The rule, per axis: distance from centre to edge > radius x transparent-stop.
+     warm  x: 34 > 38x.70 = 26.6   y: 32 > 40x.70 = 28.0
+     cool  x: 28 > 32x.72 = 23.0   y: 42 > 34x.72 = 24.5
+   Keep that inequality true on both axes if these are ever retuned. At 1440
+   that puts the cool blob's lowest painted pixel at y=806 against a deck that
+   lands at y=869, so it can no longer reach the ground at all.            */
+.ph-hw__field {
+  position: absolute;
+  inset: -30% -26% -10%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 40% at 34% 32%, rgb(241 223 179 / .78), transparent 70%),
+    radial-gradient(32% 34% at 72% 58%, rgb(34 66 107 / .13), transparent 72%);
+}
+
+.ph-hw__device { position: relative; z-index: 1; }
+
+/* The halo that hugs the silhouette. Distinct from the field: the field is
+   the room, this is light on the object. It traces the lid's own radius so
+   the glow follows the machine instead of sitting behind a rectangle. */
+.ph-hw__aura {
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: calc(var(--hw-w) * var(--hw-lid-h));
+  border-radius: calc(var(--hw-w) * var(--hw-lid-rt));
+  z-index: -2;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 1px rgb(212 168 79 / .10),
+    0 calc(var(--hw-w) * .012) calc(var(--hw-w) * .05) rgb(241 223 179 / .55),
+    0 calc(var(--hw-w) * .03)  calc(var(--hw-w) * .11) rgb(34 66 107 / .10);
+}
+
+/* ── The ground ───────────────────────────────────────────────────────────
+   Two layers doing two different jobs: a tight seam where the deck actually
+   touches the surface, and a soft pool of occlusion around it. Both are
+   measured against three constraints.
+
+   1. COLOUR. Shadows here were rgb(8 36 74), the brand navy. Navy is the
+      complement of this page, so instead of deepening the cream it cancels
+      it. Composited on #FDF8EA the old contact alpha of .34 produced
+      #AAB0B4: R-G -6, G-B -4, a cool blue-grey in the middle of a warm
+      page. --hw-shade is a deep umber chosen so the same maths lands on
+      #B7B0A1, R-G +7, G-B +15, against a page at R-G +5, G-B +14. It
+      darkens the cream along the cream's own hue line rather than pulling
+      it toward grey, which is the whole difference between a shadow and a
+      smudge.
+
+   2. THE CLIP. .h-hero is overflow:hidden and its padding-bottom is 48px, so
+      at 1440 the deck lands at y=869 and the section ends at y=917. blur()
+      paints roughly 2r past its box, so every layer must satisfy
+      (bottom offset) + 2 x (blur) < 48 or the section slices it and leaves a
+      hard horizontal line across the page. The old ambient sat 33px low with
+      a 25px blur, i.e. 83px of paint into 48px of room: it was being cut off
+      by 35px, and that cut IS the terminating edge in the note. Now: contact
+      7 + 2x2.4 = 12, pool 12 + 2x12 = 36. Both clear 48.
+
+   3. WIDTH. The deck runs -9.7% to +109.7% of --hw-w, measured at 720px
+      against a 603px box. The contact seam is -8%, deliberately INSIDE that,
+      because an object cannot cast a contact shadow wider than its own
+      footprint; what escapes below the deck is the sliver you actually see.
+      The pool is -13% and wider than the deck, which is what reads as the
+      light around the object rather than under it.                        */
+.ph-hw__shadow {
+  --hw-shade: 46 35 20;
+  position: absolute;
+  /* The deck measures 1.194 x --hw-w, so its edge sits .097 past the lid on
+     each side. The core is set to -9%, i.e. a hair INSIDE that edge, because
+     the darkest part of a contact shadow is under the body and not past it;
+     the blur is what carries the last two pixels out to the deck line. At -8%
+     the core stopped 12px short of the deck at 1440 and the machine lost its
+     seat at exactly the corners a viewer checks first. */
+  left: -9%; right: -9%;
+  /* bottom is exactly half the height, which puts the box's vertical centre
+     ON the deck line. That matters: the darkest row of a contact shadow is
+     the contact itself, so the peak has to land at y=869 and fade downward
+     from there. Sitting the whole box below the deck instead put the peak in
+     open cream and read as a smear. */
+  bottom: calc(var(--hw-w) * -.014);
+  height: calc(var(--hw-w) * .028);
+  z-index: -1;
+  pointer-events: none;
+  /* Vertical radius is capped at 50%, not for taste but because on a box this
+     wide and this short anything above 50% overshoots the top and bottom
+     edges and paints a straight cut there. 50% reaches zero exactly on the
+     edge, and the blur carries it the rest of the way. */
+  background: radial-gradient(50% 50% at 50% 50%,
+    rgb(var(--hw-shade) / .54), rgb(var(--hw-shade) / .18) 55%, transparent 100%);
+  filter: blur(calc(var(--hw-w) * .005));
+}
+/* The pool. Two stops in one element rather than a third div: the denser
+   ellipse sits directly under the deck and the faint skirt spreads past it,
+   so the falloff has a shoulder instead of being one flat wash. They share a
+   blur, which is correct here because neither wants to be crisp. */
+/* The pool's PEAK sits on the deck line and falls away downward and outward.
+   That is the whole difference between this reading as depth and reading as a
+   patch.
+
+   It gets there differently than it used to, and the change is worth stating
+   because the old way looks equivalent and is not. Centring a 50%-radius
+   ellipse on the contact line does put the peak in the right place, but it
+   also spends half the gradient painting UPWARD into the back of an opaque
+   deck, where none of it can be seen. Measured on the old values the pool
+   emerged from under the machine already past its own half-power point: the
+   visible peak was .17 nominal but ~.09 effective once the 15.7px blur had
+   pulled the hidden half down with it, and it was gone 60px later. That is
+   why the machine read as a cutout laid on cream.
+
+   So the box now starts AT the contact line and paints only below it, with
+   the gradient origin at 50% 0%. The peak lands on exactly the same pixel row
+   as before, the claim about where the darkest row belongs is unchanged, but
+   the whole alpha budget is now on the visible side and the pool has room to
+   fall off properly instead of arriving pre-faded.
+
+   Two stops rather than a third element: the denser ellipse is the occlusion
+   close in, the wider skirt is the light falling off past it. The skirt is
+   what keeps the pool from ending anywhere; both ellipses reach transparent
+   inside the box, so no edge of this element is ever a visible boundary. */
+.ph-hw__shadow--ambient {
+  /* Wider than the deck on purpose: a shadow that stops at the object's own
+     footprint reads as part of the object. The deck ends at .097; the skirt
+     runs to .24, so the pool clears the machine by ~86px at 1440 and the eye
+     reads a surface the machine is sitting on rather than a dark edge stuck
+     to its underside. */
+  left: -24%; right: -24%;
+  /* bottom and height are the SAME value, which is what pins the box's top
+     edge to the contact line. Do not change one without the other. */
+  bottom: calc(var(--hw-w) * -.155);
+  height: calc(var(--hw-w) * .155);
+  background:
+    radial-gradient(48% 96% at 50% 0%,
+      rgb(var(--hw-shade) / .23), rgb(var(--hw-shade) / .065) 56%, transparent 100%),
+    radial-gradient(74% 100% at 50% 0%,
+      rgb(var(--hw-shade) / .07), transparent 100%);
+  filter: blur(calc(var(--hw-w) * .020));
+}
+
+/* ── Lid ──
+   Aluminium, only faintly cool: a blue-grey fights the warm page, a fully
+   neutral grey reads as plastic. Its padding is the machined rim, so almost
+   all of this face is display glass, which is what a MacBook actually looks
+   like from the front. */
+.ph-hw__lid {
+  position: relative;
+  width: 100%;
+  height: calc(var(--hw-w) * var(--hw-lid-h));
+  box-sizing: border-box;
+  padding: calc(var(--hw-w) * var(--hw-rim));
+  padding-bottom: 0;                    /* black runs flush to the bottom edge */
+  border-radius: calc(var(--hw-w) * var(--hw-lid-rt))
+                 calc(var(--hw-w) * var(--hw-lid-rt))
+                 calc(var(--hw-w) * var(--hw-lid-rb))
+                 calc(var(--hw-w) * var(--hw-lid-rb));
+  /* FLAT starlight, one colour. Sampled down the reference's left rim at
+     y120/300/600/900/1080 it is #C1B9A9 at every one of them: the vector has
+     no ramp on the lid at all. The four-stop cool-grey gradient that used to
+     be here is the single thing that made this read as a photo-real render
+     that had not quite come off, which is the note being answered. A cool
+     grey also fought the warm page; starlight is warm. */
+  background: #C1B9A9;
+}
+/* One lighter line round the outside of the machined edge, and nothing else.
+   The reference has 221,218,206 against a #C1B9A9 body there. */
+.ph-hw__lid::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px #DCD6CB;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* The display glass. Its padding IS the bezel, so the geometry is stated in
+   exactly one place, at the top of this section. */
+.ph-hw__bezel {
+  position: relative;
+  width: 100%; height: 100%;
+  box-sizing: border-box;
+  padding:
+    calc(var(--hw-w) * var(--hw-bez-top))
+    calc(var(--hw-w) * var(--hw-bez-x))
+    calc(var(--hw-w) * var(--hw-bez-bot));
+  border-radius: calc(var(--hw-w) * var(--hw-glass-r))
+                 calc(var(--hw-w) * var(--hw-glass-r))
+                 calc(var(--hw-w) * var(--hw-lid-rb))
+                 calc(var(--hw-w) * var(--hw-lid-rb));
+  /* Neutral near-black, not blue-black: the reference glass is (5,3,4). The
+     lift at the very bottom is the deck reflecting in the chin, which the
+     reference does carry (values climb to ~48 between 96% and 99% of the lid
+     height). Without it the chin reads as a hole punched in the picture. */
+  background: linear-gradient(180deg, #050506 0%, #050506 94%, #242424 97.5%, #151513 100%);
+  box-shadow: inset 0 0 0 1px rgb(74 68 57 / .55);
+}
+
+/* Notch. One continuous black shape running from the top of the glass down
+   INTO the display, which is what it is: bezel and notch are the same black,
+   and the notch is only legible because the menu bar behind it is light.
+   Sized so it lands in the menu bar's empty middle and never covers a menu
+   title or a status icon. */
+.ph-hw__notch {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: calc(var(--hw-w) * var(--hw-notch-w));
+  height: calc(var(--hw-w) * (var(--hw-bez-top) + var(--hw-notch-h)));
+  box-sizing: border-box;
+  padding-top: calc(var(--hw-w) * var(--hw-bez-top));
+  display: flex; align-items: center; justify-content: center;
+  background: #050506;
+  border-radius: 0 0 calc(var(--hw-w) * .0058) calc(var(--hw-w) * .0058);
+  z-index: 8;
+}
+.ph-hw__cam {
+  width: calc(var(--hw-w) * .0040); height: calc(var(--hw-w) * .0040);
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #46525F, #10161D 62%);
+}
+
+/* ── Screen ── */
+.ph-hw__screen {
+  position: relative;
+  width: 100%; height: 100%;
+  overflow: hidden;
+  border-radius: calc(var(--hw-w) * var(--hw-scr-r));
+  display: flex; flex-direction: column;
+  background: #FBF8F1;
+  isolation: isolate;
+}
+
+/* Glass. Deliberately faint: at this size a strong sheen reads as a sticker
+   over the interface rather than as glass. */
+.ph-hw__glass {
+  position: absolute; inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(122deg,
+    rgb(255 255 255 / .16) 0%, rgb(255 255 255 / .05) 26%,
+    transparent 46%, transparent 100%);
+}
+
+/* ── The macOS menu bar ──
+   Chrome inside the screen. These five rules size the bar, its text and
+   its glyphs from --hw-w. Without them the inline Apple SVG has no
+   intrinsic size and expands to fill the whole display.              */
+.ph-hw__menubar {
+  flex: none;
+  display: flex; align-items: center; gap: calc(var(--hw-w) * .0125);
+  height: calc(var(--hw-w) * .0225);
+  padding-inline: calc(var(--hw-w) * .0105);
+  background: rgb(250 247 240 / .92);
+  border-bottom: 1px solid rgb(8 36 74 / .09);
+  font-size: calc(var(--hw-w) * .0098);
+  color: #1D2733;
+  letter-spacing: -.01em;
+  position: relative; z-index: 3;
+}
+.ph-hw__menubar b { font-weight: 650; }
+.ph-hw__mb-right {
+  margin-left: auto;
+  display: flex; align-items: center; gap: calc(var(--hw-w) * .0095);
+  color: #354254;
+}
+.ph-hw__mb-right svg { width: calc(var(--hw-w) * .0125); height: calc(var(--hw-w) * .0125); }
+.ph-hw__apple { width: calc(var(--hw-w) * .0115); height: calc(var(--hw-w) * .0115); color: #1D2733; }
+
+/* ── Base ──
+   The front face of the deck, drawn as ONE inline SVG rather than a div.
+   Three things the reference does that a border-radius cannot say:
+     - the bottom corners taper inward on a CURVE, not a chamfer. The
+       reference's own row-by-row inset over the last 22 rows is 0,1,1,1,2,2,
+       3,3,4,5,6,7,8,9,10,11,13,15,17,20,22,26. A straight taper misses the
+       final row by 9px, and that corner is the one you look at.
+     - the thumb scoop is a lighter inset with a dark groove one pixel inside
+       each edge, not a bite out of the outline and not a shaded box.
+     - there are two rubber feet.
+   The box's aspect is computed from the same custom properties the viewBox
+   is, so the two cannot drift apart and squash the shapes.
+
+   THE HINGE ELEMENT IS GONE. It used to draw a silver seam between lid and
+   deck; the reference has no such seam, the lid's black chin sits straight
+   down onto the deck, and a light band there was part of what made the deck
+   look like a separate object parked under the screen. */
+.ph-hw__base {
+  position: relative;
+  display: block;
+  /* max-width:none is load-bearing. The sheet's reset carries
+     `img, svg, video { max-width: 100% }`, and this SVG is deliberately WIDER
+     than its containing block, so the reset was clamping the deck back to the
+     lid's width: 235px instead of 279px at 320, i.e. the exact relationship
+     this rebuild exists to fix, silently undone. With a viewBox present the
+     clamp does not even crop, it rescales, so the deck also came out 16% short
+     and vertically letterboxed. Nothing about it looked broken. */
+  max-width: none;
+  width: calc(var(--hw-w) * var(--hw-base-w));
+  height: calc(var(--hw-w) * (var(--hw-base-h) + var(--hw-foot-h)));
+  margin-left: calc(var(--hw-w) * (1 - var(--hw-base-w)) / 2);
+  overflow: visible;
+}
+
+/* ── Real hit targets, deliberately OUTSIDE the device subtree ────────────
+   The 3D reason for this is gone; a real click now reaches the segment
+   directly. It survives for the OTHER reason, which flattening did not
+   change: the whole device is aria-hidden so 268 nodes of sample dashboard
+   data stay out of the accessibility tree, and a focusable control must
+   never live inside an aria-hidden subtree. These are siblings of it, so the
+   three controls keep their names and their place in the tab order. */
+.ph-hw__hits { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
+.ph-hw__hit {
+  position: absolute;
+  appearance: none; border: 0; padding: 0; margin: 0;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  border-radius: calc(var(--hw-w) * .005);
+}
+/* These three are REAL buttons and they had no hover state whatsoever: a
+   visitor could mouse over the view switcher and get nothing back, on the one
+   interactive thing in the hero. They cannot light the segment they sit over
+   with a descendant selector, because they are deliberately SIBLINGS of the
+   aria-hidden device rather than children of it. But they are positioned over
+   each segment's own rect and painted above it, so tinting the BUTTON paints
+   the segment: same tint the simulated cursor uses for .is-cur-hover, so the
+   real pointer and the scripted one produce the same picture. */
+.ph-hw__hit { transition: background-color 170ms var(--ease); }
+.ph-hw__hit:hover { background: rgb(8 36 74 / .07); }
+.ph-hw__hit:focus-visible { outline: 2px solid var(--gold-ink); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .ph-hw__hit { transition: none; } }
+.ph-sr {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+/* Sample-data chip. It sits above the lid, in the empty field, because the
+   mock carries patient initials, order IDs and dollar amounts and that label
+   is what stops it being read as a real record. */
+.ph-hw__sample {
+  position: absolute;
+  z-index: 8;
+  left: 0;
+  bottom: calc(100% + 14px);
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  background: #FFFFFF;
+  font-family: var(--sans);
+  font-size: 10px; font-weight: 650;
+  letter-spacing: .13em; text-transform: uppercase;
+  color: var(--navy);
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgb(8 36 74 / .10), 0 10px 24px -10px rgb(8 36 74 / .30);
+}
+.ph-hw__sample::before {
+  content: ""; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--gold);
+}
+/* The chip and the card are the only two things floating in front of the
+   machine, so they share a left edge rather than sitting 75px out of step.
+   Gated on the same width the card is, so below it the chip returns to the
+   lid's edge on its own. */
+@media (min-width: 811px) {
+  .ph-hw__sample { left: calc(var(--hw-w) * var(--hwc-out) * -1); }
+}
+
+
+/* ── THE PULLED-OUT SIDEBAR ───────────────────────────────────────────────
+   The clinic's own left-hand navigation, lifted off the screen and floated
+   over the machine's left edge. Its job is to say what SHAPE the product is
+   -- eight places you can be -- while the driven pointer says how it MOVES.
+
+   It is the one element on the page that is allowed to sit in front of the
+   hardware, so three rules keep it subordinate to the demo rather than
+   competing with it, which is why an earlier attempt at this was deleted:
+
+     1. It lives on the LEFT and every stop the pointer makes is on the RIGHT.
+        Measured in screen coordinates at 1440 the card's right edge lands at
+        x61 and the pointer's four stops are x170 (the row), x470 (the tab),
+        x505 (rest) and the sign button, which the sheet now right-aligns for
+        exactly this reason. Nothing the pointer touches is under this card.
+     2. It never animates on its own. It arrives with the machine on the
+        section reveal and then holds still; the ONLY thing that moves in it
+        is the active row, and that moves because the pointer clicked.
+     3. It is borderless. Separation is white against the screen behind it
+        plus a diffuse shadow, never an outline, which is what keeps it
+        reading as a lifted piece of the interface rather than a sticker.
+
+   Geometry is four ratios on .ph-hw; see the note there.                   */
+.ph-hw__side {
+  position: absolute;
+  z-index: 7;                       /* over the lid, under the sample chip */
+  left:   calc(var(--hw-w) * var(--hwc-out) * -1);
+  top:    calc(var(--hw-w) * var(--hwc-top));
+  width:  calc(var(--hw-w) * (var(--hwc-in) + var(--hwc-out)));
+  /* Derived from the lid's own height so the card cannot drift out of
+     proportion if the lid ratio is ever retuned. */
+  height: calc(var(--hw-w) *
+    (var(--hw-lid-h) - var(--hwc-top) - var(--hwc-bot)));
+  display: flex;
+  padding: calc(var(--hw-w) * .0145) calc(var(--hw-w) * .0090);
+  border-radius: calc(var(--hw-w) * .0185);   /* 11.8px at the largest size */
+  background: #FFFFFF;
+  font-family: var(--sans);
+  /* No border. Three shadows: a contact hairline, a close lift, and a wide
+     diffuse pool, all scaled from --hw-w so the card is lit the same way at
+     every width instead of getting heavier as it shrinks. */
+  box-shadow:
+    0 calc(var(--hw-w) * .0015) calc(var(--hw-w) * .004) rgb(8 36 74 / .05),
+    0 calc(var(--hw-w) * .012)  calc(var(--hw-w) * .030) rgb(8 36 74 / .07),
+    0 calc(var(--hw-w) * .042)  calc(var(--hw-w) * .095) rgb(8 36 74 / .13);
+}
+
+.ph-hw__side-nav { flex: 1; display: flex; flex-direction: column; }
+
+/* Groups, thin dividers between them. Every group and every row is flex:1 1 0
+   against a FIXED card height, so the eight rows always share the height
+   exactly and evenly. That is deliberate: a fixed row height plus a fixed card
+   height is two numbers that have to be kept in agreement by hand, and they
+   drift the moment the type rounds differently. This way the card fills its
+   height by construction at any --hw-w. */
+.ph-hw__side-grp { flex: 1 1 0; display: flex; flex-direction: column; }
+/* The gap around a divider is deliberately close to a row's own height. With
+   eight rows in a card shaped to hold the reference's thirteen, the surplus
+   height has to go SOMEWHERE, and spending it between the groups makes the
+   grouping legible; spending it inside the rows just makes them tall. */
+.ph-hw__side-grp + .ph-hw__side-grp {
+  margin-top: calc(var(--hw-w) * .015);
+  padding-top: calc(var(--hw-w) * .015);
+  /* Inset to the row's own text edge, not run to the card's edge: a divider
+     that touches the sides turns the card into a table. */
+  border-top: 1px solid rgb(8 36 74 / .10);
+  margin-inline: calc(var(--hw-w) * .0055);
+}
+
+.ph-hw__side-row {
+  flex: 1 1 0;
+  position: relative;                 /* containing block for the active rule */
+  display: flex; align-items: center;
+  gap: calc(var(--hw-w) * .0095);
+  padding-inline: calc(var(--hw-w) * .0080);
+  border-radius: calc(var(--hw-w) * .012);
+  /* Sized against the CARD, not by eye. The reference runs 230px of card to an
+     18px label, a ratio of 12.8; .0165 against a .1915 card gives 11.6, close
+     enough that the label sits in the card the way it sits in the reference
+     and "Prescriptions", the longest of the eight, still keeps a real right
+     margin. An early pass at ratio 11.3 read as a menu rather than a rail.
+
+     The max() is a floor, not a size. Right at 1151 the hero takes its split
+     layout and the machine drops into the narrower right column, which takes
+     the label to 7.95px for a ~7px-wide band of viewport (1151..1157) before
+     the column grows past it again. Everywhere else the card draws -- 811 to
+     1150, and 1158 up -- it is already 8px or more, so this clamps that one
+     band and changes nothing at any other width. */
+  font-size: max(8px, calc(var(--hw-w) * .0165));
+  font-weight: 520;
+  letter-spacing: -.005em;
+  color: #3A4757;
+  white-space: nowrap;
+  transition: background-color 180ms var(--ease), color 180ms var(--ease);
+}
+.ph-hw__side-row svg {
+  flex: none;
+  width:  calc(var(--hw-w) * .0195);
+  height: calc(var(--hw-w) * .0195);
+  color: #6B7889;
+  transition: color 180ms var(--ease);
+}
+
+/* Active: soft gold tint, a gold rule down the leading edge, navy ink. The
+   INK stays navy and the gold stays a graphic element -- a tint and a rule --
+   because gold is never body text on a light surface. */
+.ph-hw__side-row[data-on] {
+  background: rgb(212 168 79 / .13);
+  color: var(--navy);
+  font-weight: 640;
+}
+.ph-hw__side-row[data-on]::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 12%; bottom: 12%;
+  width: calc(var(--hw-w) * .0035);
+  border-radius: 99px;
+  background: var(--gold-ink);
+}
+.ph-hw__side-row[data-on] svg { color: var(--navy); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ph-hw__side-row, .ph-hw__side-row svg { transition: none; }
+}
+
+/* Where the card stops drawing, and why it is 810 and not the 760 the rest of
+   the machine changes at.
+
+   Below the hero's split the machine is centred and fitted to the column, so
+   the card -- which hangs .125 past a lid that is itself .097 inside the deck
+   -- reaches into the page's left gutter. Measured: at 761 its left edge sits
+   7.3px from the VIEWPORT edge, at 780 13.1px, at 800 23.1px, against a page
+   whose own content starts at the 24px gutter. Closer than the gutter it
+   stops reading as a lifted panel and starts reading as an element that has
+   escaped the layout. Solving (vw - 720) / 2 - 16.9 >= 24 puts the crossover
+   at 802, so 810 is the first round number that clears it: the card's left
+   edge is 28.6px in at 811 and only moves right from there.
+
+   That floor sits above 760, where the machine stops being a control at all
+   and becomes a static picture (see .ph-hw__hits in section 15), so the two
+   never disagree. It also keeps the label type at 9.9px and above; below it
+   the lid shrinks fast and a card you cannot read is not a smaller version of
+   this card, it is a white smudge over the screen. The machine is complete
+   without it -- it is an annotation, and it is simply absent here.        */
+@media (max-width: 810px) { .ph-hw__side { display: none; } }
+
+
+/* ── THE DRIVEN POINTER ───────────────────────────────────────────────────
+   A pointer moves inside the screen, hovers a real control, clicks it, and
+   the interface changes as a consequence. It replaces a tab carousel that
+   swapped panes on a timer with nothing to explain why, which reads as a
+   slideshow. This reads as someone using the product.
+   Script and pause rules live in pharity-site.js (wirePointer).            */
+.ph-hw__cursor {
+  position: absolute;
+  left: 0; top: 0;
+  z-index: 7;
+  width: calc(var(--hw-w) * .0180);
+  /* The arrow's tip sits at (1, 1.2) in its 12x19 viewBox, so pull the box
+     back by that much and left/top become the TIP in screen coordinates.
+     Without this every target is struck a pointer-width down and right. */
+  margin-left: calc(var(--hw-w) * -.0015);
+  margin-top:  calc(var(--hw-w) * -.0018);
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    left 820ms cubic-bezier(.34,.03,.17,1),
+    top  820ms cubic-bezier(.34,.03,.17,1),
+    opacity 260ms linear;
+  will-change: left, top;
+}
+.ph-hw__cursor.is-on { opacity: 1; }
+.ph-hw__cursor svg { display: block; width: 100%; height: auto; transition: transform 90ms ease-out; }
+.ph-hw__cursor.is-down svg { transform: translate(1px, 1px); }
+
+.ph-hw__ring {
+  position: absolute;
+  left: 0; top: 0;
+  z-index: 6;
+  width: calc(var(--hw-w) * .052);
+  aspect-ratio: 1;
+  margin: calc(var(--hw-w) * -.026) 0 0 calc(var(--hw-w) * -.026);
+  border-radius: 50%;
+  border: 1.5px solid rgb(8 36 74 / .55);
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(.24);
+}
+.ph-hw__ring.is-fire { animation: ph-ring 620ms cubic-bezier(.16,.84,.44,1) forwards; }
+@keyframes ph-ring {
+  0%   { opacity: .85; transform: scale(.24); }
+  100% { opacity: 0;   transform: scale(1); }
+}
+
+/* Hover and press states the script drives on the real elements, so what the
+   pointer does and what the interface shows can never disagree. */
+.ph-app__seg [data-sel].is-cur-hover { background: rgb(8 36 74 / .07); }
+tr.is-cur-hover > td { background: rgb(212 168 79 / .13) !important; }
+
+/* The row that just changed, briefly lit so the consequence is visible. */
+tr.is-flash > td { animation: ph-flash 1500ms ease-out; }
+@keyframes ph-flash {
+  0%, 22% { background: rgb(212 168 79 / .26); }
+  100%    { background: transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ph-hw__cursor, .ph-hw__ring { display: none !important; }
+  tr.is-flash > td { animation: none; }
+}
+
+
+/* ============================================================================
+   13. THE PRODUCT MOCK (inside the screen)
+   All internal sizing is in em, driven by one root font-size on .ph-app, so
+   the entire interface scales with --hw-w.
+   ========================================================================== */
+
+.ph-app {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  font-size: calc(var(--hw-w) / 82);
+  line-height: 1.35;
+  color: #16202E;
+  background: #FBF8F1;
+  letter-spacing: -.006em;
+}
+
+/* ── Navy rail ── */
+.ph-app__rail {
+  flex: none;
+  width: 3.15em;
+  padding: .55em 0 .5em;
+  display: flex; flex-direction: column; align-items: center;
+  gap: .5em;
+  background: linear-gradient(180deg, #0A2547, #061B36 62%, #051832);
+  color: rgb(255 255 255 / .58);
+}
+.ph-app__mark {
+  width: 1.7em; height: 1.7em;
+  display: grid; place-items: center;
+  border-radius: .38em;
+  background: linear-gradient(140deg, #E7C075, #C79A3E);
+  color: #06203F;
+  font-family: var(--serif);
+  font-size: 1em;
+  font-weight: 600;
+}
+.ph-app__mark span { font-size: 1.05em; line-height: 1; margin-top: -.05em; }
+
+.ph-app__new {
+  width: 1.7em; height: 1.7em;
+  display: grid; place-items: center;
+  border-radius: .38em;
+  border: 1px solid rgb(212 168 79 / .45);
+  color: var(--gold);
+  margin-bottom: .15em;
+}
+.ph-app__new svg { width: .85em; height: .85em; }
+
+.ph-app__nav { display: flex; flex-direction: column; align-items: center; gap: .3em; width: 100%; }
+.ph-app__nav + .ph-app__nav { margin-top: .55em; }
+.ph-app__ico {
+  position: relative;
+  width: 1.65em; height: 1.5em;
+  display: grid; place-items: center;
+  border-radius: .32em;
+}
+.ph-app__ico svg { width: .92em; height: .92em; }
+.ph-app__ico[data-on] {
+  background: rgb(212 168 79 / .16);
+  color: var(--gold);
+}
+.ph-app__ico[data-on]::before {
+  content: "";
+  position: absolute; left: -.62em; top: 22%; bottom: 22%;
+  width: .13em; border-radius: 0 2px 2px 0;
+  background: var(--gold);
+}
+.ph-app__rail-sp { margin-top: auto; }
+.ph-app__avatar {
+  width: 1.55em; height: 1.55em; border-radius: 50%;
+  display: grid; place-items: center;
+  background: #0E2C52;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / .18);
+  color: #fff; font-size: .72em; font-weight: 650;
+  margin-top: .45em;
+}
+
+/* ── Canvas ── */
+.ph-app__canvas {
+  flex: 1 1 auto; min-width: 0;
+  display: flex; flex-direction: column;
+  background: #FBF8F1;
+}
+
+.ph-app__top {
+  flex: none;
+  display: flex; align-items: center; gap: .8em;
+  padding: .62em .95em;
+}
+.ph-app__crumb { font-size: .82em; font-weight: 600; color: #24354B; }
+.ph-app__crumb i { color: #93A0B1; margin: 0 .35em; }
+.ph-app__crumb i::before { content: "›"; }
+.ph-app__search {
+  flex: 1 1 auto;
+  max-width: 24em;
+  min-width: 0;
+  display: flex; align-items: center; gap: .5em;
+  height: 1.95em;
+  padding: 0 .5em 0 .7em;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgb(8 36 74 / .10);
+  color: #93A0B1;
+  font-size: .8em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.ph-app__search svg { width: .95em; height: .95em; flex: none; }
+.ph-app__search > span:not(.ph-app__kbd) { overflow: hidden; text-overflow: ellipsis; }
+.ph-app__kbd {
+  margin-left: auto;
+  padding: .1em .38em;
+  border-radius: .3em;
+  background: #F1EDE3;
+  color: #7E8A99;
+  font-size: .82em;
+  font-family: var(--mono);
+}
+.ph-app__topicons { display: flex; align-items: center; gap: .7em; color: #4A596C; margin-left: auto; }
+.ph-app__topicons svg { width: 1em; height: 1em; }
+
+.ph-app__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: .1em .95em 0;
+  position: relative;
+}
+
+/* Panes cross-fade in place. */
+.ph-app__pane {
+  position: absolute;
+  inset: 0 .95em auto;
+  opacity: 0;
+  transform: translateY(5px);
+  pointer-events: none;
+  visibility: hidden;
+}
+.ph-app__pane.is-active {
+  position: relative;
+  inset: auto;
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+  visibility: visible;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html.js .ph-app__pane {
+    transition: opacity 300ms var(--ease), transform 300ms var(--ease);
+  }
+}
+
+/* Header block */
+.ph-app__meta {
+  display: flex; align-items: center; gap: .45em;
+  font-size: .78em; color: #7E8A99;
+  margin-bottom: .3em;
+}
+.ph-app__live {
+  display: inline-flex; align-items: center; gap: .38em;
+  font-weight: 700; letter-spacing: .08em; color: #24354B;
+}
+.ph-app__live::after {
+  content: ""; width: .45em; height: .45em; border-radius: 50%;
+  background: #1FA971;
+  box-shadow: 0 0 0 .2em rgb(31 169 113 / .18);
+}
+.ph-app__hello {
+  font-family: var(--serif);
+  font-size: 1.85em;
+  font-weight: 400;
+  letter-spacing: -.02em;
+  line-height: 1.08;
+  color: #0D1B2C;
+}
+.ph-app__sub { font-size: .86em; color: #556375; margin-top: .18em; }
+
+.ph-app__headrow {
+  display: flex; align-items: flex-start; gap: 1em;
+  margin-bottom: .85em;
+}
+.ph-app__headrow > div:first-child { min-width: 0; }
+.ph-app__headact { margin-left: auto; display: flex; align-items: center; gap: .5em; flex: none; }
+
+/* Segmented control: drives the view cycle. */
+.ph-app__seg {
+  display: inline-flex;
+  padding: .16em;
+  border-radius: .5em;
+  background: #fff;
+  border: 1px solid rgb(8 36 74 / .10);
+}
+/* These are <span>s, not buttons: the interactive control is the transparent
+   .ph-hw__hit parked over each one, because a real click cannot reach a
+   control painted inside the rotated screen. */
+.ph-app__seg [data-sel] {
+  display: block;
+  padding: .3em .72em;
+  border-radius: .36em;
+  font-size: .78em; font-weight: 600;
+  color: #556375;
+  line-height: 1.3;
+  white-space: nowrap;
+  transition: background-color 160ms var(--ease), color 160ms var(--ease);
+}
+.ph-app__seg [data-sel="true"] { background: #14202F; color: #fff; }
+.ph-hw:hover .ph-app__seg [data-sel="false"] { color: #14202F; }
+
+.ph-app__cta {
+  display: inline-flex; align-items: center; gap: .35em;
+  height: 2.05em; padding: 0 .78em;
+  border-radius: .5em;
+  background: #14202F; color: #fff;
+  font-size: .78em; font-weight: 600;
+  white-space: nowrap;
+}
+.ph-app__cta svg { width: .85em; height: .85em; }
+
+/* Stat tiles */
+.ph-app__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .6em;
+  margin-bottom: .95em;
+}
+.ph-stat {
+  padding: .7em .8em .75em;
+  background: #fff;
+  border: 1px solid rgb(8 36 74 / .09);
+  border-radius: .55em;
+}
+.ph-stat__top { display: flex; align-items: flex-start; gap: .5em; }
+.ph-stat__k {
+  font-size: .68em; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: #7E8A99;
+}
+.ph-stat__ico {
+  margin-left: auto;
+  width: 1.55em; height: 1.55em;
+  display: grid; place-items: center;
+  border-radius: .35em;
+}
+.ph-stat__ico svg { width: .85em; height: .85em; }
+.ph-stat__v {
+  font-family: var(--serif);
+  font-size: 1.85em; line-height: 1.1;
+  margin-top: .1em;
+  color: #0D1B2C;
+  font-variant-numeric: tabular-nums;
+}
+.ph-stat__d { font-size: .72em; color: #7E8A99; margin-top: .1em; }
+.ph-stat__bar { height: .16em; border-radius: 2px; margin-top: .5em; width: 2.4em; }
+
+.ph-stat[data-tone="gold"]  .ph-stat__ico { background: rgb(212 168 79 / .16); color: #A87B31; }
+.ph-stat[data-tone="gold"]  .ph-stat__bar { background: #D4A84F; }
+.ph-stat[data-tone="amber"] .ph-stat__ico { background: rgb(217 138 51 / .14); color: #B9711F; }
+.ph-stat[data-tone="amber"] .ph-stat__bar { background: #D98A33; }
+.ph-stat[data-tone="blue"]  .ph-stat__ico { background: rgb(34 102 187 / .12); color: #2266BB; }
+.ph-stat[data-tone="blue"]  .ph-stat__bar { background: #2266BB; }
+.ph-stat[data-tone="green"] .ph-stat__ico { background: rgb(31 169 113 / .14); color: #148056; }
+.ph-stat[data-tone="green"] .ph-stat__bar { background: #1FA971; }
+
+/* Section label */
+.ph-app__label {
+  font-size: .68em; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: #7E8A99;
+}
+.ph-app__h2 {
+  font-family: var(--serif);
+  font-size: 1.35em; font-weight: 400;
+  letter-spacing: -.015em;
+  color: #0D1B2C;
+  margin-top: .06em;
+}
+.ph-app__seehead {
+  display: flex; align-items: flex-end; gap: 1em;
+  margin-bottom: .6em;
+}
+.ph-app__see {
+  margin-left: auto; flex: none;
+  font-size: .78em; font-weight: 600; color: #24354B;
+}
+
+/* Kanban */
+.ph-kan {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .55em;
+}
+.ph-kan__col {
+  background: #fff;
+  border: 1px solid rgb(8 36 74 / .09);
+  border-radius: .55em;
+  overflow: hidden;
+  /* Tall enough to read as a board, short enough that the columns aren't
+     mostly empty white. The activity strip below carries the rest of the
+     canvas. Scales with --hw-w because the app root font-size does. */
+  min-height: 15.5em;
+}
+
+/* Activity strip: fills the canvas under the board and carries the
+   settlement story on the default view. */
+.ph-act {
+  margin-top: 1.1em;
+  background: #fff;
+  border: 1px solid rgb(8 36 74 / .09);
+  border-radius: .55em;
+  overflow: hidden;
+}
+.ph-act__row {
+  display: flex; align-items: center; gap: .6em;
+  padding: .58em .75em;
+}
+.ph-act__row + .ph-act__row { border-top: 1px solid rgb(8 36 74 / .06); }
+.ph-act__dot {
+  flex: none;
+  width: 1.5em; height: 1.5em;
+  display: grid; place-items: center;
+  border-radius: .35em;
+}
+.ph-act__dot svg { width: .82em; height: .82em; }
+.ph-act__t { flex: 1 1 auto; font-size: .78em; color: #16202E; min-width: 0;
+             overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ph-act__t b { font-weight: 600; }
+.ph-act__amt { margin-left: auto; flex: none; font-size: .78em; font-weight: 600;
+               color: #16202E; font-variant-numeric: tabular-nums; }
+.ph-act__ago { flex: none; font-size: .72em; color: #93A0B1; width: 4.2em; text-align: right; }
+.ph-kan__head {
+  display: flex; align-items: center; gap: .4em;
+  padding: .55em .6em;
+  border-bottom: 1px solid rgb(8 36 74 / .07);
+  font-size: .78em; font-weight: 650;
+  color: #24354B;
+}
+.ph-kan__dot { width: .42em; height: .42em; border-radius: 50%; flex: none; }
+.ph-kan__n {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  color: #7E8A99; font-weight: 600;
+}
+.ph-kan__card { padding: .5em .6em; }
+.ph-kan__card + .ph-kan__card { border-top: 1px solid rgb(8 36 74 / .06); }
+.ph-kan__row { display: flex; align-items: center; gap: .45em; }
+.ph-kan__t { font-size: .78em; font-weight: 600; color: #16202E; min-width: 0;
+             overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ph-kan__d { margin-left: auto; font-size: .7em; color: #93A0B1; flex: none;
+             font-variant-numeric: tabular-nums; }
+.ph-kan__s { font-size: .72em; color: #7E8A99; margin-top: .1em; margin-left: 1.85em; }
+.ph-kan__pharm {
+  display: inline-flex; align-items: center; gap: .3em;
+  margin-top: .35em; margin-left: 1.85em;
+  padding: .18em .45em;
+  border-radius: .3em;
+  background: rgb(34 102 187 / .09);
+  color: #205AA3;
+  font-size: .68em; font-weight: 600;
+}
+.ph-kan__pharm svg { width: .72em; height: .72em; }
+.ph-kan__empty {
+  padding: 1.4em .6em; text-align: center;
+  font-size: .72em; color: #A2ADBB;
+}
+
+.ph-av {
+  flex: none;
+  width: 1.55em; height: 1.55em; border-radius: 50%;
+  display: grid; place-items: center;
+  background: #F1E8D6;
+  color: #6C5A34;
+  font-size: .66em; font-weight: 700;
+  letter-spacing: .01em;
+}
+.ph-av--warm { background: #EFE3CE; }
+
+/* Table */
+.ph-tbl {
+  background: #fff;
+  border: 1px solid rgb(8 36 74 / .09);
+  border-radius: .55em;
+  overflow: hidden;
+}
+.ph-tbl__bar {
+  display: flex; align-items: center; gap: .6em;
+  padding: .55em .7em;
+  border-bottom: 1px solid rgb(8 36 74 / .07);
+}
+.ph-tbl__find {
+  display: flex; align-items: center; gap: .45em;
+  flex: 1 1 auto; max-width: 18em;
+  height: 1.8em; padding: 0 .6em;
+  border-radius: .4em;
+  border: 1px solid rgb(8 36 74 / .10);
+  color: #93A0B1; font-size: .76em;
+}
+.ph-tbl__find svg { width: .9em; height: .9em; }
+.ph-tbl__filter {
+  display: inline-flex; align-items: center; gap: .3em;
+  font-size: .76em; color: #556375; font-weight: 550;
+}
+.ph-tbl__filter svg { width: .85em; height: .85em; }
+.ph-tbl__rows { margin-left: auto; font-size: .74em; color: #93A0B1;
+                font-variant-numeric: tabular-nums; }
+
+.ph-tbl table { width: 100%; border-collapse: collapse; }
+.ph-tbl th {
+  text-align: left;
+  padding: .5em .7em;
+  font-size: .66em; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: #7E8A99;
+  border-bottom: 1px solid rgb(8 36 74 / .07);
+  white-space: nowrap;
+}
+.ph-tbl td {
+  padding: .52em .7em;
+  font-size: .78em;
+  color: #34445A;
+  border-bottom: 1px solid rgb(8 36 74 / .05);
+  white-space: nowrap;
+}
+.ph-tbl tr:last-child td { border-bottom: 0; }
+.ph-tbl__cmp { display: flex; align-items: center; gap: .5em; }
+.ph-tbl__cmp b { font-weight: 600; color: #16202E; }
+.ph-tbl__cmp small { display: block; font-size: .84em; color: #7E8A99; font-weight: 400; }
+.ph-tbl__rx { font-family: var(--mono); font-size: .92em; letter-spacing: -.02em; }
+.ph-tbl__tot { text-align: right; font-variant-numeric: tabular-nums;
+               font-weight: 600; color: #16202E; }
+.ph-tbl__pharm { display: inline-flex; align-items: center; gap: .35em; color: #34445A; }
+.ph-tbl__pharm svg { width: .85em; height: .85em; color: #7E8A99; }
+
+/* Status chips inside the app */
+.ph-st {
+  display: inline-flex; align-items: center; gap: .3em;
+  padding: .2em .5em;
+  border-radius: 999px;
+  font-size: .72em; font-weight: 600;
+  white-space: nowrap;
+}
+.ph-st svg { width: .78em; height: .78em; }
+.ph-st[data-t="draft"]   { background: #F0EDE6; color: #5D6B7C; }
+.ph-st[data-t="await"]   { background: rgb(217 138 51 / .14); color: #A6641B; }
+.ph-st[data-t="signed"]  { background: rgb(212 168 79 / .18); color: #8A6520; }
+.ph-st[data-t="transit"] { background: rgb(34 102 187 / .12); color: #1F5AA8; }
+.ph-st[data-t="filling"] { background: rgb(139 103 40 / .12); color: #7A5A21; }
+.ph-st[data-t="done"]    { background: rgb(31 169 113 / .14); color: #12764F; }
+
+/* Filter pill row */
+.ph-pills { display: flex; gap: .35em; margin-bottom: .7em; flex-wrap: nowrap; overflow: hidden; }
+.ph-pill {
+  display: inline-flex; align-items: center; gap: .35em;
+  padding: .3em .68em;
+  border-radius: 999px;
+  border: 1px solid rgb(8 36 74 / .10);
+  background: #fff;
+  font-size: .74em; font-weight: 600;
+  color: #34445A;
+  white-space: nowrap;
+}
+.ph-pill b { color: #7E8A99; font-weight: 600; }
+.ph-pill[data-on] { background: #14202F; color: #fff; border-color: #14202F; }
+.ph-pill[data-on] b { color: rgb(255 255 255 / .6); }
+.ph-pill__dot { width: .4em; height: .4em; border-radius: 50%; }
+
+/* ── Floated queue card content ── */
+.ph-q__k {
+  font-size: .8em; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: #B0562E;
+}
+.ph-q__h {
+  display: flex; align-items: baseline; gap: .6em;
+  margin-top: .15em;
+  padding-bottom: .75em;
+  border-bottom: 1px solid rgb(8 36 74 / .08);
+}
+.ph-q__h h4 {
+  font-family: var(--serif);
+  font-size: 1.5em; font-weight: 400;
+  letter-spacing: -.015em;
+  color: #0D1B2C;
+}
+.ph-q__n { margin-left: auto; font-size: .82em; color: #93A0B1; }
+.ph-q__row {
+  position: relative;
+  padding: .85em 0 .85em .85em;
+  border-bottom: 1px solid rgb(8 36 74 / .06);
+}
+.ph-q__row:last-child { border-bottom: 0; padding-bottom: .2em; }
+.ph-q__row::before {
+  content: "";
+  position: absolute; left: 0; top: .85em; bottom: .85em;
+  width: .17em; border-radius: 2px;
+  background: #D8543F;
+}
+.ph-q__top { display: flex; align-items: center; gap: .55em; }
+.ph-q__t { font-size: .95em; font-weight: 600; color: #16202E;
+           overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ph-q__age { margin-left: auto; font-size: .82em; color: #93A0B1; flex: none; }
+.ph-q__s { font-size: .85em; color: #7E8A99; margin-top: .12em; margin-left: 2.2em; }
+.ph-q__foot {
+  display: flex; align-items: center; gap: .55em;
+  margin-top: .5em; margin-left: 2.2em;
+}
+.ph-q__block {
+  padding: .18em .5em;
+  border-radius: 999px;
+  background: rgb(216 84 63 / .12);
+  color: #A93A26;
+  font-size: .8em; font-weight: 650;
+}
+.ph-q__stake { font-size: .82em; color: #7E8A99; font-variant-numeric: tabular-nums; }
+.ph-q__go {
+  margin-left: auto; flex: none;
+  display: inline-flex; align-items: center; gap: .3em;
+  font-size: .84em; font-weight: 600; color: #14202F;
+}
+.ph-q__go svg { width: .85em; height: .85em; }
+
+/* The phone mock was removed at the client's request ("get rid of the phone…
+   I think I just want a clean computer look"). Its ~50 lines of .ph-ph__*
+   rules were deleted with it rather than left to rot: nothing in any page
+   or script references that namespace. Do not reintroduce it. */
+
+/* ── The record sheet the pointer opens ───────────────────────────────────
+   Built and driven by wirePointer(). It is the payoff of the script: the
+   click on a queued prescription has to OPEN something, or the pointer is
+   just a decoration moving over a slideshow.
+
+   Its type is set larger than the table beneath it on purpose. At hero size
+   the table is texture, roughly 6px, and this is the one element that has to
+   be legible at a glance, so it runs at about 1.6x the table.              */
+.ph-app__canvas { position: relative; }   /* the sheet's containing block */
+
+.ph-app__sheet {
+  position: absolute;
+  left: 6.5%; right: 6.5%;
+  bottom: 0;
+  z-index: 5;
+  padding: 1.5em 1.6em 1.4em;
+  border-radius: .9em .9em 0 0;
+  background: #fff;
+  border: 1px solid rgb(8 36 74 / .14);
+  border-bottom: 0;
+  box-shadow: 0 -.6em 2.2em rgb(8 36 74 / .16);
+  transform: translateY(102%);
+  opacity: 0;
+  transition: transform 420ms cubic-bezier(.22,1,.36,1), opacity 220ms linear;
+  font-size: 1.14em;
+}
+.ph-app__sheet.is-open { transform: translateY(0); opacity: 1; }
+.ph-app__sheet-lbl {
+  font-size: .72em; font-weight: 700; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--gold-ink);
+}
+.ph-app__sheet-t { margin-top: .35em; font-weight: 650; color: #16202E; font-size: 1.12em; }
+.ph-app__sheet-m { margin-top: .2em; color: #5D6B7C; font-size: .88em; }
+.ph-app__sheet-grid {
+  margin-top: 1em;
+  display: grid; grid-template-columns: 1fr 1fr; gap: .55em 1.2em;
+  padding-top: .85em;
+  border-top: 1px solid rgb(8 36 74 / .10);
+}
+.ph-app__sheet-k { font-size: .76em; color: #7A8798; letter-spacing: .04em; }
+.ph-app__sheet-v { font-weight: 600; color: #16202E; font-size: .9em; }
+/* The primary action sits at the RIGHT end of the row, with the disclosure to
+   its left. Two reasons, and the second is the load-bearing one:
+     - it is the conventional place for the confirming action in a sheet, and
+       it puts the disclosure before the button rather than trailing it, so
+       the row reads "card on file is charged -> Sign and route"
+     - hard-left, the button's own box ran to x73 in screen coordinates and
+       the pulled-out sidebar card's right edge lands at x61. Twelve pixels
+       between a floating white card and the one control the demo clicks is
+       not a gap, it is a near miss. Right-aligned it clears by ~250px and the
+       claim that the pointer works on the right of the screen becomes true of
+       every stop it makes, not three out of four.
+   The pointer needs no edit: moveTo() reads the button's live rect, so the
+   scripted cursor follows the button wherever layout puts it.             */
+.ph-app__sheet-act {
+  margin-top: 1.15em;
+  display: flex; align-items: center; gap: .7em;
+  justify-content: flex-end;
+}
+.ph-app__sign {
+  display: inline-flex; align-items: center; gap: .45em;
+  padding: .62em 1.15em;
+  border-radius: 999px;
+  background: var(--cta-fill);
+  color: var(--navy-ink);
+  font-weight: 700; font-size: .88em;
+  border: 1px solid rgb(139 103 40 / .34);
+  transition: filter 150ms ease;
+}
+.ph-app__sign.is-cur-hover { filter: brightness(1.06); }
+/* margin-right:auto is what actually pushes the button to the right end; it
+   also lets the note keep its natural width instead of being squeezed. */
+.ph-app__sheet-note { font-size: .78em; color: #7A8798; margin-right: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ph-app__sheet { transition: none; }
+}
+
+/* The search pill and filter chips in the prescriptions table wrapped onto a
+   second line and spilled through their own border at hero scale. They are
+   placeholders, so they clip rather than wrap. */
+.ph-tbl__find, .ph-tbl__filter {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+
+/* ============================================================================
+   14. THE SCROLLING OPERATING LAYER
+   Six capabilities as a horizontally-advancing sequence tied to vertical
+   scroll. The active one is large and legible with its description; the rest
+   recede; a hairline rail shows position.
+
+   READ THIS BEFORE EDITING: the fallback is the base, not an afterthought.
+   Everything below the "enhanced" media query renders a plain stacked list of
+   six fully-legible cards. The horizontal mode is layered on top and applies
+   ONLY when all four of these hold:
+     • JS actually ran and wired a driver   → [data-flow-ready]
+     • the viewport is wide enough           → min-width 900px
+     • the viewport is TALL enough to pin    → min-height 700px
+     • the visitor has not asked for less motion
+
+   700px, not 640: at 640 the pinned pane measured 568px tall against 568px of
+   content: exactly zero margin, so one extra wrapped line of the heading would
+   have pushed the cards out through the bottom of the pane and over the section
+   below it. The short-viewport rule further down trims the internal rhythm so
+   there is real slack at the bound rather than a coincidence.
+   If any one fails, the stacked list is what ships. A pinned section whose
+   driver never ran is six blank screens, so the attribute gate is load-bearing.
+
+   ⚠ The media query below is duplicated as a string in pharity-site.js
+   (FLOW_MQ). If you change one you MUST change the other, or JS will bind a
+   scroll driver to a layout that is not pinned (or fail to bind to one that is).
+   ========================================================================== */
+
+.ph-flow { --flow-n: 6; }
+
+.ph-flow__head { max-width: 46ch; }
+.ph-flow__head .ph-h2   { margin-top: 16px; max-width: 22ch; }
+.ph-flow__head .ph-lede { margin-top: 16px; }
+
+/* Rail + counter are position indicators for a sequence. In the stacked
+   fallback there is no sequence to indicate: the list is all visible at once:
+   so they are not rendered at all rather than shown inert. */
+.ph-flow__rail,
+.ph-flow__count { display: none; }
+
+.ph-flow__viewport { margin-top: var(--s6); }
+
+.ph-flow__track {
+  display: grid;
+  gap: 12px;
+}
+
+.ph-flow__i {
+  position: relative;
+  display: flex; flex-direction: column;
+  padding: 26px 26px 28px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+
+/* Stacked, the six were six outlined boxes: which inverts the doctrine the
+   pinned desktop mode states, where only the ACTIVE step is drawn as a card
+   and the other five are borderless type. Six boxes in a column is also the
+   most literal reading of the client's "I don't like the borders around it".
+   Below the pin, the steps are separated by space and their own number and
+   icon; nothing is outlined. */
+@media (max-width: 899px) {
+  .ph-flow__i {
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 0;
+  }
+  .ph-flow__track { gap: 34px; }
+  .ph-flow__n { top: 4px; right: 0; }
+}
+
+/* Navy, not gold, and that is the point of the whole pass: the ACTIVE ICON
+   TILE is the one gold object in this section, so the number beside it has to
+   step back or there are two markers competing on the same card. It also puts
+   this number on the same ink as .ph-card__step, which is the same idea
+   elsewhere on the site. */
+.ph-flow__n {
+  position: absolute; top: 26px; right: 24px;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  letter-spacing: .06em;
+  color: var(--ink-3);
+}
+
+/* ── Color doctrine for this section: NAVY INK, gold only as the marker ──
+   The icon tile used to be --gold-wash on every step. Pinned, that put six
+   beige squares on screen at once and the five receded ones sat at 34%
+   opacity, so what the eye actually got was a row of pale tan blocks with
+   ghost type beside them: the client's "I want the coloration of this to be
+   better". The tile is navy ink at rest and turns gold only on the ACTIVE
+   step, so exactly one warm object is ever lit and it is always the thing
+   being read. */
+.ph-flow__ic {
+  display: grid; place-items: center;
+  width: 40px; height: 40px;
+  flex: none;
+  border-radius: var(--r-md);
+  background: rgb(8 36 74 / .055);
+  color: var(--navy);
+  transition: background-color 220ms var(--ease), color 220ms var(--ease);
+}
+.ph-flow__ic svg { width: 19px; height: 19px; }
+
+.ph-flow__t {
+  margin-top: 18px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 1.35rem;
+  line-height: 1.15;
+  letter-spacing: -.01em;
+  color: var(--navy);
+}
+.ph-flow__d {
+  margin-top: 9px;
+  font-size: .9375rem;
+  line-height: 1.6;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+.ph-flow__foot {
+  margin-top: var(--s5);
+  display: flex; flex-wrap: wrap; gap: 12px var(--s3);
+  align-items: baseline; justify-content: space-between;
+}
+.ph-flow__foot .ph-body { max-width: 52ch; }
+
+
+/* ── Enhanced: the pinned horizontal sequence ─────────────────────────────
+   ⚠ Keep this query in sync with FLOW_MQ in pharity-site.js.               */
+@media (min-width: 900px) and (min-height: 700px) and (prefers-reduced-motion: no-preference) {
+html.js .ph-flow[data-flow-ready] {
+  /* One viewport to pin in, plus one advance per transition (n-1 of them).
+     --flow-p runs 0 → 1 across exactly that distance. */
+  --flow-adv: 42vh;
+  --flow-item: clamp(258px, 23vw, 316px);
+  --flow-gap: 20px;
+  /* How far the clip dissolves the track at its right edge. Referenced by the
+     mask AND by the track's tail, so the last card always parks clear of it. */
+  --flow-fade: 96px;
+
+  padding-block: 0;
+  height: calc(100svh + (var(--flow-n) - 1) * var(--flow-adv));
+
+  /* MARGIN, not padding, and that distinction is load-bearing.
+
+     Pinned, this section zeroes its padding because its height is the scroll
+     runway, so the seam above it collapsed to whatever the preceding section
+     contributed: measured 80px against a site scale that holds every other
+     desktop seam at 120 or more. Padding would fix the look and break the
+     driver: it lands inside getBoundingClientRect().height, which is the
+     numerator of `travel = r.height - pane.offsetHeight`, so the sequence
+     would gain 40px of runway it does not advance across. Margin is outside
+     the border box, so the driver's arithmetic is untouched and only the
+     section's start moves. */
+  margin-block-start: 40px;
+}
+
+html.js .ph-flow[data-flow-ready] .ph-flow__sticky {
+  position: sticky;
+  top: var(--nav-h);
+  height: calc(100svh - var(--nav-h));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* The track bleeds past the right edge; the section must clip it without
+     becoming a scroll container for the sticky element itself. Clipping lives
+     on .ph-flow__viewport, a DESCENDANT of the sticky box, which is safe:
+     overflow on an ANCESTOR of a sticky element is what breaks pinning. */
+  overflow: visible;
+}
+
+/* Header shrinks while pinned: it is on screen for the whole sequence, so it
+   must not eat the height the cards need. */
+html.js .ph-flow[data-flow-ready] .ph-flow__head .ph-h2 { margin-top: 12px; }
+html.js .ph-flow[data-flow-ready] .ph-flow__head .ph-lede {
+  margin-top: 12px;
+  font-size: 1.0625rem;
+}
+
+/* ── The rail ──
+   A hairline the full width of the container, a gold segment that grows with
+   scroll, and six ticks that mark the stops. The tick under the active card
+   fills. This is the only thing on the page that reports position. */
+html.js .ph-flow[data-flow-ready] .ph-flow__rail {
+  display: block;
+  position: relative;
+  margin-top: var(--s5);
+  height: 9px;
+}
+.ph-flow__rail-line {
+  position: absolute; left: 0; right: 0; top: 4px;
+  height: 1px;
+  background: var(--line);
+}
+.ph-flow__rail-fill {
+  position: absolute; left: 0; right: 0; top: 4px;
+  height: 1px;
+  background: linear-gradient(90deg, rgb(212 168 79 / .45), var(--gold));
+  /* p=0 is the first of six, not zero progress: so the fill starts at 1/6
+     and reaches 1. Reads as "where am I", never as an empty bar. */
+  transform: scaleX(calc((var(--flow-p, 0) * (var(--flow-n) - 1) + 1) / var(--flow-n)));
+  transform-origin: 0 50%;
+}
+.ph-flow__ticks {
+  position: absolute; inset: 0;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.ph-flow__ticks i {
+  display: block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: background-color 220ms var(--ease);
+}
+.ph-flow__ticks i.is-on { background: var(--gold); }
+
+html.js .ph-flow[data-flow-ready] .ph-flow__count {
+  display: block;
+  margin-top: 14px;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: var(--ink-3);
+}
+.ph-flow__now { color: var(--navy); font-weight: 600; }
+
+/* ── The track ──
+   Full-bleed to the right so the sequence visibly continues off the page.
+   The first card aligns to the container's left edge via the same max()
+   expression .ph-container resolves to, so the two can never drift. */
+html.js .ph-flow[data-flow-ready] .ph-flow__viewport {
+  margin-top: var(--s5);
+  overflow: hidden;
+
+  /* Align the first card to the container's text edge while the track runs
+     off the right of the window.
+
+     The offset is a percentage of THIS element's own width, never a vw unit.
+     .ph-flow__viewport is a full-width child of the sticky pane, so its 100%
+     is the document's clientWidth: scrollbar already excluded. 100vw is not:
+     it counts the scrollbar, which put the first card ~8px right of every
+     other headline on the page, and an earlier negative margin-inline built
+     on the same assumption pushed 24px of horizontal overflow onto the body.
+     This is the same arithmetic .ph-container resolves to, so the two cannot
+     drift. It is safe to reuse in the mask below because this element's own
+     border box and its containing block are the same width. */
+  --flow-pad: max(var(--gutter), calc((100% - var(--container)) / 2 + var(--gutter)));
+  padding-inline-start: var(--flow-pad);
+
+  /* Cards dissolve at both ends instead of being guillotined by the clip.
+     The left stop is the padding itself, so the card sitting on the container
+     edge is never touched by the fade at any width. */
+  -webkit-mask-image: linear-gradient(90deg,
+    transparent 0, #000 var(--flow-pad),
+    #000 calc(100% - var(--flow-fade)), transparent 100%);
+          mask-image: linear-gradient(90deg,
+    transparent 0, #000 var(--flow-pad),
+    #000 calc(100% - var(--flow-fade)), transparent 100%);
+}
+html.js .ph-flow[data-flow-ready] .ph-flow__track {
+  display: flex;
+  gap: var(--flow-gap);
+  /* --flow-x is a resolved pixel length written by the driver, not an
+     expression evaluated here. The travel has to be clamped against the real
+     measured track and viewport widths, and CSS cannot see either: a % inside
+     translate3d() resolves against the element's OWN box, which is the track,
+     which is exactly the number that is wrong. Driving one already-correct
+     length keeps the arithmetic where the measurements are. */
+  transform: translate3d(var(--flow-x, 0px), 0, 0);
+  will-change: transform;
+}
+
+/* The tail the last card comes to rest against.
+
+   This is a flex ITEM, not padding on the track, and that distinction is the
+   whole point: Chrome does not count a flex container's trailing padding in
+   scrollWidth, so an earlier padding-inline-end here measured as zero and the
+   driver parked the final card flush with the window edge: directly under the
+   right-hand fade, which dimmed the one card that has to be legible. A real
+   box is measured. It also means the driver's clamp stays "scrollWidth minus
+   available width" with no constant to keep in sync: widen the fade and the
+   resting position follows on its own. */
+html.js .ph-flow[data-flow-ready] .ph-flow__track::after {
+  content: "";
+  flex: none;
+  width: calc(var(--flow-fade) + var(--gutter));
+}
+
+html.js .ph-flow[data-flow-ready] .ph-flow__i {
+  flex: none;
+  width: var(--flow-item);
+  /* A floor, not a fixed height: every card in the row stretches to the
+     tallest, and exactly one card is active at a time, so the row height is
+     stable as the highlight moves. The description is always in the layout
+     (it fades on opacity, which costs no height), so nothing reflows. */
+  min-height: 208px;
+  padding: 24px 24px 26px;
+  /* Receded cards carry NO border and NO fill. A hairline box at 34% opacity
+     is still a box, and six of them read as a rack of empty containers:
+     the "little border that blocks it" complaint, one level down. Only the
+     active card is drawn as a card; the rest are just type, receding. */
+  background: transparent;
+  border-color: transparent;
+  /* .64, not .40 and not .34. Everything in a receded card is --navy, so the
+     opacity IS the color, which makes this a CONTRAST control wearing an
+     opacity's clothing. Measured at rest at six scroll positions, .40 put the
+     step titles at 2.43:1 and .58 (see .is-next) at 4.03:1, against the 4.5:1
+     that 18px/400 body-weight text needs. Five of the six titles were under
+     the bar at every moment of the sequence, not just mid-transition.
+
+     Solving navy #08244A over white for 4.5:1 gives a floor of alpha .616;
+     .64 lands at 4.86:1, which keeps a little margin for cross-browser
+     rounding without going so dark that the ramp flattens.
+
+     Recession survives, because opacity was never carrying it alone: the
+     active card also gains a fill, a hairline, a 24px title against 18px, a
+     gold icon tile, and its description and number fading up from 0. The
+     lit/half-lit/receded ramp is now 15.42 : 8.83 : 4.86, which is still
+     three obviously different states, all of them legible.
+
+     Note this only ever applied with JS on: the no-JS fallback below sets
+     opacity:1 on every card, so a script-off reader was already fine. */
+  opacity: .64;
+  transition: opacity 260ms var(--ease),
+              background-color 260ms var(--ease),
+              border-color 260ms var(--ease);
+}
+html.js .ph-flow[data-flow-ready] .ph-flow__i .ph-flow__t {
+  font-size: 1.125rem;
+  transition: font-size 260ms var(--ease), color 260ms var(--ease);
+}
+html.js .ph-flow[data-flow-ready] .ph-flow__i .ph-flow__d {
+  opacity: 0;
+  transition: opacity 200ms var(--ease);
+}
+/* With no border to pin it to, a step number floating at the top right of a
+   receded card reads as debris rather than as a sequence: the rail and the
+   counter already say where we are. It belongs to the card being read. */
+html.js .ph-flow[data-flow-ready] .ph-flow__i .ph-flow__n {
+  opacity: 0;
+  transition: opacity 200ms var(--ease);
+}
+html.js .ph-flow[data-flow-ready] .ph-flow__i.is-active .ph-flow__n { opacity: 1; }
+
+/* The active card is drawn in NAVY, not gold. It used to be a cream fill
+   (#FFFCF3) inside a gold hairline, which made the card itself the warm
+   object and left the gold competing with the rail, the counter and the
+   number for the same job. The surface and the rule are now the faintest
+   navy, so the card is structure; the single gold thing on screen is the
+   icon tile, and it sits on the step being read. */
+html.js .ph-flow[data-flow-ready] .ph-flow__i.is-active {
+  opacity: 1;
+  /* The section is pure white, so a white card would be invisible against it.
+     rgb(8 36 74 / .03) resolves to about #F8F9FB: enough to separate, not
+     enough to read as a second surface. */
+  background: rgb(8 36 74 / .03);
+  border-color: rgb(8 36 74 / .11);
+}
+html.js .ph-flow[data-flow-ready] .ph-flow__i.is-active .ph-flow__t {
+  font-size: 1.5rem;
+}
+html.js .ph-flow[data-flow-ready] .ph-flow__i.is-active .ph-flow__d {
+  opacity: 1;
+  transition: opacity 300ms var(--ease) 60ms;
+}
+/* THE marker. The only gold fill in the section. */
+html.js .ph-flow[data-flow-ready] .ph-flow__i.is-active .ph-flow__ic {
+  background: linear-gradient(135deg, rgb(241 223 179 / .95), rgb(212 168 79 / .42));
+}
+
+/* The card immediately after the active one sits half-lit, so the sequence
+   reads as continuing rather than as one card plus five ghosts. Raised .58 ->
+   .82 in step with the receded floor above: at .58 this card measured 4.03:1,
+   which is BELOW the receded floor's new 4.86:1, so leaving it would have
+   made the "half-lit" card harder to read than the fully receded ones. It now
+   sits at 8.83:1, between receded (4.86) and active (15.42). */
+html.js .ph-flow[data-flow-ready] .ph-flow__i.is-next { opacity: .82; }
+
+html.js .ph-flow[data-flow-ready] .ph-flow__foot { margin-top: var(--s4); }
+
+/* Short window: the pane is a fixed slice of the viewport, so on a laptop the
+   internal rhythm is what has to give: not the cards, which are the content.
+   Measured at the 700px bound this buys ~46px of slack against a pane that
+   previously had none. */
+@media (max-height: 860px) {
+  html.js .ph-flow[data-flow-ready] .ph-flow__head .ph-lede { font-size: 1rem; }
+  html.js .ph-flow[data-flow-ready] .ph-flow__rail     { margin-top: var(--s4); }
+  html.js .ph-flow[data-flow-ready] .ph-flow__viewport { margin-top: var(--s4); }
+  html.js .ph-flow[data-flow-ready] .ph-flow__foot     { margin-top: var(--s3); }
+  html.js .ph-flow[data-flow-ready] .ph-flow__i        { min-height: 196px; }
+}
+}
+
+
+/* ── 15. Touch targets ───────────────────────────────────────────────────────
+   Every control clears 44x44 for a finger, without any of them changing size
+   on screen.
+
+   The technique is a transparent ::before centered on the control and grown to
+   at least 44px in each axis. A pseudo-element is part of its originating
+   element for hit-testing, so the finger area grows while the painted pill,
+   link or icon stays exactly as designed. Padding would have moved layout;
+   this cannot.
+
+   Measured at 390px before this existed:
+     burger 40x40 · nav CTA 126x38 · logo 96x22 · arrow links 24 tall
+     skip link 134x42 · hardware view tabs 20x8, 35x8, 21x8
+   The burger is the one that mattered most: it is the only way into the nav
+   on a phone, and it was the second-smallest target on the page.
+   ------------------------------------------------------------------------- */
+
+/* .ph-skip is deliberately NOT in this list. It is parked off-screen with
+   translateY(-200%) at z-index 200, so an expanded hit area travels with it
+   and lands back over the header: the first version of this block did exactly
+   that, and a tap on the logo resolved to the invisible skip link instead.
+   Caught by hit-testing, invisible to any code review. A control that is only
+   on screen while focused can just be given real padding instead; see below. */
+.ph-nav__burger,
+.ph-logo,
+.ph-arrow,
+.ph-btn { position: relative; }
+
+.ph-nav__burger::before,
+.ph-logo::before,
+.ph-arrow::before,
+.ph-btn::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}
+
+/* Deliberately no z-index anywhere in this block. The pseudo is fully
+   transparent, so paint order is invisible, and every click inside it belongs
+   to the same link or button regardless of what it overlaps. Giving it a layer
+   would have created stacking contexts on controls that did not have one:
+   risk with no benefit. The arrow's ::after underline still paints above it by
+   tree order, which was verified on screen, not reasoned about. */
+
+/* ── Desktop header nav ──
+   Measured at 1440: the five nav links are 36px tall and Sign in is 24px, in a
+   73px header. They are not links inside a sentence, so the WCAG inline
+   exemption does not cover them the way it covers "Privacy · Terms" in the
+   footer base, and they are the primary navigation on every page.
+
+   HEIGHT ONLY, and that is the whole reason this is a separate rule rather
+   than three more selectors added to the list above. That block floors width
+   at 44 too, which is free for a burger with nothing beside it. Here the gap
+   between Sign in and the Apply CTA is 14px, so a width floor is a standing
+   invitation to overlap the moment someone adds a nav label shorter than 44px.
+   Every current label is already 46.3px or wider, so a width floor would buy
+   nothing today and cost a collision later. Left at 100%.
+
+   Vertically there is nothing to collide with: the links sit at y 18-54 and
+   Sign in at 24-48, both centred on y=36, so a 44px area spans 14-58 inside a
+   73px header. ::after is taken on both (the gold underline on hover and on
+   aria-current, and .ph-wipe's underline on Sign in), so this uses ::before. */
+.ph-nav__link::before,
+.ph-nav__signin::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: max(100%, 44px);
+  transform: translateY(-50%);
+}
+
+/* ── Footer link lists ──
+   Measured at 390px: each link is 24px tall on a 37.2px pitch, so 13.2px
+   between every pair is dead space that looks tappable and is not.
+
+   These are stacked list items, not links inside a sentence, so the WCAG 2.5.8
+   inline exemption does not apply to them however they are displayed: being
+   `inline-block` inside an `<li>` is a layout choice, not a sentence.
+
+   The pitch above was widened to 47.2px specifically so a full 44px target
+   fits here with ~3px of clearance on each side. Overlapping targets were the
+   alternative and are worse than small ones: a tap that lands in an overlap
+   resolves by paint order rather than by aim. */
+.ph-footer__list a { position: relative; }
+.ph-footer__list a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  /* Short labels like "Terms" are only ~42px of text. The list is vertical, so
+     there is no horizontal neighbour to collide with and the area can simply
+     be floored at 44. */
+  width: max(100%, 44px);
+  /* 46, not 44. The list items sit at fractional offsets (443.1px and friends),
+     so a box sized to exactly 44 hit-tests at 42-43 depending on where the
+     rounding falls. 46 puts the target safely over the line and still leaves
+     1.2px of clearance inside the 47.2px pitch, so no two areas ever touch. */
+  height: max(100%, 46px);
+  transform: translateY(-50%);
+}
+
+/* ── Hardware view tabs ──
+   These transparent buttons sit over the projected rect of each segment inside
+   the rotated screen, so their size is dictated by the mock's scale, not by
+   anything typographic. Vertical space above and below the segmented control
+   is empty, so height is free; width is not, because the three segments are
+   adjacent and a wider hit area would start swallowing its neighbour's taps.
+
+   Desktop: 30x13 -> 30x44, 54x15 -> 54x44, 33x14 -> 33x44. Clears 24x24 (AA)
+   comfortably and is a real target for a mouse.
+
+   Mobile is handled below, where width is the binding constraint. */
+.ph-hw__hit::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: max(100%, 44px);
+  transform: translateY(-50%);
+}
+
+@media (max-width: 760px) {
+  /* At this width the mock is 440px wide inside a 390px viewport and the whole
+     segmented control is about 76px across, so each tab is ~20-25px wide. That
+     is below 24x24 even with the height fixed, and the three sit flush against
+     each other, so there is no honest way to make them tappable.
+
+     A 20px-wide control on a phone is not an affordance, it is a trap: the
+     user aims, misses, and concludes the page is broken. So on touch widths
+     the machine becomes what the brief actually asked for: a clean, static
+     picture of the product: showing its default Queue view.
+
+     Nothing is lost. All three panes are decorative (the 3D subtree is
+     aria-hidden) and the sr-only description covers what the picture shows,
+     so there is no content reachable only through these tabs. */
+  .ph-hw__hits { display: none; }
+}
+
+
+/* ── 16. Print ───────────────────────────────────────────────────────────── */
+
+@media print {
+  .ph-nav, .ph-hw__hits, .ph-hw__cursor, .ph-hw__ring { display: none !important; }
+  body { background: #fff; }
+  .ph-band--navy { color: #000; background: #fff; }
+  .ph-band--navy::before, .ph-band--navy::after { display: none; }
+  /* Un-pin the sequence and print all six. */
+  .ph-flow { height: auto !important; }
+  .ph-flow__sticky { position: static !important; height: auto !important; }
+  .ph-flow__viewport { overflow: visible !important; }
+  .ph-flow__track { display: block !important; transform: none !important; }
+  .ph-flow__i { width: auto !important; opacity: 1 !important; }
+  .ph-flow__d { opacity: 1 !important; }
+}
+
+
+/* ============================================================================
+   17. FORMS
+   Added for the apply and sign-in pages. Built from the same tokens as
+   everything else: 12px radius, the hairline, gold on focus, no shadow, no
+   lift. Nothing here is decorative: a field is a box you type in and the
+   only state it needs to signal is focus.
+   ========================================================================== */
+
+.ph-form { display: grid; gap: 20px; }
+
+/* align-items:end so the two INPUTS sit on one line even when one label wraps
+   and the other does not. A .ph-field is a two-row grid, so stretched cells
+   put a wrapped label's input a line lower than its neighbour's: at 1440 the
+   panel gives each column ~195px, which "Practice or company name" and
+   "503A, 503B or both" both exceed. Aligning on the bottom edge moves the
+   short label down instead, which is the pairing the eye reads. */
+.ph-form__row {
+  display: grid; gap: 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+}
+@media (max-width: 640px) { .ph-form__row { grid-template-columns: minmax(0, 1fr); } }
+
+.ph-field { display: grid; gap: 8px; min-width: 0; }
+.ph-field__l {
+  font-size: 12px; font-weight: 650;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-2);
+}
+.ph-field__l span { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--ink-3); }
+
+.ph-input,
+.ph-select,
+.ph-textarea {
+  width: 100%;
+  padding: 13px 14px;
+  font-family: var(--sans);
+  font-size: .9375rem;
+  line-height: 1.45;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  transition: border-color 170ms var(--ease), box-shadow 170ms var(--ease);
+}
+.ph-textarea { min-height: 122px; resize: vertical; }
+
+/* A native select needs its own arrow once appearance is reset, and the arrow
+   has to be an inline SVG data URI: an external asset would be one more
+   request for one glyph. */
+.ph-select {
+  appearance: none; -webkit-appearance: none;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233C4A5E' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  background-size: 17px;
+}
+
+.ph-input::placeholder,
+.ph-textarea::placeholder { color: #97A2B1; }
+
+/* Fields acknowledged the keyboard but not the pointer: focus was well drawn
+   and hover did nothing, so a field gave no feedback before it was clicked
+   while every other control on the site answered at 170ms. The border lifts
+   from the hairline to the mid tone, the same move .ph-spec-row already
+   makes. Deliberately NOT the gold focus ring: hover must not be able to
+   read as focus. */
+.ph-input:hover,
+.ph-select:hover,
+.ph-textarea:hover { border-color: rgb(8 36 74 / .28); }
+
+.ph-input:focus-visible,
+.ph-select:focus-visible,
+.ph-textarea:focus-visible {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgb(212 168 79 / .22);
+}
+/* Fallback for engines without :focus-visible on form controls. */
+.ph-input:focus, .ph-select:focus, .ph-textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgb(212 168 79 / .22);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ph-input, .ph-select, .ph-textarea { transition: none; }
+}
+
+/* Consent / choice rows. The control keeps its native box so it is obviously
+   a checkbox, and the whole row is the label so the hit area is the row. */
+.ph-check {
+  display: grid; grid-template-columns: 18px minmax(0, 1fr);
+  gap: 12px; align-items: start;
+  font-size: .875rem; line-height: 1.55; color: var(--ink-2);
+  cursor: pointer;
+}
+.ph-check input {
+  width: 18px; height: 18px; margin: 1px 0 0;
+  accent-color: var(--gold-ink);
+}
+/* A role-conditional attestation. `.ph-check` sets display:grid, which beats the
+   UA's [hidden]{display:none}, so hiding has to be stated at this specificity or
+   the checkbox stays on screen while its input is disabled. */
+.ph-check--cond[hidden] { display: none; }
+
+.ph-form__note {
+  font-size: .8125rem; line-height: 1.6; color: var(--ink-3);
+  padding-top: 18px;
+  border-top: 1px solid var(--line-soft);
+}
+
+/* The panel an apply/sign-in form sits in. One hairline, no shadow: the same
+   restraint as .ph-card, which this deliberately matches rather than
+   inventing a second card. */
+.ph-panel {
+  padding: clamp(24px, 3.4vw, 40px);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+
+/* ─── Conditional application groups ────────────────────────────────────────
+   The application asks different things of a clinic, a pharmacy, and someone
+   whose practice does not exist yet, so the middle of the form swaps on the
+   "I am applying as" select. "Prescriber on staff" is not a dropdown with an
+   N/A option, it is a clinic field that a pharmacy never sees.
+
+   Two rules keep that honest:
+
+   1. WITHOUT JavaScript every group is visible, labelled, and completable.
+      Nothing inside a group is `required` in markup, so a pharmacy can never
+      be blocked by a clinic field it was never meant to answer. JavaScript
+      promotes data-required to required only on the group it is showing.
+
+   2. WITH JavaScript only the active group renders. The visual state keys off
+      data-role on <html>, written synchronously in the head, so the right
+      group is painted first rather than flashing all four and collapsing.
+      `hidden` plus `disabled` on the controls is what actually removes the
+      others from the tab order and from the submission: display:none alone
+      still submits its fields.
+   ─────────────────────────────────────────────────────────────────────────── */
+.ph-cond { display: grid; gap: 20px; }
+
+.ph-cond__h {
+  font-size: 12px; font-weight: 650;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-3);
+  padding-top: 22px;
+  border-top: 1px solid var(--line-soft);
+}
+/* One heading, two wordings. A stack of four groups needs "if you are a...";
+   a single visible group only needs to name itself. */
+.ph-cond__h .ph-cond__on { display: none; }
+html.js .ph-cond__h .ph-cond__off { display: none; }
+html.js .ph-cond__h .ph-cond__on  { display: inline; }
+
+html.js .ph-cond { display: none; }
+html.js[data-role="clinic"]   .ph-cond--clinic,
+html.js[data-role="pharmacy"] .ph-cond--pharmacy,
+html.js[data-role="launch"]   .ph-cond--launch,
+html.js[data-role="other"]    .ph-cond--other { display: grid; }
+
+/* Once the script has run, `hidden` is the authority. Written at a higher
+   specificity than the show rule above so the two can never disagree. */
+.ph-cond[hidden] { display: none; }
+html.js[data-role] .ph-cond[hidden] { display: none; }
+
+
+/* A plain content list. The shell resets list-style globally, so a <ul> in
+   body copy rendered as indented lines with no marker and: worse: a wrapped
+   item lost its hanging indent and lined up under the first character rather
+   than the text. The marker is drawn rather than native so it can carry the
+   accent color and sit on the cap line. */
+.ph-list { display: grid; gap: 9px; }
+.ph-list li {
+  position: relative;
+  padding-left: 20px;
+  font-size: .9375rem;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.ph-list li::before {
+  content: "";
+  position: absolute;
+  left: 2px; top: .62em;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+
+/* ============================================================================
+   LEAD FORM: honeypot, status, confirmation
+
+   These three exist because the forms now post to a real endpoint
+   (POST /api/leads) instead of a 404 or a mailto.
+   ========================================================================== */
+
+/* Honeypot. Off-screen rather than display:none — a bot that skips
+   display:none fields still fills this one, and no human or password manager
+   ever reaches it (aria-hidden + tabindex=-1 + autocomplete=off are set on the
+   markup). A filled value makes the server accept-and-discard, so the bot
+   cannot tell it was caught. */
+.ph-hp {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+
+/* The one place a form is allowed to say something went wrong. Hidden until
+   the server actually says so. */
+.ph-form__status {
+  padding: 12px 14px;
+  border-radius: var(--r-lg);
+  font-size: .875rem; line-height: 1.5;
+  border: 1px solid rgb(160 42 42 / .28);
+  background: rgb(160 42 42 / .06);
+  color: #8C2A2A;
+}
+.ph-form__status[hidden] { display: none; }
+.ph-form__status[data-kind="ok"] {
+  border-color: rgb(31 106 74 / .28);
+  background: rgb(31 106 74 / .06);
+  color: #1F6A4A;
+}
+
+/* Replaces the form once the server confirms the row was written. */
+.ph-form__done { padding: 4px 0; }

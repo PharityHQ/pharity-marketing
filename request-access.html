@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Request access | Pharity</title>
+<meta name="description" content="Apply to connect your clinic, med spa or 503A/B compounding pharmacy to the Pharity network, or to start from zero with the launch team. We verify credentials and licensure before anything routes.">
+<link rel="icon" href="assets/pharity-mark-gold.png">
+<script>document.documentElement.classList.add('js')</script>
+<!-- The applying-as role, resolved before anything paints.
+
+     CTAs across the site arrive here carrying it: ?role=pharmacy from both
+     exits on the pharmacy page, ?role=launch from the starting-from-zero
+     bands. The form's middle section changes with it, so resolving the role
+     in the head means the right block is the first one drawn instead of all
+     four appearing and then collapsing to one.
+
+     Allow-listed rather than assigned: this comes from the URL, so it is
+     untrusted input. Anything unrecognised falls back to clinic, which is
+     the same default the select carries. -->
+<script>
+  (function () {
+    var role = 'clinic';
+    try {
+      var q = new URLSearchParams(location.search).get('role');
+      if (q === 'clinic' || q === 'pharmacy' || q === 'launch' || q === 'other') role = q;
+    } catch (e) {}
+    document.documentElement.setAttribute('data-role', role);
+  })();
+</script>
+<link rel="stylesheet" href="assets/pharity-site.css">
+</head>
+<body>
+<a class="ph-skip" href="#main">Skip to content</a>
+
+<header class="ph-nav">
+  <div class="ph-container ph-nav__inner">
+    <a class="ph-logo" href="index.html" aria-label="Pharity home">
+      <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+           width="868" height="200" decoding="async">
+    </a>
+
+    <nav class="ph-nav__links" aria-label="Primary">
+      <a class="ph-nav__link" href="index.html">Home</a>
+      <a class="ph-nav__link" href="for-clinics.html">For Clinics</a>
+      <a class="ph-nav__link" href="for-pharmacies.html">For Pharmacies</a>
+      <a class="ph-nav__link" href="why-pharity.html">Why Pharity</a>
+      <a class="ph-nav__link" href="pricing.html">Pricing</a>
+    </nav>
+
+    <div class="ph-nav__actions">
+      <a class="ph-nav__signin ph-wipe" href="sign-in.html">Sign in</a>
+      <a class="ph-btn ph-btn--gold ph-btn--sm" href="request-access.html">Apply for access</a>
+      <div class="ph-nav__mobile">
+        <details class="ph-nav__disclosure">
+          <summary class="ph-nav__burger" aria-label="Menu">
+            <svg class="ph-nav__bars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3.5 7h17M3.5 12h17M3.5 17h17"/></svg>
+            <svg class="ph-nav__x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </summary>
+          <div class="ph-nav__panel">
+            <a href="index.html">Home</a>
+            <a href="for-clinics.html">For Clinics</a>
+            <a href="for-pharmacies.html">For Pharmacies</a>
+            <a href="why-pharity.html">Why Pharity</a>
+            <a href="pricing.html">Pricing</a>
+            <hr>
+            <a href="contact.html">Contact</a>
+            <a href="sign-in.html">Sign in</a>
+            <a href="request-access.html">Apply for access</a>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<section class="ph-section ph-section--sm ph-band--light" style="padding-bottom:96px">
+  <div class="ph-container">
+    <p class="ph-eyebrow" data-reveal>Request access</p>
+    <h1 class="ph-h1" data-reveal style="margin-top:18px;max-width:19ch">
+      Tell us about your practice.
+    </h1>
+    <p class="ph-lede" data-reveal style="margin-top:22px">
+      Tell us who you are and what you want to route. It takes a minute. If it
+      is a fit we email you a link to the full application, prefilled with what
+      you have told us here, and access follows once we have verified
+      credentials and licensure. Launch builds are scoped on a call.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FORM ═══════════════════════════ -->
+<section class="ph-section ph-section--flush-top ph-band--light" style="padding-bottom:120px">
+  <div class="ph-container">
+    <div class="ph-split ph-split--copy-lead" style="align-items:start">
+
+      <div class="ph-panel" data-reveal>
+        <!-- ══════════════════════════════════════════════════════════════
+             THE LEAD FORM. Posts to POST /api/leads in the Pharity app.
+
+             This is the one front door: contact.html posts to the same
+             endpoint, and the application WIZARDS are invite-only, reached
+             from here.
+
+             RULE: the success confirmation is drawn ONLY after the server
+             says the row was written. A form that prints "thanks, we got it"
+             without confirming a write loses real applications silently,
+             which is strictly worse than an obvious failure.
+
+             KEEP IT SHORT. Do not add prescriber counts, licensure states,
+             PCAB status or what you compound. That is APPLICATION data —
+             credentialing answers that belong in the 5-step clinic / 8-step
+             pharmacy wizard, where they are typed under an attestation.
+             Collecting them on a cold marketing page creates a second,
+             unattested copy of regulated identifiers and asks a stranger for
+             their licence footprint before anyone has replied.
+
+             The role selector stays: it ROUTES the lead, and decides which
+             wizard the invite eventually opens.
+
+             The `action` below is rewritten at boot from PHARITY_API_BASE in
+             assets/pharity-site.js, so the endpoint lives in one place. It is
+             spelled out here too so a no-JavaScript submit still lands.
+             ══════════════════════════════════════════════════════════════ -->
+        <form class="ph-form" id="ph-apply-form" data-lead-form
+              method="post" action="https://app.pharity.com/api/leads"
+              data-done="We read every enquiry ourselves. If it is a fit we email you a link straight to the application, prefilled with what you have told us here.">
+
+          <!-- Honeypot. Off-screen, unfocusable, never autofilled. A bot that
+               fills it gets the same response a person gets and nothing is
+               written. -->
+          <div class="ph-hp" aria-hidden="true">
+            <label for="fax_number">Fax number</label>
+            <input id="fax_number" name="fax_number" type="text"
+                   tabindex="-1" autocomplete="off">
+          </div>
+
+          <p class="ph-form__status" role="alert" hidden></p>
+
+          <!-- The role drives nothing on this page any more except which
+               attestation is asked for, so the four conditional question
+               blocks are gone. The head script still sets <html data-role> for
+               the copy elsewhere on the page. -->
+          <div class="ph-field">
+            <label class="ph-field__l" for="role">I am applying as</label>
+            <select class="ph-select" id="role" name="role" required>
+              <option value="clinic">A clinic or med spa</option>
+              <option value="pharmacy">A 503A/B compounding pharmacy</option>
+              <option value="launch">Starting from zero (not open yet)</option>
+              <option value="other">Something else</option>
+            </select>
+          </div>
+
+          <div class="ph-form__row">
+            <div class="ph-field">
+              <label class="ph-field__l" for="fullName">Full name</label>
+              <input class="ph-input" id="fullName" name="fullName" type="text" autocomplete="name" required>
+            </div>
+            <div class="ph-field">
+              <!-- Not "practice or pharmacy": two of the four roles are
+                   neither. Someone starting from zero types what they plan to
+                   call it. -->
+              <label class="ph-field__l" for="companyName">Practice or company name</label>
+              <input class="ph-input" id="companyName" name="companyName" type="text" autocomplete="organization">
+            </div>
+          </div>
+
+          <div class="ph-form__row">
+            <div class="ph-field">
+              <label class="ph-field__l" for="email">Work email</label>
+              <input class="ph-input" id="email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <div class="ph-field">
+              <label class="ph-field__l" for="phone">Phone <span>(optional)</span></label>
+              <input class="ph-input" id="phone" name="phone" type="tel" autocomplete="tel">
+            </div>
+          </div>
+
+          <div class="ph-field">
+            <!-- Two-letter codes as VALUES, full names as labels. The app
+                 speaks `stateCode` everywhere, so this is what lets the state
+                 prefill straight into the application wizard instead of being
+                 dropped as unparseable. -->
+            <label class="ph-field__l" for="state">Primary state <span>(optional)</span></label>
+            <select class="ph-select" id="state" name="state">
+              <option value="" selected>Select a state</option>
+                <option value="AL">Alabama</option>
+                <option value="AK">Alaska</option>
+                <option value="AZ">Arizona</option>
+                <option value="AR">Arkansas</option>
+                <option value="CA">California</option>
+                <option value="CO">Colorado</option>
+                <option value="CT">Connecticut</option>
+                <option value="DE">Delaware</option>
+                <option value="DC">District of Columbia</option>
+                <option value="FL">Florida</option>
+                <option value="GA">Georgia</option>
+                <option value="HI">Hawaii</option>
+                <option value="ID">Idaho</option>
+                <option value="IL">Illinois</option>
+                <option value="IN">Indiana</option>
+                <option value="IA">Iowa</option>
+                <option value="KS">Kansas</option>
+                <option value="KY">Kentucky</option>
+                <option value="LA">Louisiana</option>
+                <option value="ME">Maine</option>
+                <option value="MD">Maryland</option>
+                <option value="MA">Massachusetts</option>
+                <option value="MI">Michigan</option>
+                <option value="MN">Minnesota</option>
+                <option value="MS">Mississippi</option>
+                <option value="MO">Missouri</option>
+                <option value="MT">Montana</option>
+                <option value="NE">Nebraska</option>
+                <option value="NV">Nevada</option>
+                <option value="NH">New Hampshire</option>
+                <option value="NJ">New Jersey</option>
+                <option value="NM">New Mexico</option>
+                <option value="NY">New York</option>
+                <option value="NC">North Carolina</option>
+                <option value="ND">North Dakota</option>
+                <option value="OH">Ohio</option>
+                <option value="OK">Oklahoma</option>
+                <option value="OR">Oregon</option>
+                <option value="PA">Pennsylvania</option>
+                <option value="RI">Rhode Island</option>
+                <option value="SC">South Carolina</option>
+                <option value="SD">South Dakota</option>
+                <option value="TN">Tennessee</option>
+                <option value="TX">Texas</option>
+                <option value="UT">Utah</option>
+                <option value="VT">Vermont</option>
+                <option value="VA">Virginia</option>
+                <option value="WA">Washington</option>
+                <option value="WV">West Virginia</option>
+                <option value="WI">Wisconsin</option>
+                <option value="WY">Wyoming</option>
+            </select>
+          </div>
+
+          <div class="ph-field">
+            <label class="ph-field__l" for="message">What you are looking to do</label>
+            <textarea class="ph-textarea" id="message" name="message" required
+              placeholder="A few sentences is plenty. What you would route or compound, where you are today, and anything unusual about how you work."></textarea>
+          </div>
+
+          <!-- Two attestations, not one. The cash-pay confirmation is only true
+               of an operating practice, so it is absent for "Something else" —
+               a vendor or journalist is never asked to attest to it. It is
+               RECORDED, not gated: the attestation that actually binds is
+               `cashPayConfirmation` in the application itself, which is a hard
+               requirement there. The Terms and Privacy agreement is true of
+               everyone and IS required. -->
+          <label class="ph-check ph-check--cond" data-role-hide="other">
+            <input type="checkbox" name="consentCashPay" data-required>
+            <span>I confirm this practice operates cash-pay and does not intend to
+            bill insurance, Medicare, Medicaid, or Tricare through Pharity.</span>
+          </label>
+
+          <label class="ph-check">
+            <input type="checkbox" name="consentTerms" required>
+            <span>I agree to the <a class="ph-inline-link ph-inline-link--quiet" href="terms.html">Terms</a> and
+            <a class="ph-inline-link ph-inline-link--quiet" href="privacy.html">Privacy Policy</a>.</span>
+          </label>
+
+          <!-- Inline and synchronous so `hidden`, `disabled` and `required` are
+               correct before anyone can reach a control. All that survives of
+               the old conditional machinery: the ONE attestation that is
+               role-dependent. -->
+          <script>
+            (function () {
+              var form   = document.getElementById('ph-apply-form');
+              var select = document.getElementById('role');
+              if (!form || !select) return;
+
+              var hides = form.querySelectorAll('[data-role-hide]');
+              var ROLES = { clinic: 1, pharmacy: 1, launch: 1, other: 1 };
+
+              function setControls(el, on) {
+                var fields = el.querySelectorAll('input, select, textarea');
+                for (var i = 0; i < fields.length; i++) {
+                  var f = fields[i];
+                  f.disabled = !on;
+                  if (f.hasAttribute('data-required')) {
+                    if (on) f.setAttribute('required', '');
+                    else    f.removeAttribute('required');
+                  }
+                }
+              }
+
+              function apply(role) {
+                if (!ROLES[role]) role = 'clinic';
+                document.documentElement.setAttribute('data-role', role);
+                if (select.value !== role) select.value = role;
+                for (var k = 0; k < hides.length; k++) {
+                  var h   = hides[k];
+                  var off = (' ' + h.getAttribute('data-role-hide') + ' ')
+                              .indexOf(' ' + role + ' ') !== -1;
+                  if (off) h.setAttribute('hidden', '');
+                  else     h.removeAttribute('hidden');
+                  setControls(h, !off);
+                }
+              }
+
+              apply(document.documentElement.getAttribute('data-role') || select.value);
+              select.addEventListener('change', function () { apply(select.value); });
+            })();
+          </script>
+
+          <div class="ph-btn-row" style="margin-top:4px">
+            <button class="ph-btn ph-btn--gold ph-btn--lg" type="submit">
+              Send
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+            </button>
+          </div>
+
+          <p class="ph-form__note">
+            Prefer email? Write to
+            <a class="ph-inline-link" href="mailto:hello@pharity.com">hello@pharity.com</a>
+            and we will pick it up from there.
+          </p>
+        </form>
+      </div>
+
+      <div data-reveal>
+        <p class="ph-eyebrow">What happens next</p>
+        <h2 class="ph-h3" style="margin-top:14px;max-width:20ch">Three steps, in this order.</h2>
+
+        <div class="ph-stack" style="margin-top:26px">
+          <div class="ph-card ph-card--flat">
+            <span class="ph-card__step">01</span>
+            <h3 class="ph-h4">We read it</h3>
+            <p class="ph-body ph-body--sm">Someone on the team reads what you sent and comes back to you directly.</p>
+          </div>
+          <div class="ph-card ph-card--flat">
+            <span class="ph-card__step">02</span>
+            <h3 class="ph-h4">We send the application</h3>
+            <p class="ph-body ph-body--sm">A private link to the full form, then credentials, licensure and exclusion screening before anything can route.</p>
+          </div>
+          <div class="ph-card ph-card--flat">
+            <span class="ph-card__step">03</span>
+            <h3 class="ph-h4">We set you up</h3>
+            <p class="ph-body ph-body--sm">Prescribers, pharmacy access and settlement, in the order your practice needs them.</p>
+          </div>
+        </div>
+
+        <div style="margin-top:34px">
+          <div class="ph-trustrow" data-reveal>
+            <div class="ph-trust--grid">
+            <div class="ph-trust__item"><span class="ph-trust__fig">HIPAA</span><p class="ph-trust__label">Aligned platform</p></div>
+            <div class="ph-trust__item"><span class="ph-trust__fig">Verified</span><p class="ph-trust__label">Credentials before routing</p></div>
+            <div class="ph-trust__item"><span class="ph-trust__fig">503<span class="ph-trust__sub">A/B</span></span><p class="ph-trust__label">Licensed partner pharmacies</p></div>
+            <div class="ph-trust__item"><span class="ph-trust__fig">Audit</span><p class="ph-trust__label">Full trail on every order</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="ph-footer">
+  <div class="ph-container">
+    <div class="ph-footer__top">
+      <div>
+        <a class="ph-logo" href="index.html" aria-label="Pharity home">
+          <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+               width="868" height="200" decoding="async">
+        </a>
+        <p class="ph-footer__blurb">
+          One coordinated layer between wellness clinics and licensed 503A compounding
+          pharmacies.
+        </p>
+        <p class="ph-footer__blurb ph-footer__contact">
+          <a href="mailto:hello@pharity.com">hello@pharity.com</a>
+        </p>
+      </div>
+      <div>
+        <p class="ph-footer__h">Platform</p>
+        <ul class="ph-footer__list">
+          <li><a href="for-clinics.html">For Clinics</a></li>
+          <li><a href="for-pharmacies.html">For Pharmacies</a></li>
+          <li><a href="why-pharity.html">Why Pharity</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Company</p>
+        <ul class="ph-footer__list">
+          <li><a href="request-access.html">Apply for access</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="sign-in.html">Sign in</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Legal</p>
+        <ul class="ph-footer__list">
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ph-footer__legal">
+      <p class="ph-disclosure"><strong>Cash-pay only.</strong> Pharity does not bill or accept insurance, Medicare, Medicaid, or Tricare.</p>
+      <p class="ph-disclosure"><strong>Prescriber-directed.</strong> Pharity does not prescribe, dispense, or practice medicine, and does not provide medical advice. All prescriptions are written by independently licensed prescribers who retain clinical responsibility. All medications are compounded and dispensed by independently licensed 503A pharmacies, which act as the merchant of record. Telehealth access is optional and available to clinics without a prescriber on staff.</p>
+    </div>
+
+    <div class="ph-footer__base">
+      <span>© 2026 Pharity Health LLC. All rights reserved.</span>
+      <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/pharity-site.js"></script>
+</body>
+</html>
