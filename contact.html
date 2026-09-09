@@ -91,6 +91,30 @@
              assets/pharity-site.js; it is spelled out here so a
              no-JavaScript submit still lands.
              ══════════════════════════════════════════════════════════════ -->
+        <!-- No JavaScript: the enhanced submit and the "not connected yet"
+             notice are both drawn by assets/pharity-site.js, so neither is
+             reachable here. Name the address directly rather than leaving a
+             no-JS visitor to press a button and guess. -->
+        <noscript>
+          <p class="ph-form__status" data-kind="error">
+            This form needs JavaScript. Please email
+            <a class="ph-inline-link" href="mailto:hello@pharity.com">hello@pharity.com</a>
+            and it will reach the same people.
+          </p>
+        </noscript>
+
+        <!-- No JavaScript: the enhanced submit and the "not connected yet"
+             notice are both drawn by assets/pharity-site.js, so neither is
+             reachable here. Name the address directly rather than leaving a
+             no-JS visitor to press a button and guess. -->
+        <noscript>
+          <p class="ph-form__status" data-kind="error">
+            This form needs JavaScript. Please email
+            <a class="ph-inline-link" href="mailto:hello@pharity.com">hello@pharity.com</a>
+            and it will reach the same people.
+          </p>
+        </noscript>
+
         <form class="ph-form" id="ph-contact-form" data-lead-form
               method="post" action="https://app.pharity.com/api/leads"
               data-done="Everything that arrives is read by a person and answered by email. Anything that needs a call gets scheduled once we know what we are talking about.">

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found | Pharity</title>
+<meta name="description" content="That page does not exist. Routes back to the Pharity home page, how the network works, and how to reach a person.">
+<!-- A 404 must never be indexed: it would compete with the real pages and put
+     an error page in front of a search visitor. -->
+<meta name="robots" content="noindex">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     EVERY PATH ON THIS PAGE IS ROOT-RELATIVE ("/assets/...", "/index.html"),
+     AND THAT IS LOAD-BEARING — it is the ONE way this file differs from
+     every other page in this directory, all of which use document-relative
+     paths ("assets/...", "index.html").
+
+     GitHub Pages serves 404.html for ANY unmatched path, at ANY depth. A
+     document-relative "assets/pharity-site.css" resolves against the
+     REQUEST, not against this file:
+
+         /nope          -> /assets/pharity-site.css        loads
+         /clinics/nope  -> /clinics/assets/pharity-site.css  404
+         /a/b/c         -> /a/b/assets/pharity-site.css      404
+
+     So a document-relative 404 renders correctly only at the site root and
+     collapses to unstyled text with a broken nav everywhere else — exactly
+     the deep, mistyped, or stale-inbound-link paths a 404 exists to catch.
+     Root-relative resolves against the origin and is depth-independent.
+
+     This is safe here specifically because the site is served at the APEX
+     domain root (pharity.com, via the CNAME file and the apex A/AAAA
+     records — see docs/ops/PHARITY-COM-GO-LIVE.md). If this site were ever
+     republished under a project-pages subpath such as
+     user.github.io/repo/, every "/..." below would break and would need a
+     "/repo" prefix. Moving the site is therefore a reason to revisit this
+     file.
+     ══════════════════════════════════════════════════════════════════════ -->
+<link rel="icon" href="/assets/pharity-mark-gold.png">
+<script>document.documentElement.classList.add('js')</script>
+<link rel="stylesheet" href="/assets/pharity-site.css">
+</head>
+<body>
+<a class="ph-skip" href="#main">Skip to content</a>
+
+<header class="ph-nav">
+  <div class="ph-container ph-nav__inner">
+    <a class="ph-logo" href="/index.html" aria-label="Pharity home">
+      <img class="ph-logo__img" src="/assets/pharity-logo-horizontal.png" alt=""
+           width="868" height="200" decoding="async">
+    </a>
+
+    <nav class="ph-nav__links" aria-label="Primary">
+      <a class="ph-nav__link" href="/index.html">Home</a>
+      <a class="ph-nav__link" href="/for-clinics.html">For Clinics</a>
+      <a class="ph-nav__link" href="/for-pharmacies.html">For Pharmacies</a>
+      <a class="ph-nav__link" href="/why-pharity.html">Why Pharity</a>
+      <a class="ph-nav__link" href="/pricing.html">Pricing</a>
+    </nav>
+
+    <div class="ph-nav__actions">
+      <a class="ph-nav__signin ph-wipe" href="/sign-in.html">Sign in</a>
+      <a class="ph-btn ph-btn--gold ph-btn--sm" href="/request-access.html">Apply for access</a>
+      <div class="ph-nav__mobile">
+        <details class="ph-nav__disclosure">
+          <summary class="ph-nav__burger" aria-label="Menu">
+            <svg class="ph-nav__bars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3.5 7h17M3.5 12h17M3.5 17h17"/></svg>
+            <svg class="ph-nav__x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </summary>
+          <div class="ph-nav__panel">
+            <a href="/index.html">Home</a>
+            <a href="/for-clinics.html">For Clinics</a>
+            <a href="/for-pharmacies.html">For Pharmacies</a>
+            <a href="/why-pharity.html">Why Pharity</a>
+            <a href="/pricing.html">Pricing</a>
+            <hr>
+            <a href="/contact.html">Contact</a>
+            <a href="/sign-in.html">Sign in</a>
+            <a href="/request-access.html">Apply for access</a>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="ph-section ph-band--light">
+  <div class="ph-container ph-container--text">
+    <p class="ph-eyebrow" data-reveal>404</p>
+    <h1 class="ph-h1" data-reveal style="margin-top:18px">This page does not exist.</h1>
+    <p class="ph-lede" data-reveal style="margin-top:22px">
+      The address you followed does not match anything on this site. It may have
+      been mistyped, or it may be an old link to a page that has since moved.
+    </p>
+
+    <div class="ph-btn-row" data-reveal style="margin-top:30px">
+      <a class="ph-btn ph-btn--gold ph-btn--lg" href="/index.html">
+        Go to the home page
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+      </a>
+      <a class="ph-btn ph-btn--ghost ph-btn--lg" href="/how-it-works.html">How it works</a>
+    </div>
+
+    <h2 class="ph-h3" style="margin-top:52px">Where you may have been going</h2>
+    <div class="ph-prose ph-body" style="margin-top:12px">
+      <p>
+        <strong><a class="ph-inline-link" href="/how-it-works.html">How it works</a></strong>
+        — what Pharity does between a clinic and a licensed 503A compounding
+        pharmacy, start to finish.
+      </p>
+      <p>
+        <strong><a class="ph-inline-link" href="/for-clinics.html">For clinics</a></strong>
+        and
+        <strong><a class="ph-inline-link" href="/for-pharmacies.html">for pharmacies</a></strong>
+        — the same network described from each side.
+      </p>
+      <p>
+        <strong><a class="ph-inline-link" href="/request-access.html">Apply for access</a></strong>
+        — to connect a clinic, med spa or compounding pharmacy.
+      </p>
+      <p>
+        <strong><a class="ph-inline-link" href="/contact.html">Contact</a></strong>
+        — if you were looking for something specific and cannot find it, write to
+        <a class="ph-inline-link" href="mailto:hello@pharity.com">hello@pharity.com</a>
+        and a person will point you to it.
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="ph-footer">
+  <div class="ph-container">
+    <div class="ph-footer__top">
+      <div>
+        <a class="ph-logo" href="/index.html" aria-label="Pharity home">
+          <img class="ph-logo__img" src="/assets/pharity-logo-horizontal.png" alt=""
+               width="868" height="200" decoding="async">
+        </a>
+        <p class="ph-footer__blurb">
+          One coordinated layer between wellness clinics and licensed 503A compounding
+          pharmacies.
+        </p>
+        <p class="ph-footer__blurb ph-footer__contact">
+          <a href="mailto:hello@pharity.com">hello@pharity.com</a>
+        </p>
+      </div>
+      <div>
+        <p class="ph-footer__h">Platform</p>
+        <ul class="ph-footer__list">
+          <li><a href="/for-clinics.html">For Clinics</a></li>
+          <li><a href="/for-pharmacies.html">For Pharmacies</a></li>
+          <li><a href="/why-pharity.html">Why Pharity</a></li>
+          <li><a href="/pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Company</p>
+        <ul class="ph-footer__list">
+          <li><a href="/request-access.html">Apply for access</a></li>
+          <li><a href="/contact.html">Contact</a></li>
+          <li><a href="/sign-in.html">Sign in</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Legal</p>
+        <ul class="ph-footer__list">
+          <li><a href="/privacy.html">Privacy</a></li>
+          <li><a href="/terms.html">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ph-footer__legal">
+      <p class="ph-disclosure"><strong>Cash-pay only.</strong> Pharity does not bill or accept insurance, Medicare, Medicaid, or Tricare.</p>
+      <p class="ph-disclosure"><strong>Prescriber-directed.</strong> Pharity does not prescribe, dispense, or practice medicine, and does not provide medical advice. All prescriptions are written by independently licensed prescribers who retain clinical responsibility. All medications are compounded and dispensed by independently licensed 503A pharmacies, which act as the merchant of record. Telehealth access is optional and available to clinics without a prescriber on staff.</p>
+    </div>
+
+    <div class="ph-footer__base">
+      <span>© 2026 Pharity Health LLC. All rights reserved.</span>
+      <span><a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/pharity-site.js"></script>
+</body>
+</html>

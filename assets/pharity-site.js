@@ -1115,30 +1115,132 @@
   }
 
   /* ── Lead forms ─────────────────────────────────────────────────────────
-     The apply and contact forms both POST to ONE endpoint in the Pharity app:
-     POST /api/leads. Keep it that way — do not route a lead form to a mailto:
-     URI, which several mail clients silently truncate past ~2,000 characters,
-     and do not give either form its own endpoint.
+     The apply and contact forms both POST to ONE destination. Keep it that
+     way — do not route a lead form to a mailto: URI, which several mail
+     clients silently truncate past ~2,000 characters, and do not give either
+     form its own endpoint.
 
-     WHERE THE ENDPOINT LIVES. The marketing site is a static host and the app
-     is a different origin, so the URL cannot be relative. Change it in ONE
-     place — PHARITY_API_BASE below, or set window.PHARITY_API_BASE before this
-     script loads (useful for a staging build). Every lead form's `action` is
-     rewritten from it at boot, so the two can never disagree.
+     ══ WHERE LEADS GO. ONE LINE: LEAD_DESTINATION, below. ══════════════════
 
-     PROGRESSIVE ENHANCEMENT, and it matters here more than usual:
+     There are two supported destinations and the site works with either:
+
+       1. AN EMAIL RELAY (what ships today). A third-party form endpoint that
+          forwards each submission to a real inbox. Used because the Pharity
+          app is deployed but IAM-PRIVATE — every path on it answers 403 to an
+          unauthenticated caller, so app.pharity.com cannot serve /api/leads
+          and cannot even be mapped to a hostname usefully. A lead posted
+          there today is lost.
+
+       2. THE APP: POST /api/leads. The right long-term home — it writes a
+          Lead row, mints invite tokens and prefills the wizards. Switch back
+          the day the app answers unauthenticated, and NOT before: while it is
+          IAM-private the app returns 403 to every visitor, which this code
+          would correctly report as a failure, on every submission.
+
+     TO SWITCH BACK TO THE APP, change the LEAD_DESTINATION line below to:
+         var LEAD_DESTINATION = window.PHARITY_LEAD_DESTINATION ||
+           PHARITY_APP_LEAD_ENDPOINT;
+     Nothing else changes. leadAccepted() already reads the app's own
+     `{ok:true}` contract, and the forms' HTML `action` is rewritten from
+     whatever is configured here, so the two can never disagree.
+
+     UNTIL THE ENDPOINT IS PASTED IN, the forms deliberately DO NOT PRETEND TO
+     WORK. A form that accepts a message and silently discards it is the worst
+     of the three outcomes; it costs the lead AND the visitor's trust. While
+     LEAD_DESTINATION still contains the placeholder the forms degrade to a
+     visible "email us instead" state — see markUnwired().
+
+     PROGRESSIVE ENHANCEMENT:
        - With JS: fetch + an in-place confirmation. The confirmation is drawn
-         ONLY after the server says the row was written — never optimistically,
-         and never on a network error.
-       - Without JS, or when the cross-origin fetch is blocked: the native form
-         POST runs and the browser lands on the app's /apply/received page. CORS
-         does not govern a form navigation, so a mis-set MARKETING_ORIGINS costs
-         the in-place confirmation, never the submission.                     */
+         ONLY after the destination affirmatively confirms — never
+         optimistically, and never on a network error.
+       - Without JS: the native form POST runs against the `action`. Each form
+         page also carries a <noscript> pointing at the fallback address, so a
+         no-JS visitor is never left guessing.
+
+     WE NEVER NAVIGATE THE VISITOR AWAY ON FAILURE. This used to call
+     form.submit() from the catch, on the reasoning that a native POST is not
+     governed by CORS and so would still land. That reasoning was sound only
+     while app.pharity.com resolved to something that answers. It does not, so
+     the fallback navigated the visitor to a dead host and they lost the page
+     AND the message — strictly worse than the failure it was compensating
+     for. On any failure we now keep the visitor exactly where they are and
+     name the fallback address so the message can still reach a person.      */
 
   var PHARITY_API_BASE = window.PHARITY_API_BASE || 'https://app.pharity.com';
 
+  /* The app's lead endpoint. Not the live destination while the app is
+     IAM-private — kept named so switching back is the one-line edit above. */
+  var PHARITY_APP_LEAD_ENDPOINT =
+    String(PHARITY_API_BASE).replace(/\/+$/, '') + '/api/leads';
+
+  /* ===================== THE ONE LINE ===================================== */
+  var LEAD_DESTINATION = window.PHARITY_LEAD_DESTINATION ||
+    'https://formspree.io/f/PASTE_FORM_ID_HERE';
+  /* ======================================================================== */
+
+  /* The marker that says "nobody has configured this yet". Kept as its own
+     constant so the check is a substring test against ONE spelling rather
+     than a regex that a slightly different placeholder could slip past. */
+  var LEAD_DESTINATION_PLACEHOLDER = 'PASTE_FORM_ID_HERE';
+
+  /* Where a visitor is told to write when the form cannot deliver. This is
+     the address already printed in both forms' visible notes. */
+  var LEAD_FALLBACK_EMAIL = 'hello@pharity.com';
+
   function leadEndpoint() {
-    return String(PHARITY_API_BASE).replace(/\/+$/, '') + '/api/leads';
+    return String(LEAD_DESTINATION).replace(/\/+$/, '');
+  }
+
+  /* False while LEAD_DESTINATION is still the shipped placeholder. */
+  function leadDestinationReady() {
+    return leadEndpoint().indexOf(LEAD_DESTINATION_PLACEHOLDER) === -1;
+  }
+
+  /* Which success contract to read. The two destinations genuinely differ and
+     guessing wrong is not cosmetic:
+       - The app answers {ok:true} on success and {ok:false,error} otherwise
+         (src/app/api/leads/route.ts).
+       - Formspree's own client (@formspree/core) treats a response as an
+         ERROR when it carries an `errors` array of {message} or an `error`
+         string, and as success otherwise. It never looks for `ok`.
+     So requiring body.ok against Formspree would report a failure on every
+     successful submission, and accepting any 2xx from the app would report a
+     success the app never gave. Hence: ask which destination is configured. */
+  function leadDestinationIsApp() {
+    return /\/api\/leads$/.test(leadEndpoint());
+  }
+
+  /* The ONLY place a submission is judged to have succeeded.
+
+     `parsed` is load-bearing. A 2xx whose body did not parse as JSON tells us
+     nothing about whether anything was delivered, and the Formspree branch —
+     which infers success from the ABSENCE of an error field — would read an
+     unparseable body as a clean success. Treat it as a failure instead: a
+     visitor told to email us when the lead did in fact arrive costs a
+     duplicate, which is recoverable. The reverse loses the lead silently. */
+  function leadAccepted(r) {
+    if (!r.parsed || !r.body) return false;
+    if (r.status < 200 || r.status >= 300) return false;
+    if (leadDestinationIsApp()) return r.body.ok === true;
+    if (typeof r.body.error === 'string') return false;
+    if (Object.prototype.toString.call(r.body.errors) === '[object Array]') return false;
+    return true;
+  }
+
+  /* Surface the destination's own words when it gave any, rather than a
+     generic failure. Both shapes are handled for the same reason as above. */
+  function leadErrorMessage(r) {
+    var b = r.body;
+    if (b) {
+      if (typeof b.error === 'string' && b.error) return b.error;
+      if (Object.prototype.toString.call(b.errors) === '[object Array]' &&
+          b.errors.length && b.errors[0] && b.errors[0].message) {
+        return String(b.errors[0].message);
+      }
+    }
+    return 'That did not send. Email ' + LEAD_FALLBACK_EMAIL +
+           ' and we will pick it up from there.';
   }
 
   function setStatus(form, message, kind) {
@@ -1181,11 +1283,46 @@
     return out;
   }
 
+  /* Nobody has pasted an endpoint in yet. Say so, up front, before anyone
+     types a message — not after they press send. The submit button is
+     disabled because a live-looking button that cannot deliver is the exact
+     "appears to work" failure this state exists to prevent.
+
+     innerHTML is safe here: the string is a literal defined in this file with
+     no interpolated input. */
+  function markUnwired(form) {
+    var box = form.querySelector('.ph-form__status');
+    if (box) {
+      box.innerHTML =
+        'This form is not connected yet. Please email ' +
+        '<a class="ph-inline-link" href="mailto:' + LEAD_FALLBACK_EMAIL + '">' +
+        LEAD_FALLBACK_EMAIL + '</a> and it will reach the same people.';
+      box.setAttribute('data-kind', 'error');
+      box.hidden = false;
+    }
+    var btn = form.querySelector('button[type="submit"]');
+    if (btn) {
+      btn.disabled = true;
+      btn.setAttribute('aria-disabled', 'true');
+    }
+  }
+
   function mountLeadForms() {
     var forms = d.querySelectorAll('form[data-lead-form]');
     for (var i = 0; i < forms.length; i++) {
       (function (form) {
-        // Keep the no-JS action honest with the configured base.
+        if (!leadDestinationReady()) {
+          // Leave the HTML `action` alone: it names the app endpoint, which is
+          // the truthful default destination and the one we switch back to.
+          // Rewriting it to a placeholder URL would be a lie in the markup.
+          markUnwired(form);
+          form.addEventListener('submit', function (e) {
+            e.preventDefault();   // never post to a placeholder, never navigate
+          });
+          return;
+        }
+
+        // Keep the no-JS action honest with the configured destination.
         form.setAttribute('action', leadEndpoint());
 
         form.addEventListener('submit', function (e) {
@@ -1205,34 +1342,47 @@
             if (btn) { btn.disabled = false; btn.innerHTML = btnText; }
           };
 
+          var fail = function (message) {
+            // The visitor KEEPS THE PAGE and keeps everything they typed. The
+            // form is restored so they can retry, and the message names a real
+            // address so the enquiry can still reach a person. We do not call
+            // form.submit() here: see the note at the top of this section.
+            restore();
+            setStatus(form, message, 'error');
+          };
+
           fetch(leadEndpoint(), {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              // Formspree returns an HTML redirect page unless the request
+              // asks for JSON. Harmless to the app, which always answers JSON.
+              'Accept': 'application/json'
+            },
             body: JSON.stringify(collect(form))
           })
             .then(function (res) {
-              return res.json().catch(function () { return {}; })
-                .then(function (body) { return { status: res.status, body: body }; });
+              return res.json()
+                .then(function (body) {
+                  return { status: res.status, body: body, parsed: true };
+                })
+                .catch(function () {
+                  return { status: res.status, body: null, parsed: false };
+                });
             })
             .then(function (r) {
-              if (r.status >= 200 && r.status < 300 && r.body && r.body.ok) {
-                showConfirmation(form);
-                return;
-              }
-              restore();
-              setStatus(
-                form,
-                (r.body && r.body.error) ||
-                  'That did not send. Email hello@pharity.com and we will pick it up from there.',
-                'error'
-              );
+              if (leadAccepted(r)) { showConfirmation(form); return; }
+              fail(leadErrorMessage(r));
             })
             .catch(function () {
-              // Network down, or the cross-origin fetch was refused. Fall back
-              // to the native POST, which CORS does not govern — the visitor
-              // lands on the app's confirmation page instead of losing the
-              // message. data-busy stays set so this cannot loop.
-              form.submit();
+              // Network down, or the cross-origin fetch was refused. Either
+              // way we cannot know whether anything was delivered, so we say
+              // so plainly rather than reporting a success we cannot see or
+              // navigating to a host that may not answer.
+              fail(
+                'That did not send. Email ' + LEAD_FALLBACK_EMAIL +
+                ' and we will pick it up from there.'
+              );
             });
         });
       })(forms[i]);
