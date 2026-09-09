@@ -79,13 +79,11 @@
              Posts to POST /api/leads in the Pharity app — the SAME endpoint
              the request-access form uses. One front door, one queue.
 
-             It used to post to `mailto:hello@pharity.com` with
-             enctype="text/plain", enhanced by a script that composed a mailto
-             URI. That had two real failure modes: several mail clients
-             silently truncate a mailto past ~2,000 characters (the reason the
-             textarea carried maxlength="1200"), and the whole thing depended on
-             the visitor having a configured desktop mail client. A message
-             typed here now lands in Postgres as a Lead.
+             RULE: never route this form through a `mailto:` URI. Several mail
+             clients silently truncate a mailto past ~2,000 characters, and it
+             requires the visitor to have a configured desktop mail client — so
+             a long message is cut without warning and some visitors cannot
+             send at all. The textarea therefore needs no maxlength.
 
              The `action` is rewritten at boot from PHARITY_API_BASE in
              assets/pharity-site.js; it is spelled out here so a
