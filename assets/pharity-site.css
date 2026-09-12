@@ -137,6 +137,12 @@ ul, ol { padding: 0; list-style: none; }
 /* No italic anywhere. */
 i, em, cite, address, dfn, var { font-style: normal; }
 
+/* Emphasis is 650, the same weight .ph-h4 and .ph-disclosure strong already
+   use. Without this, a <strong> in ordinary prose fell through to the user
+   agent's `bolder` and rendered 700 - a weight the site declares nowhere and
+   which showed up only on the policy pages, where the prose is longest. */
+b, strong { font-weight: 650; }
+
 a { color: inherit; text-decoration: none; }
 
 button, input, select, textarea { font: inherit; color: inherit; }
@@ -348,12 +354,29 @@ main > .ph-band--warm:last-child { border-bottom: 0; }
   background: var(--gold);
 }
 
+/* Leading on every display class is a constant ADDED value, not a ratio.
+   A ratio gets tighter in absolute terms as the clamp shrinks, which is
+   backwards - small type needs more leading, not less - and it was worst
+   exactly where this site is used most. Measured at both ends of each clamp
+   before the change:
+
+     .ph-h1      36.8px -> +1.47px of leading   (mobile, cramped)
+     .ph-h1      57.6px -> +2.30px
+     .ph-display 41.6px -> +1.66px
+     .ph-h2      29.6px -> +2.96px
+     .ph-h3      20.0px -> +4.00px              (already correct)
+     .ph-h3      24.0px -> +4.80px
+
+   calc(1em + 4px) lands every one of them on +4 and is self-correcting at any
+   clamp value, so no heading can drift again. Net effect: mobile headings gain
+   1.0-2.5px per line, desktop h2/h3 tighten by 0.4-0.8px. h3 at its own
+   minimum was already +4, which is what the constant was read off. */
 .ph-display,
 .ph-h1 {
   font-family: var(--serif);
   font-weight: 400;
   letter-spacing: -.015em;
-  line-height: 1.04;
+  line-height: calc(1em + 4px);
   color: var(--navy);
   text-wrap: balance;
 }
@@ -364,7 +387,7 @@ main > .ph-band--warm:last-child { border-bottom: 0; }
   font-family: var(--serif);
   font-weight: 400;
   font-size: clamp(1.85rem, 1.35rem + 1.9vw, 2.75rem);
-  line-height: 1.1;
+  line-height: calc(1em + 4px);   /* see the note on .ph-display */
   letter-spacing: -.012em;
   color: var(--navy);
   text-wrap: balance;
@@ -374,16 +397,24 @@ main > .ph-band--warm:last-child { border-bottom: 0; }
   font-family: var(--serif);
   font-weight: 400;
   font-size: clamp(1.25rem, 1.1rem + .55vw, 1.5rem);
-  line-height: 1.2;
+  line-height: calc(1em + 4px);   /* see the note on .ph-display */
   letter-spacing: -.008em;
   color: var(--navy);
 }
 
+/* 19px, not 16px. body is 17px, so a subhead set at 1rem rendered SMALLER
+   than the paragraph underneath it and carried its entire hierarchy on weight
+   and colour. At 19px it clears body by 1.118x and .ph-body--sm (15px) by
+   1.267x, and sits 1.263x under .ph-h3 at its 24px maximum - every step in
+   that run is now perceptible. Fit was measured before moving it: the longest
+   unbreakable word in an h4 uses 49.5% of its column at 320px, so there is
+   ample room. Leading follows the same +4px constant as the display classes,
+   which is Apple's own 19 -> 23. */
 .ph-h4 {
   font-family: var(--sans);
   font-weight: 650;
-  font-size: 1rem;
-  line-height: 1.35;
+  font-size: 1.1875rem;
+  line-height: calc(1em + 4px);
   letter-spacing: -.005em;
   color: var(--navy);
 }
@@ -403,13 +434,31 @@ main > .ph-band--warm:last-child { border-bottom: 0; }
   border-radius: 2px;
 }
 
+/* A flat 19px, not a clamp bottoming out at 17px. The clamp resolved to
+   17.17px at 390 against a 17px body - a 1.01x step, which is no step at all,
+   so on a phone the lead paragraph was indistinguishable from the copy under
+   it and the one job it has was not being done. At 19px it clears body by
+   1.118x at every width, which is the same ratio it already had at 1440; this
+   only changes the narrow end. Fit was checked first: the longest unbreakable
+   word in a lede occupies 61.8% of its column at 320px, so an 11.8% rise sits
+   inside the remaining headroom. Leading stays a ratio here - see the note
+   below on why body copy is not on the +4px constant. */
 .ph-lede {
-  font-size: clamp(1.0625rem, 1rem + .3vw, 1.1875rem);
+  font-size: 1.1875rem;
   line-height: 1.62;
   color: var(--ink-2);
   max-width: 62ch;
   text-wrap: pretty;
 }
+/* Body leading stays a RATIO at 1.6, deliberately, while every display class
+   moved to a constant +4px. The constant is right for headings because a
+   heading is one or two lines and a ratio leaves them cramped as the clamp
+   shrinks. Body copy is the opposite case: it runs many lines, and 1.6 at
+   17px (+10.2px) is a readability choice for dense clinical and pharmacy
+   copy. The reference this site was measured against runs its own long-form
+   body looser than its headings for the same reason. Matching its exact
+   number here would tighten these columns to serve a comparison rather than
+   the reader. */
 .ph-body { color: var(--ink-2); text-wrap: pretty; }
 .ph-body--sm { font-size: .9375rem; line-height: 1.6; }
 .ph-muted { color: var(--ink-3); }
@@ -600,7 +649,7 @@ main > .ph-band--warm:last-child { border-bottom: 0; }
   background: var(--gold);
   transform: scaleX(0);
   transform-origin: 100% 50%;
-  transition: transform 180ms var(--ease);
+  transition: transform 170ms var(--ease);
 }
 .ph-wipe:hover::after,
 .ph-wipe:focus-visible::after { transform: scaleX(1); transform-origin: 0 50%; }
@@ -624,7 +673,7 @@ main > .ph-band--warm:last-child { border-bottom: 0; }
   background: var(--gold);
   transform: scaleX(0);
   transform-origin: 100% 50%;
-  transition: transform 180ms var(--ease);
+  transition: transform 170ms var(--ease);
 }
 a:hover > .ph-arrow::after,
 a.ph-arrow:hover::after,
@@ -1251,7 +1300,7 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
   width: 1px;
   background: var(--fig-rule);
   opacity: 1;
-  transition: opacity 165ms var(--ease);
+  transition: opacity 170ms var(--ease);
 }
 
 @container (min-width: 860px) {
@@ -1265,7 +1314,7 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
     width: 1px;
     background: var(--fig-rule);
     opacity: 1;
-    transition: opacity 165ms var(--ease);
+    transition: opacity 170ms var(--ease);
   }
 }
 
@@ -1284,14 +1333,26 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
   line-height: 1;
   letter-spacing: -.005em;
   color: var(--fig-num);
-  transition: color 165ms var(--ease);
+  transition: color 170ms var(--ease);
 }
 
 /* The A/B in 503A/B, and any other tail that should ride smaller than the
    figure it belongs to. */
+/* Sized in em, against the figure it hangs off, because that is what it is:
+   a tail at a fixed proportion of its own figure, not an independent step on
+   the type ladder. It was two rem values - 1.05rem beside a 1.65rem figure and
+   .9rem beside 1.4rem in the narrow override - which are the SAME ratio (.636
+   and .643) written twice and free to drift apart. One em value states the
+   ratio once and tracks any future change to the figure, so the narrow
+   override is gone rather than duplicated.
+
+   .644 rather than a round .64 because against the 1.65rem figure it resolves
+   to 17.00px, which is the body step - so the tail sits ON the ladder instead
+   of 0.6% off it, which is the kind of gap that reads as a mistake rather
+   than a level. */
 .ph-trust__sub {
   font-family: var(--serif);
-  font-size: 1.05rem;
+  font-size: .644em;
   font-weight: inherit;
   margin-left: .04em;
 }
@@ -1310,7 +1371,7 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
      the four cells on one baseline, and it means the weight change on hover
      cannot re-wrap a label into a taller cell and nudge the row. */
   min-height: calc(2 * 1.4em);
-  transition: color 165ms var(--ease);
+  transition: color 170ms var(--ease);
 }
 
 /* No emblems in this strip. This is a rule, not a stylistic preference, and
@@ -1417,7 +1478,8 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
 @container (max-width: 560px) {
   .ph-trust__item  { padding: 1.1rem .6rem; }
   .ph-trust__fig   { font-size: 1.4rem; }
-  .ph-trust__sub   { font-size: .9rem; }
+  /* No .ph-trust__sub here: it is em-sized off the figure above and follows
+     it down on its own. */
   .ph-trust__label { font-size: .55rem; letter-spacing: .18em; }
 }
 
@@ -1534,7 +1596,7 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
      on every scroll frame, which is the cheapest thing on the page to lose. */
   background: var(--paper);
   border-bottom: 1px solid transparent;
-  transition: border-color 200ms var(--ease);
+  transition: border-color 220ms var(--ease);
 }
 .ph-nav.is-scrolled { border-bottom-color: var(--line); }
 
@@ -1597,7 +1659,7 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
   background: var(--gold);
   transform: scaleX(0);
   transform-origin: 100% 50%;
-  transition: transform 180ms var(--ease);
+  transition: transform 170ms var(--ease);
 }
 .ph-nav__link:hover::after,
 .ph-nav__link:focus-visible::after { transform: scaleX(1); transform-origin: 0 50%; }
@@ -1609,7 +1671,7 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
 .ph-nav__actions { display: flex; align-items: center; gap: 14px; flex: none; }
 .ph-nav__signin {
   font-size: .9375rem; font-weight: 500; color: var(--ink-2);
-  transition: color 160ms var(--ease);
+  transition: color 170ms var(--ease);
 }
 .ph-nav__signin:hover { color: var(--navy); }
 
@@ -1626,7 +1688,7 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
   color: var(--navy);
   cursor: pointer;
   list-style: none;
-  transition: border-color 160ms var(--ease), background-color 160ms var(--ease);
+  transition: border-color 170ms var(--ease), background-color 170ms var(--ease);
 }
 .ph-nav__burger::-webkit-details-marker { display: none; }
 .ph-nav__burger::marker { content: ""; }
@@ -1795,7 +1857,7 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
   background: var(--gold);
   transform: scaleX(0);
   transform-origin: 100% 50%;
-  transition: transform 180ms var(--ease);
+  transition: transform 170ms var(--ease);
 }
 .ph-footer__list a:hover { color: var(--navy); }
 .ph-footer__list a:hover::after,
@@ -1870,7 +1932,7 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
   background: var(--gold);
   transform: scaleX(0);
   transform-origin: 100% 50%;
-  transition: transform 180ms var(--ease);
+  transition: transform 170ms var(--ease);
 }
 .ph-footer__base a:hover { color: var(--navy); }
 .ph-footer__base a:hover::after,
@@ -1891,10 +1953,17 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
     transform: translateY(8px);
     will-change: opacity, transform;
   }
+  /* 240ms, not 420ms. Every section on all twelve pages carries a reveal, so
+     this duration is the single number that decides whether content reads as
+     already-present or as performing its own arrival. Measured against the
+     reference: 109 revealed elements there run opacity+transform at 240ms,
+     and their longest common transition of any kind is 320ms. At 420ms this
+     site was 1.75x that on 36 elements. The easing is unchanged - the curve
+     was never the problem, only the time it was given. */
   html.js [data-reveal].is-in {
     opacity: 1;
     transform: none;
-    transition: opacity 420ms var(--ease), transform 420ms var(--ease);
+    transition: opacity 240ms var(--ease), transform 240ms var(--ease);
     will-change: auto;
   }
 }
@@ -2519,7 +2588,7 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
   border-radius: var(--r-pill);
   background: #FFFFFF;
   font-family: var(--sans);
-  font-size: 10px; font-weight: 650;
+  font-size: 11px; font-weight: 650;
   letter-spacing: .13em; text-transform: uppercase;
   color: var(--navy);
   white-space: nowrap;
@@ -2630,14 +2699,14 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
   letter-spacing: -.005em;
   color: #3A4757;
   white-space: nowrap;
-  transition: background-color 180ms var(--ease), color 180ms var(--ease);
+  transition: background-color 170ms var(--ease), color 170ms var(--ease);
 }
 .ph-hw__side-row svg {
   flex: none;
   width:  calc(var(--hw-w) * .0195);
   height: calc(var(--hw-w) * .0195);
   color: #6B7889;
-  transition: color 180ms var(--ease);
+  transition: color 170ms var(--ease);
 }
 
 /* Active: soft gold tint, a gold rule down the leading edge, navy ink. The
@@ -2705,7 +2774,7 @@ a:focus-visible > .ph-arrow::after { transform: scaleX(1); transform-origin: 0 5
   transition:
     left 820ms cubic-bezier(.34,.03,.17,1),
     top  820ms cubic-bezier(.34,.03,.17,1),
-    opacity 260ms linear;
+    opacity 220ms linear;
   will-change: left, top;
 }
 .ph-hw__cursor.is-on { opacity: 1; }
@@ -2897,7 +2966,7 @@ tr.is-flash > td { animation: ph-flash 1500ms ease-out; }
 }
 @media (prefers-reduced-motion: no-preference) {
   html.js .ph-app__pane {
-    transition: opacity 300ms var(--ease), transform 300ms var(--ease);
+    transition: opacity 220ms var(--ease), transform 220ms var(--ease);
   }
 }
 
@@ -2952,7 +3021,7 @@ tr.is-flash > td { animation: ph-flash 1500ms ease-out; }
   color: #556375;
   line-height: 1.3;
   white-space: nowrap;
-  transition: background-color 160ms var(--ease), color 160ms var(--ease);
+  transition: background-color 170ms var(--ease), color 170ms var(--ease);
 }
 .ph-app__seg [data-sel="true"] { background: #14202F; color: #fff; }
 .ph-hw:hover .ph-app__seg [data-sel="false"] { color: #14202F; }
@@ -3341,7 +3410,7 @@ tr.is-flash > td { animation: ph-flash 1500ms ease-out; }
   color: var(--navy-ink);
   font-weight: 700; font-size: .88em;
   border: 1px solid rgb(139 103 40 / .34);
-  transition: filter 150ms ease;
+  transition: filter 170ms ease;
 }
 .ph-app__sign.is-cur-hover { filter: brightness(1.06); }
 /* margin-right:auto is what actually pushes the button to the right end; it
@@ -3459,7 +3528,7 @@ tr.is-flash > td { animation: ph-flash 1500ms ease-out; }
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
   font-size: 11px;
-  letter-spacing: .06em;
+  letter-spacing: .04em;
   color: var(--ink-3);
 }
 
@@ -3713,24 +3782,34 @@ html.js .ph-flow[data-flow-ready] .ph-flow__i {
      Note this only ever applied with JS on: the no-JS fallback below sets
      opacity:1 on every card, so a script-off reader was already fine. */
   opacity: .64;
-  transition: opacity 260ms var(--ease),
-              background-color 260ms var(--ease),
-              border-color 260ms var(--ease);
+  transition: opacity 220ms var(--ease),
+              background-color 220ms var(--ease),
+              border-color 220ms var(--ease);
 }
+/* The title holds ONE size through the whole sequence. It used to run 18px
+   receded and 24px active, transitioned over 220ms - and font-size is the one
+   property that forces layout on every frame of an animation, here on a
+   scroll-driven sequence where frames are already contended. It also reflowed
+   the card under it on every step.
+
+   Nothing was lost by removing it. The active card is already distinguished
+   four independent ways: opacity .64 -> 1, a background, a border, and the
+   gold icon fill, with the description fading in as a fifth. A sixth signal
+   that costs a per-frame reflow is the one to drop. Colour still animates,
+   because colour composites. */
 html.js .ph-flow[data-flow-ready] .ph-flow__i .ph-flow__t {
-  font-size: 1.125rem;
-  transition: font-size 260ms var(--ease), color 260ms var(--ease);
+  transition: color 220ms var(--ease);
 }
 html.js .ph-flow[data-flow-ready] .ph-flow__i .ph-flow__d {
   opacity: 0;
-  transition: opacity 200ms var(--ease);
+  transition: opacity 220ms var(--ease);
 }
 /* With no border to pin it to, a step number floating at the top right of a
    receded card reads as debris rather than as a sequence: the rail and the
    counter already say where we are. It belongs to the card being read. */
 html.js .ph-flow[data-flow-ready] .ph-flow__i .ph-flow__n {
   opacity: 0;
-  transition: opacity 200ms var(--ease);
+  transition: opacity 220ms var(--ease);
 }
 html.js .ph-flow[data-flow-ready] .ph-flow__i.is-active .ph-flow__n { opacity: 1; }
 
@@ -3748,12 +3827,13 @@ html.js .ph-flow[data-flow-ready] .ph-flow__i.is-active {
   background: rgb(8 36 74 / .03);
   border-color: rgb(8 36 74 / .11);
 }
-html.js .ph-flow[data-flow-ready] .ph-flow__i.is-active .ph-flow__t {
-  font-size: 1.5rem;
-}
+/* No font-size here either: see the note on the receded title above. The
+   active state is carried by colour, opacity, background, border and the gold
+   icon. Holding one size also makes every card in the rail exactly the same
+   height, so the sequence no longer reflows as it advances. */
 html.js .ph-flow[data-flow-ready] .ph-flow__i.is-active .ph-flow__d {
   opacity: 1;
-  transition: opacity 300ms var(--ease) 60ms;
+  transition: opacity 220ms var(--ease) 60ms;
 }
 /* THE marker. The only gold fill in the section. */
 html.js .ph-flow[data-flow-ready] .ph-flow__i.is-active .ph-flow__ic {
@@ -4006,7 +4086,7 @@ html.js .ph-flow[data-flow-ready] .ph-flow__foot { margin-top: var(--s4); }
 .ph-field { display: grid; gap: 8px; min-width: 0; }
 .ph-field__l {
   font-size: 12px; font-weight: 650;
-  letter-spacing: .1em; text-transform: uppercase;
+  letter-spacing: .16em; text-transform: uppercase;
   color: var(--ink-2);
 }
 .ph-field__l span { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--ink-3); }

@@ -102,7 +102,7 @@
   display: inline-flex; align-items: center; gap: 9px;
   font-size: 12px; font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: .14em;
+  letter-spacing: .16em;
   color: var(--navy);
 }
 .ph-prstrip li::before {
@@ -299,7 +299,7 @@
 .ph-prfacts__h {
   font-size: 12px; font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: .14em;
+  letter-spacing: .16em;
   color: var(--navy);
 }
 .ph-prfacts__list {
@@ -349,12 +349,19 @@
   gap: 4px 10px;
   margin-top: 26px;
 }
+/* On the site's own h2 step, not a private one. This used to run its own
+   clamp topping out at 2.9rem = 46.4px, which is 1.055x the shared h2 at
+   44px - close enough to read as a mismatch rather than as a level, and it
+   was the only display size on the site that appeared on exactly one element
+   of one page. Its -.02em was also tracked TIGHTER than the larger h1 above
+   it, making it the single non-monotonic point in the tracking ramp, which
+   now runs -.012em at 44px -> -.015em at 57.6px. */
 .ph-prprice__amt {
   font-family: var(--serif);
   font-weight: 400;
-  font-size: clamp(2.2rem, 1.7rem + 1.7vw, 2.9rem);
+  font-size: clamp(1.85rem, 1.35rem + 1.9vw, 2.75rem);
   line-height: 1;
-  letter-spacing: -.02em;
+  letter-spacing: -.012em;
   font-variant-numeric: tabular-nums;
   color: var(--navy);
 }
@@ -551,7 +558,7 @@
   display: block;
   font-size: 12px; font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: .14em;
+  letter-spacing: .16em;
   color: var(--navy);
 }
 .ph-apprlock__sub {
