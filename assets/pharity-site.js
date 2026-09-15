@@ -1166,10 +1166,33 @@
      for. On any failure we now keep the visitor exactly where they are and
      name the fallback address so the message can still reach a person.      */
 
-  var PHARITY_API_BASE = window.PHARITY_API_BASE || 'https://app.pharity.com';
+  /* DEFAULTS TO THE HOST THAT ACTUALLY RESOLVES. This was
+     'https://app.pharity.com', which has no DNS record at all — so the parked
+     endpoint below pointed at nothing, and whoever eventually flipped THE ONE
+     LINE would have switched the live form onto a dead host and only found out
+     from a drop in applications. The Cloud Run origin answers today: POST
+     /api/leads returns 400 with a real field-level validation error, which is
+     the endpoint working.
+
+     Still overridable via window.PHARITY_API_BASE, so pointing this at
+     app.pharity.com once that record exists stays a one-line change. */
+  var PHARITY_API_BASE = window.PHARITY_API_BASE ||
+    'https://pharity-ioen5mo52q-uc.a.run.app';
 
   /* The app's lead endpoint. Not the live destination yet — kept named here
-     so switching back stays the one-line edit documented above. */
+     so switching back stays the one-line edit documented above.
+
+     BEFORE FLIPPING THE ONE LINE TO THIS: the app must allow the marketing
+     origin cross-origin, which is MARKETING_ORIGINS on the deployment
+     (api/leads/route.ts:39-55 — unset means same-origin only). It is currently
+     UNSET: an OPTIONS preflight from https://pharity.com returns 204 with NO
+     access-control-allow-origin header, so a fetch from the live site would be
+     refused by the browser. Applications would not be lost — the handler keeps
+     the visitor on the page and names the fallback email — but they would stop
+     reaching a queue anyone reads.
+
+     So the switch is: set MARKETING_ORIGINS, re-run that preflight and confirm
+     the allow-origin header comes back, THEN flip the line. Not before. */
   var PHARITY_APP_LEAD_ENDPOINT =
     String(PHARITY_API_BASE).replace(/\/+$/, '') + '/api/leads';
 
