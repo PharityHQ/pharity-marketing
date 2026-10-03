@@ -3,40 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Page not found | Pharity</title>
-<meta name="description" content="That page does not exist. Routes back to the Pharity home page, how the network works, and how to reach a person.">
-<!-- A 404 must never be indexed: it would compete with the real pages and put
-     an error page in front of a search visitor. -->
-<meta name="robots" content="noindex">
-
-<!-- ══════════════════════════════════════════════════════════════════════
-     EVERY PATH ON THIS PAGE IS ROOT-RELATIVE ("/assets/...", "/index.html"),
-     AND THAT IS LOAD-BEARING — it is the ONE way this file differs from
-     every other page in this directory, all of which use document-relative
-     paths ("assets/...", "index.html").
-
-     GitHub Pages serves 404.html for ANY unmatched path, at ANY depth. A
-     document-relative "assets/pharity-site.css" resolves against the
-     REQUEST, not against this file:
-
-         /nope          -> /assets/pharity-site.css        loads
-         /clinics/nope  -> /clinics/assets/pharity-site.css  404
-         /a/b/c         -> /a/b/assets/pharity-site.css      404
-
-     So a document-relative 404 renders correctly only at the site root and
-     collapses to unstyled text with a broken nav everywhere else — exactly
-     the deep, mistyped, or stale-inbound-link paths a 404 exists to catch.
-     Root-relative resolves against the origin and is depth-independent.
-
-     This is safe here specifically because the site is served at the APEX
-     domain root (pharity.com, via the CNAME file and the apex A/AAAA
-     records — see docs/ops/PHARITY-COM-GO-LIVE.md). If this site were ever
-     republished under a project-pages subpath such as
-     user.github.io/repo/, every "/..." below would break and would need a
-     "/repo" prefix. Moving the site is therefore a reason to revisit this
-     file.
-     ══════════════════════════════════════════════════════════════════════ -->
+<title>Resources | Pharity</title>
+<meta name="description" content="Plain answers to the questions gyms, studios, med spas and wellness brands ask before adding a clinician-supervised program: who may prescribe, whether a medical director is needed, and what a business may lawfully do itself.">
 <link rel="icon" href="/assets/pharity-mark-gold.png">
+<link rel="canonical" href="https://pharity.com/resources/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Pharity">
+<meta property="og:url" content="https://pharity.com/resources/">
+<meta property="og:title" content="Resources | Pharity">
+<meta property="og:description" content="Plain answers to the questions businesses ask before adding a clinician-supervised program.">
+<meta property="og:image" content="https://pharity.com/assets/pharity-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Pharity: the clean layer between your clinic and the pharmacy.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Resources | Pharity">
+<meta name="twitter:description" content="Plain answers to the questions businesses ask before adding a clinician-supervised program.">
+<meta name="twitter:image" content="https://pharity.com/assets/pharity-og.png">
 <script>document.documentElement.classList.add('js')</script>
 <link rel="stylesheet" href="/assets/pharity-site.css">
 </head>
@@ -87,51 +70,41 @@
 </header>
 
 <main id="main">
-
 <section class="ph-section ph-band--light">
-  <div class="ph-container ph-container--text">
-    <p class="ph-eyebrow" data-reveal>404</p>
-    <h1 class="ph-h1" data-reveal style="margin-top:18px">This page does not exist.</h1>
-    <p class="ph-lede" data-reveal style="margin-top:22px">
-      The address you followed does not match anything on this site. It may have
-      been mistyped, or it may be an old link to a page that has since moved.
+  <div class="ph-container">
+    <p class="ph-eyebrow" data-reveal>Resources</p>
+    <h1 class="ph-h1" data-reveal style="margin-top:16px;max-width:22ch">Straight answers, before you build anything.</h1>
+    <p class="ph-lede" data-reveal style="margin-top:20px">
+      The questions businesses ask before adding a clinician-supervised program,
+      answered plainly. General information rather than legal advice, and written
+      to be useful whether or not you ever work with us.
     </p>
 
-    <div class="ph-btn-row" data-reveal style="margin-top:30px">
-      <a class="ph-btn ph-btn--gold ph-btn--lg" href="/index.html">
-        Go to the home page
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
-      </a>
-      <a class="ph-btn ph-btn--ghost ph-btn--lg" href="/how-it-works.html">How it works</a>
-    </div>
-
-    <h2 class="ph-h3" style="margin-top:52px">Where you may have been going</h2>
-    <div class="ph-prose ph-body" style="margin-top:12px">
-      <p>
-        <strong><a class="ph-inline-link" href="/how-it-works.html">How it works</a></strong>
-        — what Pharity does between a clinic and a licensed 503A compounding
-        pharmacy, start to finish.
-      </p>
-      <p>
-        <strong><a class="ph-inline-link" href="/for-clinics.html">For clinics</a></strong>
-        and
-        <strong><a class="ph-inline-link" href="/for-pharmacies.html">for pharmacies</a></strong>
-        — the same network described from each side.
-      </p>
-      <p>
-        <strong><a class="ph-inline-link" href="/request-access.html">Apply for access</a></strong>
-        — to connect a clinic, med spa or compounding pharmacy.
-      </p>
-      <p>
-        <strong><a class="ph-inline-link" href="/contact.html">Contact</a></strong>
-        — if you were looking for something specific and cannot find it, write to
-        <a class="ph-inline-link" href="mailto:hello@pharity.com">hello@pharity.com</a>
-        and a person will point you to it.
-      </p>
+    <div class="ph-grid ph-grid--3 ph-lead-gap">
+      <article class="ph-card" data-reveal>
+        <h2 class="ph-h4">Can a gym offer a peptide program?</h2>
+        <p class="ph-body ph-body--sm">A gym cannot prescribe or dispense, and no licence fixes that. Here is what a gym may lawfully do, who has to do the rest, and the structure that keeps the two apart.</p>
+        <a class="ph-arrow" href="/resources/can-a-gym-offer-a-peptide-program.html">Read
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+        </a>
+      </article>
+      <article class="ph-card" data-reveal>
+        <h2 class="ph-h4">Do you need a medical director to offer a wellness program?</h2>
+        <p class="ph-body ph-body--sm">A medical director solves a real problem for a clinic and the wrong problem for a gym. What the role actually does, when it is required, and what it cannot fix.</p>
+        <a class="ph-arrow" href="/resources/do-you-need-a-medical-director.html">Read
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+        </a>
+      </article>
+      <article class="ph-card" data-reveal>
+        <h2 class="ph-h4">Who can prescribe in a wellness program?</h2>
+        <p class="ph-body ph-body--sm">Prescribing authority is personal to a licensed clinician in the patient state. What that means for a gym, a med spa and a brand, and where the pharmacy fits.</p>
+        <a class="ph-arrow" href="/resources/who-can-prescribe-in-a-wellness-program.html">Read
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+        </a>
+      </article>
     </div>
   </div>
 </section>
-
 </main>
 
 <footer class="ph-footer">
