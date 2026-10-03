@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>For Brands | Pharity</title>
-<meta name="description" content="Run a prescription-grade program without becoming a medical practice. Licensed clinicians prescribe, licensed compounding pharmacies dispense, you keep your brand, your members and your pricing.">
+<meta name="description" content="Run a prescription-grade program without becoming a medical practice. Licensed medical providers prescribe, licensed compounding pharmacies dispense, you keep your brand, your members and your pricing.">
 <link rel="icon" href="assets/pharity-mark-gold.png">
 
 <!-- Canonical, social card and (on the home page) organization data.
@@ -338,25 +338,35 @@
     </div>
   </section>
 
-  <section class="ph-section">
+  <!-- Pricing reads as a slim white band rather than a full-height section.
+       Two reasons: it is the shortest block on the page and a 120px section
+       around four lines of copy left it floating, and .ph-band--paper is the
+       system's own white surface, so the hairlines above and below are drawn
+       by the band rules instead of by hand. The copy sits left and the CTA
+       right so the whole thing is one row deep on a laptop. -->
+  <section class="ph-section ph-section--sm ph-band--paper">
     <div class="ph-container">
-      <p class="ph-eyebrow" data-reveal>Pricing</p>
-      <h2 class="ph-h2" data-reveal style="margin-top:16px;max-width:22ch">
-        One onboarding fee, then a flat monthly.
-      </h2>
-      <p class="ph-lede" data-reveal style="margin-top:20px;max-width:52ch">
-        Tiered on active member seats, never on what gets prescribed.
-        <strong>No per-prescription and no per-consult fees, ever.</strong>
-      </p>
-      <p class="ph-body ph-body--sm" data-reveal style="margin-top:18px;max-width:52ch">
-        The onboarding fee covers the build: your branded portal, the integration, and launch
-        support. It is scoped on a call, so we quote after the conversation.
-      </p>
-      <div class="ph-btn-row" data-reveal style="margin-top:28px">
-        <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html?role=brand">
-          Apply as a brand
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
-        </a>
+      <div class="ph-split ph-split--copy-lead" style="align-items:center">
+        <div>
+          <p class="ph-eyebrow" data-reveal>Pricing</p>
+          <h2 class="ph-h2" data-reveal style="margin-top:14px;max-width:22ch">
+            One onboarding fee, then a flat monthly.
+          </h2>
+          <p class="ph-lede" data-reveal style="margin-top:16px;max-width:50ch">
+            Tiered on active member seats, never on what gets prescribed.
+            <strong>No per-prescription and no per-consult fees, ever.</strong>
+          </p>
+          <p class="ph-body ph-body--sm" data-reveal style="margin-top:14px;max-width:50ch">
+            The onboarding fee covers the build: your branded portal, the integration, and launch
+            support. It is scoped on a call, so we quote after the conversation.
+          </p>
+        </div>
+        <div class="ph-btn-row" data-reveal>
+          <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html?role=brand">
+            Apply as a brand
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+          </a>
+        </div>
       </div>
     </div>
   </section>
