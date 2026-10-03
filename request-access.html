@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Request access | Pharity</title>
-<meta name="description" content="Apply to connect your clinic, med spa or 503A/B compounding pharmacy to the Pharity network, or to start from zero with the launch team. We verify credentials and licensure before anything routes.">
+<meta name="description" content="Apply to connect your clinic, med spa or 503A/B compounding pharmacy to the Pharity network, or to run a program as a brand without prescribers on staff. We verify credentials and licensure before anything routes.">
 <link rel="icon" href="assets/pharity-mark-gold.png">
 
 <!-- Canonical, social card and (on the home page) organization data.
@@ -15,21 +15,21 @@
 <meta property="og:site_name" content="Pharity">
 <meta property="og:url" content="https://pharity.com/request-access.html">
 <meta property="og:title" content="Request access | Pharity">
-<meta property="og:description" content="Apply to connect your clinic, med spa or 503A/B compounding pharmacy to the Pharity network, or to start from zero with the launch team. We verify credentials and licensure before anything routes.">
+<meta property="og:description" content="Apply to connect your clinic, med spa or 503A/B compounding pharmacy to the Pharity network, or to run a program as a brand without prescribers on staff. We verify credentials and licensure before anything routes.">
 <meta property="og:image" content="https://pharity.com/assets/pharity-og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Pharity: the clean layer between your clinic and the pharmacy.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Request access | Pharity">
-<meta name="twitter:description" content="Apply to connect your clinic, med spa or 503A/B compounding pharmacy to the Pharity network, or to start from zero with the launch team. We verify credentials and licensure before anything routes.">
+<meta name="twitter:description" content="Apply to connect your clinic, med spa or 503A/B compounding pharmacy to the Pharity network, or to run a program as a brand without prescribers on staff. We verify credentials and licensure before anything routes.">
 <meta name="twitter:image" content="https://pharity.com/assets/pharity-og.png">
 
 <script>document.documentElement.classList.add('js')</script>
 <!-- The applying-as role, resolved before anything paints.
 
      CTAs across the site arrive here carrying it: ?role=pharmacy from both
-     exits on the pharmacy page, ?role=launch from the starting-from-zero
+     exits on the pharmacy page, ?role=brand from the brand
      bands. The form's middle section changes with it, so resolving the role
      in the head means the right block is the first one drawn instead of all
      four appearing and then collapsing to one.
@@ -42,7 +42,7 @@
     var role = 'clinic';
     try {
       var q = new URLSearchParams(location.search).get('role');
-      if (q === 'clinic' || q === 'pharmacy' || q === 'launch' || q === 'other') role = q;
+      if (q === 'clinic' || q === 'pharmacy' || q === 'brand' || q === 'other') role = q;
     } catch (e) {}
     document.documentElement.setAttribute('data-role', role);
   })();
@@ -63,6 +63,7 @@
       <a class="ph-nav__link" href="index.html">Home</a>
       <a class="ph-nav__link" href="for-clinics.html">For Clinics</a>
       <a class="ph-nav__link" href="for-pharmacies.html">For Pharmacies</a>
+      <a class="ph-nav__link" href="for-brands.html">For Brands</a>
       <a class="ph-nav__link" href="why-pharity.html">Why Pharity</a>
       <a class="ph-nav__link" href="pricing.html">Pricing</a>
     </nav>
@@ -80,6 +81,7 @@
             <a href="index.html">Home</a>
             <a href="for-clinics.html">For Clinics</a>
             <a href="for-pharmacies.html">For Pharmacies</a>
+            <a href="for-brands.html">For Brands</a>
             <a href="why-pharity.html">Why Pharity</a>
             <a href="pricing.html">Pricing</a>
             <hr>
@@ -185,7 +187,7 @@
             <select class="ph-select" id="role" name="role" required>
               <option value="clinic">A clinic or med spa</option>
               <option value="pharmacy">A 503A/B compounding pharmacy</option>
-              <option value="launch">Starting from zero (not open yet)</option>
+              <option value="brand">Brand or gym (no prescribers on staff)</option>
               <option value="other">Something else</option>
             </select>
           </div>
@@ -421,6 +423,7 @@
         <ul class="ph-footer__list">
           <li><a href="for-clinics.html">For Clinics</a></li>
           <li><a href="for-pharmacies.html">For Pharmacies</a></li>
+          <li><a href="for-brands.html">For Brands</a></li>
           <li><a href="why-pharity.html">Why Pharity</a></li>
           <li><a href="pricing.html">Pricing</a></li>
         </ul>

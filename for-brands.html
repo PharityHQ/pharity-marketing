@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>For Brands | Pharity</title>
+<meta name="description" content="Run a prescription-grade program without becoming a medical practice. Licensed clinicians prescribe, licensed compounding pharmacies dispense, you keep your brand, your members and your pricing.">
+<link rel="icon" href="assets/pharity-mark-gold.png">
+
+<!-- Canonical, social card and (on the home page) organization data.
+     og:image must be an ABSOLUTE url: crawlers fetch it without a base,
+     so a relative path silently yields a link preview with no image. -->
+<link rel="canonical" href="https://pharity.com/for-brands.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Pharity">
+<meta property="og:url" content="https://pharity.com/for-brands.html">
+<meta property="og:title" content="For Brands | Pharity">
+<meta property="og:description" content="Run a prescription-grade program without becoming a medical practice.">
+<meta property="og:image" content="https://pharity.com/assets/pharity-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Pharity: the clean layer between your clinic and the pharmacy.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="For Brands | Pharity">
+<meta name="twitter:description" content="Run a prescription-grade program without becoming a medical practice.">
+<meta name="twitter:image" content="https://pharity.com/assets/pharity-og.png">
+
+<script>document.documentElement.classList.add('js')</script>
+<link rel="stylesheet" href="assets/pharity-site.css">
+<style>
+/* ── Page-scoped only. Two things the shared shell does not carry:
+      a hairline spec list, and the mono settlement record.
+      Both are built from shell tokens: no new colors, no shadows.       */
+
+/* Hairline spec list: a gold dash marker instead of an icon, so the
+   block stays as quiet as the rules around it.
+   The marker is absolutely positioned rather than a grid/flex child: a row
+   holding <strong> plus a trailing text node would otherwise split into two
+   grid items and wrap to one word per line. */
+.pg-spec { border-top: 1px solid var(--line); }
+.pg-spec li {
+  position: relative;
+  padding: 13px 2px 13px 28px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: .9375rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.pg-spec li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 1.68em;
+  width: 12px; height: 1px;
+  background: var(--gold);
+}
+.pg-spec strong { color: var(--navy); font-weight: 600; }
+
+/* Hover: the shell's signature, fitted to a hairline row.
+
+   The li's BOX IS NOT TOUCHED. Its border-bottom is what draws the list's
+   hairlines, so any negative inline margin to make the fill bleed wider would
+   silently widen every rule in the resting state too: the fill and the rule
+   are the same box. So the fill spans exactly the hairline, which is what a
+   row highlight should do anyway.
+
+   A left bar is this page's own established idiom for "this row matters":
+   .pg-rec__r--key already marks the two load-bearing settlement rows with a
+   permanent 2px gold edge. Hover borrows it.
+
+   ::before is already the gold dash, so the growing edge is ::after, and the
+   dash moves right out of its way: rule at 0-2, dash at 14-26, text at 34.
+   Text indents 6px versus before; the hairlines do not move at all. */
+.pg-spec li {
+  padding-left: 34px;
+  transition: background-color 170ms var(--ease), color 170ms var(--ease);
+}
+.pg-spec li::before { left: 14px; }
+.pg-spec li::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--gold);
+  transform: scaleY(0);
+  transform-origin: 50% 0;
+  transition: transform 170ms var(--ease);
+  pointer-events: none;
+}
+/* color, not just the <strong>: on a lead-in row the strong is already navy,
+   so what actually lifts is the grey sentence after it. */
+.pg-spec li:hover {
+  background-color: var(--panel-a);
+  color: var(--navy);
+}
+.pg-spec li:hover::after { transform: scaleY(1); }
+@media (prefers-reduced-motion: reduce) {
+  .pg-spec li::after { transition: none; }
+}
+
+/* The settlement record answers too, but only as a tint: the two --key rows
+   carry a permanent gold edge that a hover edge would fight, and the block is
+   a document rather than a menu. */
+.pg-rec__r { transition: background-color 170ms var(--ease); }
+.pg-rec__body .pg-rec__r:hover { background-color: rgb(241 223 179 / .34); }
+.pg-rec__r--key:hover { background-color: rgb(241 223 179 / .52); }
+
+/* One list, two columns, read down the left then down the right. Rows align
+   across the columns so the hairlines stay on a single baseline grid. */
+.pg-spec--2col {
+  display: grid;
+  grid-template-rows: repeat(3, auto);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  column-gap: clamp(28px, 4vw, 56px);
+}
+@media (max-width: 760px) {
+  .pg-spec--2col { display: block; }
+}
+
+/* Mono settlement record. Amounts are deliberately absent: the point of
+   the block is where money lands, not how much. */
+.pg-rec {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-size: .8125rem;
+  line-height: 1.5;
+}
+.pg-rec__head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+  padding: 13px 20px;
+  background: var(--panel-a);
+  border-bottom: 1px solid var(--line);
+  font-family: var(--sans);
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--navy);
+}
+.pg-rec__tag {
+  flex: none;
+  padding: 4px 9px;
+  border: 1px solid var(--line-gold);
+  border-radius: var(--r-pill);
+  background: var(--gold-wash);
+  font-size: 11px; letter-spacing: .16em;
+  color: var(--navy);
+}
+.pg-rec__body { padding: 10px 20px 18px; }
+.pg-rec__r {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  gap: 8px 16px;
+  padding: 8px 0;
+}
+.pg-rec__k { color: var(--ink-3); }
+.pg-rec__v { color: var(--navy); }
+.pg-rec__n { display: block; color: var(--ink-3); }
+.pg-rec__sep { height: 1px; background: var(--line-soft); margin: 9px 0; border: 0; }
+
+/* The two rows that carry the whole argument get a gold edge. */
+.pg-rec__r--key {
+  position: relative;
+  margin-inline: -20px;
+  padding-inline: 20px;
+  background: rgb(241 223 179 / .30);
+}
+.pg-rec__r--key::before {
+  content: "";
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 2px; background: var(--gold);
+}
+.pg-rec__r--key .pg-rec__v { font-weight: 600; }
+/* The highlight bleeds to the card's side edges, so it must reach the bottom
+   edge too: otherwise it stops short against the body's padding. */
+.pg-rec__r--key:last-child { margin-bottom: -18px; padding-bottom: 18px; }
+
+@media (max-width: 520px) {
+  /* padding-block, never the `padding` shorthand: the shorthand would reset
+     padding-inline on the key rows while their -20px margin-inline survived,
+     hanging their text outside the card. */
+  .pg-rec { font-size: .75rem; }
+  .pg-rec__r { grid-template-columns: minmax(0, 1fr); gap: 2px; padding-block: 9px; }
+  .pg-rec__k { font-size: .95em; }
+  .pg-rec__body { padding-inline: 16px; }
+  .pg-rec__r--key { margin-inline: -16px; padding-inline: 16px; }
+}
+
+/* Two spec columns sit closer than the default grid gap: they read as one
+   table, not two cards. */
+.pg-specs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(28px, 4vw, 56px); }
+@media (max-width: 760px) { .pg-specs { grid-template-columns: minmax(0, 1fr); gap: 36px; } }
+</style>
+</head>
+<body>
+<header class="ph-nav">
+  <div class="ph-container ph-nav__inner">
+    <a class="ph-logo" href="index.html" aria-label="Pharity home">
+      <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+           width="868" height="200" decoding="async">
+    </a>
+
+    <nav class="ph-nav__links" aria-label="Primary">
+      <a class="ph-nav__link" href="index.html">Home</a>
+      <a class="ph-nav__link" href="for-clinics.html">For Clinics</a>
+      <a class="ph-nav__link" href="for-pharmacies.html">For Pharmacies</a>
+      <a class="ph-nav__link" href="for-brands.html" aria-current="page">For Brands</a>
+      <a class="ph-nav__link" href="why-pharity.html">Why Pharity</a>
+      <a class="ph-nav__link" href="pricing.html">Pricing</a>
+    </nav>
+
+    <div class="ph-nav__actions">
+      <a class="ph-nav__signin ph-wipe" href="sign-in.html">Sign in</a>
+      <a class="ph-btn ph-btn--gold ph-btn--sm" href="request-access.html">Apply for access</a>
+      <div class="ph-nav__mobile">
+        <details class="ph-nav__disclosure">
+          <summary class="ph-nav__burger" aria-label="Menu">
+            <svg class="ph-nav__bars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3.5 7h17M3.5 12h17M3.5 17h17"/></svg>
+            <svg class="ph-nav__x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </summary>
+          <div class="ph-nav__panel">
+            <a href="index.html">Home</a>
+            <a href="for-clinics.html">For Clinics</a>
+            <a href="for-pharmacies.html">For Pharmacies</a>
+            <a href="for-brands.html" aria-current="page">For Brands</a>
+            <a href="why-pharity.html">Why Pharity</a>
+            <a href="pricing.html">Pricing</a>
+            <hr>
+            <a href="contact.html">Contact</a>
+            <a href="sign-in.html">Sign in</a>
+            <a href="request-access.html">Apply for access</a>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="ph-section ph-hero">
+    <div class="ph-container">
+      <p class="ph-eyebrow" data-reveal>For Brands</p>
+      <h1 class="ph-h1" data-reveal style="max-width:20ch">
+        Add a prescription-grade program without <span class="ph-gold">becoming a medical practice.</span>
+      </h1>
+      <p class="ph-lede" data-reveal style="max-width:58ch">
+        Pharity provides the technology and the pharmacy routing behind cash-pay compounded therapy
+        programs. Licensed clinicians practicing within independently owned and operated
+        professional practices handle all clinical care, including evaluation and prescribing.
+        Licensed 503A and 503B compounding pharmacies handle all dispensing. You own your brand,
+        your members, and your member experience.
+      </p>
+      <div class="ph-btn-row" data-reveal style="margin-top:28px">
+        <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html?role=brand">
+          Apply as a brand
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+        </a>
+        <a class="ph-btn ph-btn--ghost ph-btn--lg" href="contact.html">Talk to us first</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ph-section">
+    <div class="ph-container">
+      <div class="ph-grid ph-grid--2">
+        <div data-reveal>
+          <p class="ph-eyebrow">What you own</p>
+          <ul class="ph-list" style="margin-top:14px">
+            <li>Your brand, your member relationships, and your program pricing</li>
+            <li>A branded acquisition page and member portal</li>
+            <li>Marketing assets and launch support</li>
+          </ul>
+        </div>
+        <div data-reveal>
+          <p class="ph-eyebrow">What we handle</p>
+          <ul class="ph-list" style="margin-top:14px">
+            <li>The portal, the ordering infrastructure, and the integrations</li>
+            <li>Routing each prescription to a licensed compounding pharmacy</li>
+            <li>Clinician coordination through our telehealth partners</li>
+            <li>Support and reporting</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ph-section ph-band--navy" style="--band-pos:50% 46%">
+    <div class="ph-container">
+      <p class="ph-eyebrow" data-reveal>The line, drawn clearly</p>
+      <h2 class="ph-h2" data-reveal style="margin-top:16px;color:#fff;max-width:24ch">
+        What your business <span class="ph-gold">never does.</span>
+      </h2>
+      <p class="ph-lede" data-reveal style="margin-top:20px;max-width:52ch">
+        These are not policies you agree to follow. They are limits the platform enforces, so the
+        clinical decision stays with the clinician and the dispensing stays with the pharmacy.
+      </p>
+      <div class="ph-grid ph-grid--2" style="margin-top:28px">
+        <div class="ph-card" data-reveal><h3 class="ph-h3">Diagnose members</h3></div>
+        <div class="ph-card" data-reveal><h3 class="ph-h3">Prescribe medication</h3></div>
+        <div class="ph-card" data-reveal><h3 class="ph-h3">Decide which preparation a member receives</h3></div>
+        <div class="ph-card" data-reveal><h3 class="ph-h3">Dispense or handle medication</h3></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ph-section">
+    <div class="ph-container">
+      <p class="ph-eyebrow" data-reveal>How it works</p>
+      <div class="ph-grid ph-grid--2" style="margin-top:20px">
+        <div class="ph-card" data-reveal>
+          <span class="ph-card__step">01</span>
+          <h3 class="ph-h3">You market the program</h3>
+          <p class="ph-body ph-body--sm">To your members and to the public, in your own brand and at your own price.</p>
+        </div>
+        <div class="ph-card" data-reveal>
+          <span class="ph-card__step">02</span>
+          <h3 class="ph-h3">A member completes a clinical intake</h3>
+          <p class="ph-body ph-body--sm">On your branded portal, with a licensed clinician.</p>
+        </div>
+        <div class="ph-card" data-reveal>
+          <span class="ph-card__step">03</span>
+          <h3 class="ph-h3">The clinician independently decides</h3>
+          <p class="ph-body ph-body--sm">Whether to prescribe, and what. That decision is theirs alone.</p>
+        </div>
+        <div class="ph-card" data-reveal>
+          <span class="ph-card__step">04</span>
+          <h3 class="ph-h3">We route it, the pharmacy ships it</h3>
+          <p class="ph-body ph-body--sm">To a licensed compounding pharmacy holding a licence in your member's state, direct to their door.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ph-section">
+    <div class="ph-container">
+      <p class="ph-eyebrow" data-reveal>Pricing</p>
+      <h2 class="ph-h2" data-reveal style="margin-top:16px;max-width:22ch">
+        One onboarding fee, then a flat monthly.
+      </h2>
+      <p class="ph-lede" data-reveal style="margin-top:20px;max-width:52ch">
+        Tiered on active member seats, never on what gets prescribed.
+        <strong>No per-prescription and no per-consult fees, ever.</strong>
+      </p>
+      <p class="ph-body ph-body--sm" data-reveal style="margin-top:18px;max-width:52ch">
+        The onboarding fee covers the build: your branded portal, the integration, and launch
+        support. It is scoped on a call, so we quote after the conversation.
+      </p>
+      <div class="ph-btn-row" data-reveal style="margin-top:28px">
+        <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html?role=brand">
+          Apply as a brand
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h14"/><path d="m13 6.5 5.5 5.5L13 17.5"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ph-section">
+    <div class="ph-container">
+      <p class="ph-body ph-body--sm" style="max-width:68ch;color:var(--ink-3)">
+        Pharity Health LLC does not provide medical or pharmacy services, does not employ or
+        contract with prescribing clinicians, and does not influence clinical decisions. All
+        professional medical services are provided by licensed clinicians practicing within
+        independently owned and operated professional practices. All medications are dispensed by
+        licensed compounding pharmacies.
+      </p>
+      <p class="ph-body ph-body--sm" style="max-width:68ch;color:var(--ink-3);margin-top:14px">
+        Payment does not guarantee the prescribing or dispensing of any medication. A valid,
+        patient-specific prescription from a licensed clinician is required.
+      </p>
+      <p class="ph-body ph-body--sm" style="max-width:68ch;color:var(--ink-3);margin-top:14px">
+        Compounded preparations are not FDA-approved and have not been reviewed by FDA for safety,
+        effectiveness, or quality.
+      </p>
+      <p class="ph-body ph-body--sm" style="max-width:68ch;color:var(--ink-3);margin-top:14px">
+        Programs are cash-pay only and are not billed to any insurance plan or government health
+        care program.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+<footer class="ph-footer">
+  <div class="ph-container">
+    <div class="ph-footer__top">
+      <div>
+        <a class="ph-logo" href="index.html" aria-label="Pharity home">
+          <img class="ph-logo__img" src="assets/pharity-logo-horizontal.png" alt=""
+               width="868" height="200" decoding="async">
+        </a>
+        <p class="ph-footer__blurb">
+          One coordinated layer between wellness clinics and licensed 503A compounding
+          pharmacies.
+        </p>
+        <p class="ph-footer__blurb ph-footer__contact">
+          <a href="mailto:hello@pharity.com">hello@pharity.com</a>
+        </p>
+      </div>
+      <div>
+        <p class="ph-footer__h">Platform</p>
+        <ul class="ph-footer__list">
+          <li><a href="for-clinics.html">For Clinics</a></li>
+          <li><a href="for-pharmacies.html">For Pharmacies</a></li>
+          <li><a href="for-brands.html" aria-current="page">For Brands</a></li>
+          <li><a href="why-pharity.html">Why Pharity</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Company</p>
+        <ul class="ph-footer__list">
+          <li><a href="request-access.html">Apply for access</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="sign-in.html">Sign in</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ph-footer__h">Legal</p>
+        <ul class="ph-footer__list">
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ph-footer__legal">
+      <p class="ph-disclosure"><strong>Cash-pay only.</strong> Pharity does not bill or accept insurance, Medicare, Medicaid, or Tricare.</p>
+      <p class="ph-disclosure"><strong>Prescriber-directed.</strong> Pharity does not prescribe, dispense, or practice medicine, and does not provide medical advice. All prescriptions are written by independently licensed prescribers who retain clinical responsibility. All medications are compounded and dispensed by independently licensed 503A pharmacies, which act as the merchant of record. Telehealth access is an optional layer and is not required to use Pharity.</p>
+      <p class="ph-disclosure"><strong>Sample data.</strong> The settlement record shown on this page is illustrative. It is not a real patient, prescriber, clinic, pharmacy or order.</p>
+    </div>
+
+    <div class="ph-footer__base">
+      <!-- Entity of record, published so a partner asked to sign a BAA can verify
+           the counterparty in seconds instead of opening a support ticket. Both
+           values are confirmed against the Texas Comptroller's live record. This
+           block is byte-identical on every page that carries it; if you edit it,
+           edit it everywhere in the same change. -->
+      <span>© 2026 Pharity Health LLC. All rights reserved. Pharity Health LLC is a Texas limited liability company, Texas Secretary of State file number 0806624082.</span>
+      <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/pharity-site.js"></script>
+</body>
+</html>
