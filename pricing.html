@@ -105,6 +105,81 @@
   ]
 }
 </script>
+<style>
+/* ── Revenue calculator ───────────────────────────────────────────────────
+   Progressive enhancement: the markup ships with a worked example already in
+   it, so with JS off the reader still sees a complete, correct sum rather than
+   empty boxes. The script only keeps it in step with the sliders.
+   Range inputs carry an explicit 16px font-size: the mobile gate measures
+   computed font-size on every input that is not a checkbox, radio, hidden,
+   submit or button, and under 16px iOS zooms on focus and does not zoom back. */
+.pr-calc {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: clamp(20px, 3vw, 40px);
+  margin-top: var(--s5);
+  padding: clamp(22px, 3vw, 34px);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+@media (max-width: 760px) { .pr-calc { grid-template-columns: 1fr; } }
+
+.pr-calc__row { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; margin-bottom: 26px; }
+.pr-calc__row:last-child { margin-bottom: 0; }
+.pr-calc__label { font-size: .9375rem; color: var(--ink-2); }
+.pr-calc__out {
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+  font-size: .9375rem; font-weight: 600; color: var(--navy);
+}
+.pr-calc__range {
+  grid-column: 1 / -1;
+  width: 100%; height: 30px; margin: 0;
+  font-size: 16px;
+  background: transparent; -webkit-appearance: none; appearance: none;
+}
+.pr-calc__range::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 999px; background: var(--panel-b);
+}
+.pr-calc__range::-moz-range-track { height: 4px; border-radius: 999px; background: var(--panel-b); }
+.pr-calc__range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 22px; height: 22px; margin-top: -9px;
+  border-radius: 999px; background: var(--gold);
+  border: 2px solid var(--paper);
+}
+.pr-calc__range::-moz-range-thumb {
+  width: 22px; height: 22px; border-radius: 999px;
+  background: var(--gold); border: 2px solid var(--paper);
+}
+.pr-calc__range:focus-visible { outline: 2px solid var(--gold-ink); outline-offset: 4px; }
+
+.pr-calc__result {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(18px, 2.4vw, 26px);
+  background: var(--warm-panel);
+  border: 1px solid var(--line-gold);
+  border-radius: var(--r-md);
+}
+.pr-calc__lines { margin: 0 0 16px; }
+.pr-calc__lines div {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 7px 0; border-bottom: 1px solid var(--line-soft);
+  font-size: .875rem;
+}
+.pr-calc__lines dt { color: var(--ink-3); }
+.pr-calc__lines dd {
+  margin: 0; color: var(--navy); font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.pr-calc__net { padding-top: 6px; }
+.pr-calc__big {
+  margin: 6px 0 2px;
+  font-family: var(--serif); font-size: clamp(2rem, 1.3rem + 2.2vw, 2.75rem);
+  line-height: 1.05; color: var(--navy); font-variant-numeric: tabular-nums;
+}
+.pr-calc__year { margin: 0; font-size: .875rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+</style>
 </head>
 <body>
 <a class="ph-skip" href="#main">Skip to content</a>
@@ -622,12 +697,11 @@
         </h2>
         <p class="ph-lede" data-reveal style="margin-top:18px">
           The clinic's card on file is charged when the prescriber signs. What
-          the pharmacy charges and what Pharity charges are separate lines on
-          the same record: Preparation $210.00, Pharity platform fee $21.00,
-          Total $231.00. The fee is ten percent of the pharmacy's listed price
-          and it is added on top, so the pharmacy nets its list price in full.
-          There is no per-order minimum, no per-order cap and no monthly
-          minimum, at any volume.
+          the pharmacy charges and what Pharity charges are always two separate
+          lines on the same record, never folded into one number. The fee is ten
+          percent of the pharmacy's listed price and it is added on top, so the
+          pharmacy nets its list price in full. There is no per-order minimum,
+          no per-order cap and no monthly minimum, at any volume.
         </p>
       </div>
       <div class="ph-grid ph-grid--2">
@@ -663,6 +737,74 @@
   </div>
 </section>
 
+
+<!-- ═══ WHAT IT COULD ADD ════════════════════════════════════════════════
+     A calculator, not a projection. Every input is the reader's own number and
+     the output is arithmetic on those numbers -- there is no assumed patient
+     count, no assumed price and no market average anywhere in it, because we
+     do not have defensible figures for any of those and a seeded "typical
+     practice" is a forecast wearing a calculator's clothes.
+
+     It also happens to be the clearest way to show the fee: the reader watches
+     their own number move and sees that our line is ten percent of the
+     pharmacy's price and nothing else. -->
+<section class="ph-section ph-band--warm">
+  <div class="ph-container ph-container--tight">
+    <p class="ph-eyebrow" data-reveal>Run your own numbers</p>
+    <h2 class="ph-h2" data-reveal style="margin-top:16px;max-width:24ch">
+      What a program could <span class="ph-gold">add to your practice.</span>
+    </h2>
+    <p class="ph-lede" data-reveal style="margin-top:16px;max-width:54ch">
+      Your numbers, your arithmetic. We do not set your patient price and we are
+      not forecasting your demand. Move the sliders and the maths follows.
+    </p>
+
+    <div class="pr-calc" data-reveal>
+      <div class="pr-calc__controls">
+        <label class="pr-calc__row" for="calc-patients">
+          <span class="pr-calc__label">Patients on a program each month</span>
+          <output class="pr-calc__out" id="out-patients" for="calc-patients">40</output>
+          <input class="pr-calc__range" type="range" id="calc-patients"
+                 min="0" max="200" step="5" value="40">
+        </label>
+
+        <label class="pr-calc__row" for="calc-charge">
+          <span class="pr-calc__label">What you charge each, per month</span>
+          <output class="pr-calc__out" id="out-charge" for="calc-charge">$300</output>
+          <input class="pr-calc__range" type="range" id="calc-charge"
+                 min="0" max="900" step="10" value="300">
+        </label>
+
+        <label class="pr-calc__row" for="calc-cost">
+          <span class="pr-calc__label">The pharmacy's listed price</span>
+          <output class="pr-calc__out" id="out-cost" for="calc-cost">$150</output>
+          <input class="pr-calc__range" type="range" id="calc-cost"
+                 min="0" max="600" step="10" value="150">
+        </label>
+      </div>
+
+      <div class="pr-calc__result">
+        <dl class="pr-calc__lines">
+          <div><dt>Your patients pay</dt><dd id="calc-gross">$12,000</dd></div>
+          <div><dt>You pay the pharmacy</dt><dd id="calc-pharm">$6,000</dd></div>
+          <div><dt>Pharity, 10% of that</dt><dd id="calc-fee">$600</dd></div>
+        </dl>
+        <div class="pr-calc__net">
+          <p class="ph-eyebrow">Your practice keeps, per month</p>
+          <p class="pr-calc__big" id="calc-net">$5,400</p>
+          <p class="pr-calc__year" id="calc-year">$64,800 a year</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="ph-disclosure" data-reveal style="margin-top:20px;max-width:70ch">
+      Illustrative arithmetic on figures you entered. It is not a forecast, not a
+      guarantee of revenue, and takes no account of your clinician time, staffing
+      or any other cost of running the program. Pharity does not set your patient
+      price. Payment never guarantees that any medication will be prescribed.
+    </p>
+  </div>
+</section>
 
 <!-- ═══ FAQ ══════════════════════════════════════════════════════════════ -->
 <section class="ph-section ph-band--light">
@@ -884,5 +1026,34 @@
 </footer>
 
 <script src="assets/pharity-site.js"></script>
+<script>
+/* Keeps the worked example in the markup in step with the sliders. The sum is
+   deliberately trivial and all of it is the reader's own input: nothing here
+   assumes a patient count, a price or a margin. Pharity's line is ten percent
+   of the pharmacy's listed price, which is the same arithmetic the platform
+   performs, so the number a reader sees here is the number they would be
+   charged. */
+(function () {
+  var f = ['patients', 'charge', 'cost'].map(function (k) { return document.getElementById('calc-' + k); });
+  if (f.some(function (el) { return !el; })) return;
+  var money = function (n) { return '$' + Math.round(n).toLocaleString('en-US'); };
+  function render() {
+    var n = +f[0].value, charge = +f[1].value, cost = +f[2].value;
+    var gross = n * charge, pharm = n * cost, fee = pharm * 0.10;
+    document.getElementById('out-patients').textContent = n;
+    document.getElementById('out-charge').textContent = money(charge);
+    document.getElementById('out-cost').textContent = money(cost);
+    document.getElementById('calc-gross').textContent = money(gross);
+    document.getElementById('calc-pharm').textContent = money(pharm);
+    document.getElementById('calc-fee').textContent = money(fee);
+    var net = gross - pharm - fee;
+    document.getElementById('calc-net').textContent = money(net);
+    document.getElementById('calc-year').textContent = money(net * 12) + ' a year';
+  }
+  f.forEach(function (el) { el.addEventListener('input', render); });
+  render();
+})();
+</script>
+
 </body>
 </html>

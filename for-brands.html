@@ -28,6 +28,45 @@
 <script>document.documentElement.classList.add('js')</script>
 <link rel="stylesheet" href="assets/pharity-site.css">
 <style>
+/* Hero photograph. for-brands was the only one of the three audience pages
+   with no imagery at all, which left it reading as a text page beside two
+   that do not. Treatment is lifted from .ph-prhero (pharity-pricing.css) so
+   the two heroes are visibly the same device; the gradient is re-weighted
+   left-to-right because this copy is left aligned and the pricing hero's is
+   centered. */
+.pg-hero { position: relative; isolation: isolate; overflow: hidden; }
+.pg-hero__img {
+  position: absolute; inset: 0; z-index: -2;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: 68% 58%;
+  pointer-events: none;
+}
+.pg-hero::after {
+  content: "";
+  position: absolute; inset: 0; z-index: -1;
+  background:
+    linear-gradient(100deg,
+      rgb(253 248 234 / .96)  0%,
+      rgb(253 248 234 / .90) 38%,
+      rgb(253 248 234 / .62) 68%,
+      rgb(250 246 236 / .44) 100%),
+    linear-gradient(180deg,
+      rgb(255 255 255 / .34) 0%,
+      transparent 42%,
+      rgb(253 248 234 / .72) 100%);
+}
+@media (max-width: 760px) {
+  /* On one column the copy spans the full width, so the wash has to be even
+     rather than weighted to one side. */
+  .pg-hero::after {
+    background: linear-gradient(180deg,
+      rgb(253 248 234 / .93) 0%,
+      rgb(253 248 234 / .88) 60%,
+      rgb(253 248 234 / .96) 100%);
+  }
+}
+
 /* ── Page-scoped only. Two things the shared shell does not carry:
       a hairline spec list, and the mono settlement record.
       Both are built from shell tokens: no new colors, no shadows.       */
@@ -242,18 +281,18 @@
 
 <main id="main">
 
-  <section class="ph-section ph-hero">
+  <section class="ph-section ph-hero pg-hero">
+    <img class="pg-hero__img" src="assets/pricing-gym-bg.png" alt="" aria-hidden="true"
+         decoding="async" fetchpriority="high">
     <div class="ph-container">
       <p class="ph-eyebrow" data-reveal>For Brands</p>
       <h1 class="ph-h1" data-reveal style="max-width:20ch">
         Add a prescription-grade program without <span class="ph-gold">becoming a medical practice.</span>
       </h1>
-      <p class="ph-lede" data-reveal style="max-width:58ch">
-        Pharity provides the technology and the pharmacy routing behind cash-pay compounded therapy
-        programs. Licensed clinicians practicing within independently owned and operated
-        professional practices handle all clinical care, including evaluation and prescribing.
-        Licensed 503A and 503B compounding pharmacies handle all dispensing. You own your brand,
-        your members, and your member experience.
+      <p class="ph-lede" data-reveal style="max-width:54ch;margin-top:20px">
+        Peptide therapy, medical weight management and hormone therapy for your members.
+        Licensed medical providers evaluate and prescribe, licensed 503A and 503B compounding
+        pharmacies dispense, and you keep your brand, your members and your pricing.
       </p>
       <div class="ph-btn-row" data-reveal style="margin-top:28px">
         <a class="ph-btn ph-btn--gold ph-btn--lg" href="request-access.html?role=brand">
