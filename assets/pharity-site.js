@@ -1177,7 +1177,7 @@
      Still overridable via window.PHARITY_API_BASE, so pointing this at
      app.pharity.com once that record exists stays a one-line change. */
   var PHARITY_API_BASE = window.PHARITY_API_BASE ||
-    'https://pharity-ioen5mo52q-uc.a.run.app';
+    'https://app.pharity.com';
 
   /* The app's lead endpoint. Not the live destination yet — kept named here
      so switching back stays the one-line edit documented above.
@@ -1197,8 +1197,12 @@
     String(PHARITY_API_BASE).replace(/\/+$/, '') + '/api/leads';
 
   /* ===================== THE ONE LINE ===================================== */
+  /* Switched to the app 2026-10-16: app.pharity.com resolves and serves, and
+     MARKETING_ORIGINS on the deployment now allows https://pharity.com and
+     https://www.pharity.com (preflight verified: allow-origin reflected for
+     pharity.com, absent for any other origin). Leads land in Admin > Leads. */
   var LEAD_DESTINATION = window.PHARITY_LEAD_DESTINATION ||
-    'https://formspree.io/f/xeaqpdll';
+    PHARITY_APP_LEAD_ENDPOINT;
   /* ======================================================================== */
 
   /* The marker that says "nobody has configured this yet". Kept as its own
