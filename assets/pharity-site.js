@@ -1307,6 +1307,12 @@
     }
     out.sourcePath = location.pathname + location.search;
 
+    /* The page says "brand" (it drives which section shows), the app's lead
+       vocabulary says "launch" (brands and gyms are scoped on a call). The app
+       answered "Select who you are applying as" to role=brand, so every brand
+       enquiry failed. Translate at the one point the payload is built. */
+    if (out.role === 'brand') out.role = 'launch';
+
     /* ── Make the email READABLE, not a field dump ────────────────────────
        These three keys are Formspree conventions and are ignored by our own
        /api/leads (it reads named fields, so unknown keys pass through
